@@ -19,6 +19,9 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
       'hsl(346, 87%, 43%)', // Pink
       'hsl(32, 98%, 56%)',  // Orange
     ];
+
+    // Calculate total spend for percentage calculation
+    const totalSpend = data.reduce((sum, row) => sum + row.spend, 0);
     
     return categories.map((category, index) => {
       const spendByCategory = data.reduce((acc, row) => {
@@ -31,7 +34,11 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
       }, {} as Record<string, number>);
 
       const chartData = Object.entries(spendByCategory)
-        .map(([name, spend]) => ({ name, spend }))
+        .map(([name, spend]) => ({ 
+          name, 
+          spend,
+          percentage: totalSpend > 0 ? (spend / totalSpend) * 100 : 0
+        }))
         .sort((a, b) => b.spend - a.spend)
         .slice(0, 10); // Top 10 items
 
@@ -42,6 +49,10 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
       };
     });
   }, [data]);
+
+  const formatPercentage = (percentage: number) => {
+    return `${percentage.toFixed(1)}%`;
+  };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -57,14 +68,14 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
         <h2 className="text-3xl font-light text-foreground bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
           Category Performance
         </h2>
-        <p className="text-muted-foreground mt-2">Breakdown of ad spend across key categories</p>
+        <p className="text-muted-foreground mt-2">Percentage breakdown of ad spend across key categories</p>
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {categoryData.map((category, index) => {
           const chartConfig = {
-            spend: {
-              label: "Spend",
+            percentage: {
+              label: "Percentage",
               color: category.color,
             },
           };
@@ -97,17 +108,21 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
                         />
                         <YAxis 
                           tick={{ fontSize: 12, fill: 'currentColor' }}
-                          tickFormatter={formatCurrency}
+                          tickFormatter={formatPercentage}
                         />
                         <ChartTooltip
                           content={
                             <ChartTooltipContent
-                              formatter={(value) => [formatCurrency(Number(value)), "Spend"]}
+                              formatter={(value, name, props) => [
+                                formatPercentage(Number(value)), 
+                                "Percentage",
+                                formatCurrency(props.payload.spend)
+                              ]}
                             />
                           }
                         />
                         <Bar 
-                          dataKey="spend" 
+                          dataKey="percentage" 
                           fill={category.color}
                           radius={[6, 6, 0, 0]}
                           className="hover:opacity-80 transition-opacity"
