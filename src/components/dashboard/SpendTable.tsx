@@ -44,22 +44,22 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
   const videoUrl = getEmbedUrl('https://drive.google.com/file/d/1PiCiQio-fDWvT-R53SjxZF-kZ7QPvpD9/view?usp=sharing');
 
   return (
-    <Card className="shadow-lg border-0 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20">
-      <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-t-lg">
-        <CardTitle className="text-xl font-semibold flex items-center gap-2">
-          <div className="w-2 h-2 bg-white rounded-full"></div>
+    <Card className="shadow-lg border-0 bg-gradient-to-br from-stone-50 to-neutral-50 dark:from-stone-950/20 dark:to-neutral-950/20">
+      <CardHeader className="bg-gradient-to-r from-stone-200 to-stone-300 dark:from-stone-800 dark:to-stone-700 text-stone-800 dark:text-stone-200 rounded-t-lg py-3">
+        <CardTitle className="text-lg font-medium flex items-center gap-2">
+          <div className="w-2 h-2 bg-stone-600 dark:bg-stone-300 rounded-full"></div>
           Top Ad Spend by Shoot
         </CardTitle>
       </CardHeader>
       <CardContent className="p-0">
-        <ScrollArea className="h-80">
+        <ScrollArea className="h-96">
           <div className="rounded-b-lg border-0">
             <Table>
-              <TableHeader className="sticky top-0 bg-white/80 backdrop-blur-sm dark:bg-gray-900/80">
-                <TableRow className="border-b border-blue-200 dark:border-blue-800">
-                  <TableHead className="font-semibold text-blue-900 dark:text-blue-100">Shoot</TableHead>
-                  <TableHead className="font-semibold text-blue-900 dark:text-blue-100 w-48">Video</TableHead>
-                  <TableHead className="text-right font-semibold text-blue-900 dark:text-blue-100">Percentage</TableHead>
+              <TableHeader className="sticky top-0 bg-white/80 backdrop-blur-sm dark:bg-stone-900/80">
+                <TableRow className="border-b border-stone-200 dark:border-stone-800">
+                  <TableHead className="font-semibold text-stone-800 dark:text-stone-200">Shoot</TableHead>
+                  <TableHead className="font-semibold text-stone-800 dark:text-stone-200 w-48">Video</TableHead>
+                  <TableHead className="text-right font-semibold text-stone-800 dark:text-stone-200">Percentage</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -67,11 +67,11 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
                   <TableRow 
                     key={item.shootName}
                     className={`
-                      hover:bg-blue-100/50 dark:hover:bg-blue-900/20 transition-colors
-                      ${index < 10 ? 'bg-white dark:bg-gray-900' : 'bg-gray-50/50 dark:bg-gray-800/50'}
-                      ${index === 0 ? 'bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20' : ''}
-                      ${index === 1 ? 'bg-gradient-to-r from-gray-50 to-slate-50 dark:from-gray-800/50 dark:to-slate-800/50' : ''}
-                      ${index === 2 ? 'bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20' : ''}
+                      hover:bg-stone-100/50 dark:hover:bg-stone-800/20 transition-colors
+                      ${index < 10 ? 'bg-white dark:bg-stone-900' : 'bg-stone-50/50 dark:bg-stone-800/50'}
+                      ${index === 0 ? 'bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20' : ''}
+                      ${index === 1 ? 'bg-gradient-to-r from-stone-50 to-neutral-50 dark:from-stone-800/50 dark:to-neutral-800/50' : ''}
+                      ${index === 2 ? 'bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20' : ''}
                     `}
                   >
                     <TableCell className="font-medium py-4 px-6">
@@ -79,15 +79,15 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
                         {index < 3 && (
                           <div className={`
                             w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white
-                            ${index === 0 ? 'bg-gradient-to-r from-yellow-400 to-amber-500' : ''}
-                            ${index === 1 ? 'bg-gradient-to-r from-gray-400 to-slate-500' : ''}
-                            ${index === 2 ? 'bg-gradient-to-r from-orange-400 to-red-500' : ''}
+                            ${index === 0 ? 'bg-gradient-to-r from-amber-500 to-yellow-500' : ''}
+                            ${index === 1 ? 'bg-gradient-to-r from-stone-400 to-neutral-500' : ''}
+                            ${index === 2 ? 'bg-gradient-to-r from-orange-400 to-amber-500' : ''}
                           `}>
                             {index + 1}
                           </div>
                         )}
                         {index >= 3 && (
-                          <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-800 flex items-center justify-center text-xs font-bold text-blue-600 dark:text-blue-300">
+                          <div className="w-6 h-6 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-xs font-bold text-stone-600 dark:text-stone-300">
                             {index + 1}
                           </div>
                         )}
@@ -106,10 +106,10 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
                     </TableCell>
                     <TableCell className="text-right font-mono font-semibold text-lg py-4 px-6">
                       <span className={`
-                        ${index === 0 ? 'text-yellow-600 dark:text-yellow-400' : ''}
-                        ${index === 1 ? 'text-gray-600 dark:text-gray-400' : ''}
+                        ${index === 0 ? 'text-amber-600 dark:text-amber-400' : ''}
+                        ${index === 1 ? 'text-stone-600 dark:text-stone-400' : ''}
                         ${index === 2 ? 'text-orange-600 dark:text-orange-400' : ''}
-                        ${index >= 3 ? 'text-blue-600 dark:text-blue-400' : ''}
+                        ${index >= 3 ? 'text-stone-600 dark:text-stone-400' : ''}
                       `}>
                         {formatPercentage(item.percentage)}
                       </span>
@@ -118,7 +118,7 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
                 ))}
                 {aggregatedData.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={3} className="text-center text-muted-foreground py-8">
+                    <TableCell colSpan={3} className="text-center text-stone-500 dark:text-stone-400 py-8">
                       No data available
                     </TableCell>
                   </TableRow>

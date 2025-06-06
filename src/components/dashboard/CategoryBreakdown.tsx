@@ -11,13 +11,12 @@ interface CategoryBreakdownProps {
 
 export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) => {
   const categoryData = useMemo(() => {
-    const categories = ['season', 'production_type', 'ad_unique', 'copy_hook', 'visual_hook'] as const;
+    const categories = ['season', 'production_type', 'copy_hook', 'visual_hook'] as const;
     const categoryColors = [
-      'hsl(220, 98%, 61%)', // Blue
-      'hsl(142, 76%, 36%)', // Green  
-      'hsl(262, 83%, 58%)', // Purple
-      'hsl(346, 87%, 43%)', // Pink
-      'hsl(32, 98%, 56%)',  // Orange
+      'hsl(25, 15%, 45%)',   // Warm stone
+      'hsl(35, 20%, 50%)',   // Neutral brown
+      'hsl(15, 25%, 55%)',   // Warm taupe
+      'hsl(45, 18%, 48%)',   // Muted gold
     ];
 
     // Calculate total spend for percentage calculation
@@ -57,10 +56,10 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-3xl font-light text-foreground bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+        <h2 className="text-3xl font-light text-stone-800 dark:text-stone-200">
           Category Performance
         </h2>
-        <p className="text-muted-foreground mt-2">Percentage breakdown of ad spend across key categories</p>
+        <p className="text-stone-600 dark:text-stone-400 mt-2">Percentage breakdown of ad spend across key categories</p>
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -75,9 +74,9 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
           return (
             <Card 
               key={category.category} 
-              className="shadow-lg border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 hover:shadow-xl transition-all duration-300"
+              className="shadow-lg border-0 bg-gradient-to-br from-white to-stone-50 dark:from-stone-900 dark:to-stone-800 hover:shadow-xl transition-all duration-300"
             >
-              <CardHeader className="bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-700 border-b border-gray-200 dark:border-gray-600">
+              <CardHeader className="bg-gradient-to-r from-stone-50 to-white dark:from-stone-800 dark:to-stone-700 border-b border-stone-200 dark:border-stone-600">
                 <CardTitle className="text-lg font-semibold flex items-center gap-2">
                   <div 
                     className="w-3 h-3 rounded-full" 
@@ -122,10 +121,10 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
                     </ResponsiveContainer>
                   </ChartContainer>
                 ) : (
-                  <div className="h-80 flex items-center justify-center text-muted-foreground">
+                  <div className="h-80 flex items-center justify-center text-stone-500 dark:text-stone-400">
                     <div className="text-center">
-                      <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-full mx-auto mb-3 flex items-center justify-center">
-                        <div className="w-6 h-6 bg-gray-400 dark:bg-gray-500 rounded"></div>
+                      <div className="w-12 h-12 bg-stone-200 dark:bg-stone-700 rounded-full mx-auto mb-3 flex items-center justify-center">
+                        <div className="w-6 h-6 bg-stone-400 dark:bg-stone-500 rounded"></div>
                       </div>
                       No data available
                     </div>
