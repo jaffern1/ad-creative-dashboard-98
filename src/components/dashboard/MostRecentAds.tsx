@@ -1,3 +1,4 @@
+
 import React, { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -57,46 +58,46 @@ export const MostRecentAds: React.FC<MostRecentAdsProps> = ({ data }) => {
   };
 
   return (
-    <Card className="shadow-lg border-0 bg-gradient-to-br from-stone-50 to-neutral-50 dark:from-stone-950/20 dark:to-neutral-950/20">
-      <CardHeader className="bg-gradient-to-r from-stone-200 to-stone-300 dark:from-stone-800 dark:to-stone-700 text-stone-800 dark:text-stone-200 rounded-t-lg">
-        <CardTitle className="text-xl font-semibold flex items-center gap-2">
-          <Calendar className="h-5 w-5" />
+    <Card className="shadow-lg border-0 bg-gradient-to-br from-card/80 to-secondary/50 backdrop-blur-sm">
+      <CardHeader className="bg-gradient-to-r from-primary/10 to-secondary/20 rounded-t-lg py-2">
+        <CardTitle className="text-base font-medium flex items-center gap-2 text-foreground">
+          <Calendar className="h-4 w-4 text-primary" />
           Most Recent Ads
         </CardTitle>
       </CardHeader>
       <CardContent className="p-0">
-        <ScrollArea className="h-80">
+        <ScrollArea className="h-[500px]">
           <div className="rounded-b-lg border-0">
             <Table>
-              <TableHeader className="sticky top-0 bg-white/80 backdrop-blur-sm dark:bg-stone-900/80">
-                <TableRow className="border-b border-stone-200 dark:border-stone-800">
-                  <TableHead className="font-semibold text-stone-800 dark:text-stone-200">Ad Name</TableHead>
-                  <TableHead className="font-semibold text-stone-800 dark:text-stone-200">Launch Date</TableHead>
-                  <TableHead className="font-semibold text-stone-800 dark:text-stone-200">Campaign</TableHead>
-                  <TableHead className="font-semibold text-stone-800 dark:text-stone-200">Country</TableHead>
+              <TableHeader className="sticky top-0 bg-card/90 backdrop-blur-sm">
+                <TableRow className="border-b border-border/50">
+                  <TableHead className="font-semibold text-foreground text-sm">Ad Name</TableHead>
+                  <TableHead className="font-semibold text-foreground text-sm">Launch Date</TableHead>
+                  <TableHead className="font-semibold text-foreground text-sm">Campaign</TableHead>
+                  <TableHead className="font-semibold text-foreground text-sm">Country</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {recentAdsData.slice(0, 10).map((item, index) => (
                   <TableRow 
                     key={`${item.ad_name}-${index}`}
-                    className="hover:bg-stone-100/50 dark:hover:bg-stone-800/20 transition-colors bg-white dark:bg-stone-900"
+                    className="hover:bg-primary/5 transition-colors bg-card/50"
                   >
-                    <TableCell className="font-medium py-4 px-6 max-w-xs">
-                      <div className="truncate" title={item.ad_name}>
+                    <TableCell className="font-medium py-2 px-4 max-w-xs">
+                      <div className="truncate text-sm text-foreground" title={item.ad_name}>
                         {item.ad_name}
                       </div>
                     </TableCell>
-                    <TableCell className="py-4 px-6 font-mono text-sm">
+                    <TableCell className="py-2 px-4 font-mono text-sm text-foreground">
                       {formatDate(item.launch_date)}
                     </TableCell>
-                    <TableCell className="py-4 px-6 max-w-xs">
-                      <div className="truncate" title={item.campaign_name}>
+                    <TableCell className="py-2 px-4 max-w-xs">
+                      <div className="truncate text-sm text-foreground" title={item.campaign_name}>
                         {item.campaign_name}
                       </div>
                     </TableCell>
-                    <TableCell className="py-4 px-6">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-stone-100 text-stone-800 dark:bg-stone-800 dark:text-stone-200">
+                    <TableCell className="py-2 px-4">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20">
                         {item.country}
                       </span>
                     </TableCell>
@@ -104,14 +105,14 @@ export const MostRecentAds: React.FC<MostRecentAdsProps> = ({ data }) => {
                 ))}
                 {recentAdsData.length > 10 && (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center text-stone-500 dark:text-stone-400 py-4">
+                    <TableCell colSpan={4} className="text-center text-muted-foreground py-4 text-sm">
                       Scroll to see more ads...
                     </TableCell>
                   </TableRow>
                 )}
                 {recentAdsData.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center text-stone-500 dark:text-stone-400 py-8">
+                    <TableCell colSpan={4} className="text-center text-muted-foreground py-8 text-sm">
                       No data available
                     </TableCell>
                   </TableRow>

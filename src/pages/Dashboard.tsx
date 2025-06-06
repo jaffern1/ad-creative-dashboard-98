@@ -2,12 +2,13 @@
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Upload, BarChart3 } from 'lucide-react';
+import { Upload, BarChart3, Clock } from 'lucide-react';
 import { CSVUploader } from '@/components/dashboard/CSVUploader';
 import { FilterPanel } from '@/components/dashboard/FilterPanel';
 import { SpendTable } from '@/components/dashboard/SpendTable';
 import { CategoryBreakdown } from '@/components/dashboard/CategoryBreakdown';
 import { MostRecentAds } from '@/components/dashboard/MostRecentAds';
+import { NewAdsChart } from '@/components/dashboard/NewAdsChart';
 import { useToast } from '@/hooks/use-toast';
 
 export interface AdData {
@@ -68,35 +69,51 @@ const Dashboard = () => {
     return Array.from(new Set(data.map(row => row.country))).filter(Boolean);
   }, [data]);
 
+  const lastUpdated = useMemo(() => {
+    if (data.length === 0) return null;
+    const maxDate = Math.max(...data.map(row => new Date(row.day).getTime()));
+    return new Date(maxDate).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  }, [data]);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-neutral-50 to-stone-100 dark:from-stone-900 dark:via-neutral-900 dark:to-stone-950 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-background via-secondary/30 to-background p-6">
       <div className="max-w-7xl mx-auto space-y-8">
-        <div className="text-center space-y-4">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="p-2 bg-stone-100 dark:bg-stone-800 rounded-lg">
+        <div className="text-center space-y-6">
+          <div className="flex items-center justify-center gap-4 mb-6">
+            <div className="p-3 bg-card/80 backdrop-blur-sm rounded-2xl shadow-lg border border-border/50">
               <img 
                 src="/lovable-uploads/f14283ba-f6f3-4fa7-8ef8-f2953e8c3ac5.png" 
                 alt="Ffern Logo" 
-                className="h-12 w-auto"
+                className="h-20 w-auto"
               />
             </div>
           </div>
-          <h1 className="text-4xl font-light text-stone-800 dark:text-stone-200 tracking-tight">
+          <h1 className="text-5xl font-light text-foreground tracking-tight">
             Ffern Ads Creative Dashboard
           </h1>
-          <p className="text-stone-600 dark:text-stone-400 text-lg max-w-2xl mx-auto">
+          <p className="text-muted-foreground text-xl max-w-2xl mx-auto">
             Best performing ads at Ffern
           </p>
+          {lastUpdated && (
+            <div className="flex items-center justify-center gap-2 text-muted-foreground">
+              <Clock className="h-4 w-4" />
+              <span className="text-sm">Last updated: {lastUpdated}</span>
+            </div>
+          )}
         </div>
 
         {data.length === 0 ? (
-          <Card className="border-2 border-dashed border-stone-300 dark:border-stone-700 bg-gradient-to-br from-stone-50 to-neutral-50 dark:from-stone-950/20 dark:to-neutral-950/20 shadow-xl">
-            <CardContent className="flex flex-col items-center justify-center py-16">
-              <div className="p-6 bg-stone-200 dark:bg-stone-700 rounded-full mb-6 shadow-lg">
-                <Upload className="h-12 w-12 text-stone-600 dark:text-stone-300" />
+          <Card className="border-2 border-dashed border-primary/30 bg-gradient-to-br from-card/50 to-secondary/30 backdrop-blur-sm shadow-2xl">
+            <CardContent className="flex flex-col items-center justify-center py-20">
+              <div className="p-8 bg-primary/10 rounded-full mb-8 shadow-lg">
+                <Upload className="h-16 w-16 text-primary" />
               </div>
-              <h3 className="text-2xl font-semibold mb-3 text-stone-800 dark:text-stone-200">Upload your data</h3>
-              <p className="text-stone-600 dark:text-stone-400 mb-8 text-center max-w-md text-lg">
+              <h3 className="text-3xl font-semibold mb-4 text-foreground">Upload your data</h3>
+              <p className="text-muted-foreground mb-10 text-center max-w-md text-xl">
                 Upload a CSV file with your Meta Ads data
               </p>
               <CSVUploader onDataLoad={handleDataUpload} />
@@ -110,9 +127,12 @@ const Dashboard = () => {
               countries={countries}
             />
             
-            <SpendTable data={filteredData} />
+            <NewAdsChart data={filteredData} />
             
-            <MostRecentAds data={filteredData} />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <SpendTable data={filteredData} />
+              <MostRecentAds data={filteredData} />
+            </div>
             
             <CategoryBreakdown data={filteredData} />
           </div>

@@ -34,19 +34,38 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
     });
   };
 
+  const setYesterday = () => {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    onFiltersChange({
+      ...filters,
+      startDate: yesterday,
+      endDate: yesterday,
+    });
+  };
+
   return (
-    <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+    <Card className="bg-card/90 backdrop-blur-sm border-border/50 shadow-lg">
       <CardContent className="p-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Date Range */}
           <div className="space-y-3">
-            <Label className="text-sm font-medium">Date Range</Label>
-            <div className="flex gap-2 mb-3">
+            <Label className="text-sm font-medium text-foreground">Date Range</Label>
+            <div className="flex gap-2 mb-3 flex-wrap">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={setYesterday}
+                className="text-xs border-primary/20 hover:bg-primary/10"
+              >
+                Yesterday
+              </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setDateRange(3)}
-                className="text-xs"
+                className="text-xs border-primary/20 hover:bg-primary/10"
               >
                 Last 3 days
               </Button>
@@ -54,7 +73,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                 variant="outline"
                 size="sm"
                 onClick={() => setDateRange(7)}
-                className="text-xs"
+                className="text-xs border-primary/20 hover:bg-primary/10"
               >
                 Last 7 days
               </Button>
@@ -62,7 +81,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                 variant="outline"
                 size="sm"
                 onClick={() => setDateRange(30)}
-                className="text-xs"
+                className="text-xs border-primary/20 hover:bg-primary/10"
               >
                 Last 30 days
               </Button>
@@ -74,7 +93,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                   <Button
                     variant="outline"
                     className={cn(
-                      "justify-start text-left font-normal",
+                      "justify-start text-left font-normal border-primary/20",
                       !filters.startDate && "text-muted-foreground"
                     )}
                   >
@@ -98,7 +117,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                   <Button
                     variant="outline"
                     className={cn(
-                      "justify-start text-left font-normal",
+                      "justify-start text-left font-normal border-primary/20",
                       !filters.endDate && "text-muted-foreground"
                     )}
                   >
@@ -121,12 +140,12 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
 
           {/* Country Filter */}
           <div className="space-y-3">
-            <Label className="text-sm font-medium">Country</Label>
+            <Label className="text-sm font-medium text-foreground">Country</Label>
             <Select
               value={filters.country || "all"}
               onValueChange={(value) => onFiltersChange({ ...filters, country: value === "all" ? "" : value })}
             >
-              <SelectTrigger>
+              <SelectTrigger className="border-primary/20">
                 <SelectValue placeholder="All countries" />
               </SelectTrigger>
               <SelectContent>
@@ -142,11 +161,11 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
 
           {/* Clear Filters */}
           <div className="space-y-3">
-            <Label className="text-sm font-medium">Actions</Label>
+            <Label className="text-sm font-medium text-foreground">Actions</Label>
             <Button
               variant="outline"
               onClick={() => onFiltersChange({ country: '' })}
-              className="w-full"
+              className="w-full border-primary/20 hover:bg-primary/10"
             >
               Clear Filters
             </Button>
