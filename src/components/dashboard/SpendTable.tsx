@@ -35,6 +35,14 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
     return `${percentage.toFixed(1)}%`;
   };
 
+  // Convert Google Drive share link to embeddable format
+  const getEmbedUrl = (driveUrl: string) => {
+    const fileId = driveUrl.match(/\/d\/([a-zA-Z0-9-_]+)/)?.[1];
+    return fileId ? `https://drive.google.com/file/d/${fileId}/preview` : '';
+  };
+
+  const videoUrl = getEmbedUrl('https://drive.google.com/file/d/1PiCiQio-fDWvT-R53SjxZF-kZ7QPvpD9/view?usp=sharing');
+
   return (
     <Card className="shadow-lg border-0 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20">
       <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-t-lg">
@@ -50,6 +58,7 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
               <TableHeader className="sticky top-0 bg-white/80 backdrop-blur-sm dark:bg-gray-900/80">
                 <TableRow className="border-b border-blue-200 dark:border-blue-800">
                   <TableHead className="font-semibold text-blue-900 dark:text-blue-100">Shoot</TableHead>
+                  <TableHead className="font-semibold text-blue-900 dark:text-blue-100 w-48">Video</TableHead>
                   <TableHead className="text-right font-semibold text-blue-900 dark:text-blue-100">Percentage</TableHead>
                 </TableRow>
               </TableHeader>
@@ -85,6 +94,16 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
                         <span className={index < 3 ? 'font-semibold' : ''}>{item.shootName}</span>
                       </div>
                     </TableCell>
+                    <TableCell className="py-4 px-6">
+                      <div className="w-40 h-24 rounded-lg overflow-hidden shadow-md">
+                        <iframe
+                          src={videoUrl}
+                          className="w-full h-full border-0"
+                          allow="autoplay; encrypted-media"
+                          title={`Video for ${item.shootName}`}
+                        />
+                      </div>
+                    </TableCell>
                     <TableCell className="text-right font-mono font-semibold text-lg py-4 px-6">
                       <span className={`
                         ${index === 0 ? 'text-yellow-600 dark:text-yellow-400' : ''}
@@ -99,7 +118,7 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
                 ))}
                 {aggregatedData.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={2} className="text-center text-muted-foreground py-8">
+                    <TableCell colSpan={3} className="text-center text-muted-foreground py-8">
                       No data available
                     </TableCell>
                   </TableRow>
