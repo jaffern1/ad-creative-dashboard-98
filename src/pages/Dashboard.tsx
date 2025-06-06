@@ -80,7 +80,7 @@ const Dashboard = () => {
             Ffern Ads Creative Dashboard
           </h1>
           <p className="text-muted-foreground text-xl max-w-2xl mx-auto">
-            See which ads are performing best
+            Best performing ads at Ffern
           </p>
         </div>
 
