@@ -82,28 +82,28 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto space-y-6">
-        <div className="text-center space-y-4">
-          <div className="flex items-center justify-center gap-4 mb-4">
-            <div className="p-2 bg-card rounded-lg shadow-sm border border-border">
-              <img 
-                src="/lovable-uploads/f14283ba-f6f3-4fa7-8ef8-f2953e8c3ac5.png" 
-                alt="Ffern Logo" 
-                className="h-24 w-auto"
-              />
-            </div>
+        <div className="flex items-center gap-6">
+          <div className="flex-shrink-0">
+            <img 
+              src="/lovable-uploads/f14283ba-f6f3-4fa7-8ef8-f2953e8c3ac5.png" 
+              alt="Ffern Logo" 
+              className="h-16 w-auto"
+            />
           </div>
-          <h1 className="text-4xl font-medium text-foreground">
-            Ffern Ads Creative Dashboard
-          </h1>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Best performing ads at Ffern
-          </p>
-          {lastUpdated && (
-            <div className="flex items-center justify-center gap-2 text-muted-foreground">
-              <Clock className="h-4 w-4" />
-              <span className="text-sm">Last updated: {lastUpdated}</span>
-            </div>
-          )}
+          <div className="flex-1">
+            <h1 className="text-2xl font-medium text-foreground">
+              Ffern Ads Creative Dashboard
+            </h1>
+            <p className="text-muted-foreground text-base">
+              Best performing ads at Ffern
+            </p>
+            {lastUpdated && (
+              <div className="flex items-center gap-2 text-muted-foreground mt-1">
+                <Clock className="h-4 w-4" />
+                <span className="text-sm">Last updated: {lastUpdated}</span>
+              </div>
+            )}
+          </div>
         </div>
 
         {data.length === 0 ? (
@@ -127,12 +127,12 @@ const Dashboard = () => {
               countries={countries}
             />
             
-            <NewAdsChart data={filteredData} />
-            
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <SpendTable data={filteredData} />
               <MostRecentAds data={filteredData} />
             </div>
+            
+            <NewAdsChart data={filteredData} />
             
             <CategoryBreakdown data={filteredData} />
           </div>
