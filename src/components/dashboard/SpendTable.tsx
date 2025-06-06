@@ -20,16 +20,19 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
       return acc;
     }, {} as Record<string, number>);
 
+    // Calculate total spend for percentage calculation
+    const totalSpend = Object.values(spendByShoot).reduce((sum, spend) => sum + spend, 0);
+
     return Object.entries(spendByShoot)
-      .map(([shootName, totalSpend]) => ({ shootName, totalSpend }))
-      .sort((a, b) => b.totalSpend - a.totalSpend);
+      .map(([shootName, absoluteSpend]) => ({ 
+        shootName, 
+        percentage: totalSpend > 0 ? (absoluteSpend / totalSpend) * 100 : 0
+      }))
+      .sort((a, b) => b.percentage - a.percentage);
   }, [data]);
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount);
+  const formatPercentage = (percentage: number) => {
+    return `${percentage.toFixed(1)}%`;
   };
 
   return (
@@ -47,7 +50,7 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
               <TableHeader className="sticky top-0 bg-white/80 backdrop-blur-sm dark:bg-gray-900/80">
                 <TableRow className="border-b border-blue-200 dark:border-blue-800">
                   <TableHead className="font-semibold text-blue-900 dark:text-blue-100">Shoot</TableHead>
-                  <TableHead className="text-right font-semibold text-blue-900 dark:text-blue-100">Total Spend</TableHead>
+                  <TableHead className="text-right font-semibold text-blue-900 dark:text-blue-100">Percentage</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -89,7 +92,7 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
                         ${index === 2 ? 'text-orange-600 dark:text-orange-400' : ''}
                         ${index >= 3 ? 'text-blue-600 dark:text-blue-400' : ''}
                       `}>
-                        {formatCurrency(item.totalSpend)}
+                        {formatPercentage(item.percentage)}
                       </span>
                     </TableCell>
                   </TableRow>

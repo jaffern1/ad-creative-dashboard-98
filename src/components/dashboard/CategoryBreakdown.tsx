@@ -51,15 +51,7 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
   }, [data]);
 
   const formatPercentage = (percentage: number) => {
-    return `${percentage.toFixed(1)}%`;
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      notation: 'compact',
-    }).format(amount);
+    return `${percentage.toFixed(0)}%`;
   };
 
   return (
@@ -113,10 +105,9 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
                         <ChartTooltip
                           content={
                             <ChartTooltipContent
-                              formatter={(value, name, props) => [
+                              formatter={(value) => [
                                 formatPercentage(Number(value)), 
-                                "Percentage",
-                                formatCurrency(props.payload.spend)
+                                "Percentage"
                               ]}
                             />
                           }
