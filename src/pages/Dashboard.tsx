@@ -77,10 +77,10 @@ const Dashboard = () => {
             </div>
           </div>
           <h1 className="text-5xl font-light text-foreground tracking-tight bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
-            Meta Ads Dashboard
+            Ffern Ads Creative Dashboard
           </h1>
           <p className="text-muted-foreground text-xl max-w-2xl mx-auto">
-            Analyze ad performance and spending patterns with beautiful insights
+            See which ads are performing best
           </p>
         </div>
 
@@ -92,7 +92,7 @@ const Dashboard = () => {
               </div>
               <h3 className="text-2xl font-semibold mb-3 text-blue-900 dark:text-blue-100">Upload your data</h3>
               <p className="text-muted-foreground mb-8 text-center max-w-md text-lg">
-                Upload a CSV file with your Meta Ads data to get started with beautiful analytics
+                Upload a CSV file with your Meta Ads data
               </p>
               <CSVUploader onDataLoad={handleDataUpload} />
             </CardContent>
