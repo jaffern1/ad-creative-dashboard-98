@@ -2,7 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Upload } from 'lucide-react';
+import { Upload, BarChart3 } from 'lucide-react';
 import { CSVUploader } from '@/components/dashboard/CSVUploader';
 import { FilterPanel } from '@/components/dashboard/FilterPanel';
 import { SpendTable } from '@/components/dashboard/SpendTable';
@@ -68,30 +68,37 @@ const Dashboard = () => {
   }, [data]);
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
-        <div className="text-center space-y-2">
-          <h1 className="text-4xl font-light text-foreground tracking-tight">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-950 dark:to-indigo-950 p-6">
+      <div className="max-w-7xl mx-auto space-y-8">
+        <div className="text-center space-y-4">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="p-3 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg">
+              <BarChart3 className="h-8 w-8 text-white" />
+            </div>
+          </div>
+          <h1 className="text-5xl font-light text-foreground tracking-tight bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
             Meta Ads Dashboard
           </h1>
-          <p className="text-muted-foreground text-lg">
-            Analyze ad performance and spending patterns
+          <p className="text-muted-foreground text-xl max-w-2xl mx-auto">
+            Analyze ad performance and spending patterns with beautiful insights
           </p>
         </div>
 
         {data.length === 0 ? (
-          <Card className="border-dashed border-2 border-muted">
-            <CardContent className="flex flex-col items-center justify-center py-12">
-              <Upload className="h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-xl font-medium mb-2">Upload your data</h3>
-              <p className="text-muted-foreground mb-6 text-center max-w-md">
-                Upload a CSV file with your Meta Ads data to get started with the analysis
+          <Card className="border-2 border-dashed border-blue-300 dark:border-blue-700 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 shadow-xl">
+            <CardContent className="flex flex-col items-center justify-center py-16">
+              <div className="p-6 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full mb-6 shadow-lg">
+                <Upload className="h-12 w-12 text-white" />
+              </div>
+              <h3 className="text-2xl font-semibold mb-3 text-blue-900 dark:text-blue-100">Upload your data</h3>
+              <p className="text-muted-foreground mb-8 text-center max-w-md text-lg">
+                Upload a CSV file with your Meta Ads data to get started with beautiful analytics
               </p>
               <CSVUploader onDataLoad={handleDataUpload} />
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-8">
             <FilterPanel
               filters={filters}
               onFiltersChange={setFilters}

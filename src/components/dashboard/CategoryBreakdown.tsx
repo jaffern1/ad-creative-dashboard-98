@@ -11,9 +11,16 @@ interface CategoryBreakdownProps {
 
 export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) => {
   const categoryData = useMemo(() => {
-    const categories = ['season', 'production_type', 'shoot', 'ad_unique', 'copy_hook', 'visual_hook'] as const;
+    const categories = ['season', 'production_type', 'ad_unique', 'copy_hook', 'visual_hook'] as const;
+    const categoryColors = [
+      'hsl(220, 98%, 61%)', // Blue
+      'hsl(142, 76%, 36%)', // Green  
+      'hsl(262, 83%, 58%)', // Purple
+      'hsl(346, 87%, 43%)', // Pink
+      'hsl(32, 98%, 56%)',  // Orange
+    ];
     
-    return categories.map(category => {
+    return categories.map((category, index) => {
       const spendByCategory = data.reduce((acc, row) => {
         const categoryValue = row[category] || 'Unknown';
         if (!acc[categoryValue]) {
@@ -31,16 +38,10 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
       return {
         category: category.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
         data: chartData,
+        color: categoryColors[index],
       };
     });
   }, [data]);
-
-  const chartConfig = {
-    spend: {
-      label: "Spend",
-      color: "hsl(var(--primary))",
-    },
-  };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -52,53 +53,82 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-light text-foreground">Category Breakdown</h2>
+      <div className="text-center">
+        <h2 className="text-3xl font-light text-foreground bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+          Category Performance
+        </h2>
+        <p className="text-muted-foreground mt-2">Breakdown of ad spend across key categories</p>
+      </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {categoryData.map((category) => (
-          <Card key={category.category}>
-            <CardHeader>
-              <CardTitle className="text-lg font-medium">{category.category}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {category.data.length > 0 ? (
-                <ChartContainer config={chartConfig} className="h-80">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={category.data} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
-                      <XAxis 
-                        dataKey="name" 
-                        tick={{ fontSize: 12 }}
-                        angle={-45}
-                        textAnchor="end"
-                        height={80}
-                      />
-                      <YAxis 
-                        tick={{ fontSize: 12 }}
-                        tickFormatter={formatCurrency}
-                      />
-                      <ChartTooltip
-                        content={
-                          <ChartTooltipContent
-                            formatter={(value) => [formatCurrency(Number(value)), "Spend"]}
-                          />
-                        }
-                      />
-                      <Bar 
-                        dataKey="spend" 
-                        fill="var(--color-spend)"
-                        radius={[4, 4, 0, 0]}
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </ChartContainer>
-              ) : (
-                <div className="h-80 flex items-center justify-center text-muted-foreground">
-                  No data available
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        ))}
+        {categoryData.map((category, index) => {
+          const chartConfig = {
+            spend: {
+              label: "Spend",
+              color: category.color,
+            },
+          };
+
+          return (
+            <Card 
+              key={category.category} 
+              className="shadow-lg border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 hover:shadow-xl transition-all duration-300"
+            >
+              <CardHeader className="bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-700 border-b border-gray-200 dark:border-gray-600">
+                <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                  <div 
+                    className="w-3 h-3 rounded-full" 
+                    style={{ backgroundColor: category.color }}
+                  ></div>
+                  {category.category}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                {category.data.length > 0 ? (
+                  <ChartContainer config={chartConfig} className="h-80">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={category.data} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+                        <XAxis 
+                          dataKey="name" 
+                          tick={{ fontSize: 12, fill: 'currentColor' }}
+                          angle={-45}
+                          textAnchor="end"
+                          height={80}
+                        />
+                        <YAxis 
+                          tick={{ fontSize: 12, fill: 'currentColor' }}
+                          tickFormatter={formatCurrency}
+                        />
+                        <ChartTooltip
+                          content={
+                            <ChartTooltipContent
+                              formatter={(value) => [formatCurrency(Number(value)), "Spend"]}
+                            />
+                          }
+                        />
+                        <Bar 
+                          dataKey="spend" 
+                          fill={category.color}
+                          radius={[6, 6, 0, 0]}
+                          className="hover:opacity-80 transition-opacity"
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                ) : (
+                  <div className="h-80 flex items-center justify-center text-muted-foreground">
+                    <div className="text-center">
+                      <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-full mx-auto mb-3 flex items-center justify-center">
+                        <div className="w-6 h-6 bg-gray-400 dark:bg-gray-500 rounded"></div>
+                      </div>
+                      No data available
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
     </div>
   );
