@@ -80,22 +80,22 @@ const Dashboard = () => {
   }, [data]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-secondary/30 to-background p-6">
-      <div className="max-w-7xl mx-auto space-y-8">
-        <div className="text-center space-y-6">
-          <div className="flex items-center justify-center gap-4 mb-6">
-            <div className="p-3 bg-card/80 backdrop-blur-sm rounded-2xl shadow-lg border border-border/50">
+    <div className="min-h-screen bg-background p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div className="text-center space-y-4">
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <div className="p-2 bg-card rounded-lg shadow-sm border border-border">
               <img 
                 src="/lovable-uploads/f14283ba-f6f3-4fa7-8ef8-f2953e8c3ac5.png" 
                 alt="Ffern Logo" 
-                className="h-20 w-auto"
+                className="h-24 w-auto"
               />
             </div>
           </div>
-          <h1 className="text-5xl font-light text-foreground tracking-tight">
+          <h1 className="text-4xl font-medium text-foreground">
             Ffern Ads Creative Dashboard
           </h1>
-          <p className="text-muted-foreground text-xl max-w-2xl mx-auto">
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             Best performing ads at Ffern
           </p>
           {lastUpdated && (
@@ -107,20 +107,20 @@ const Dashboard = () => {
         </div>
 
         {data.length === 0 ? (
-          <Card className="border-2 border-dashed border-primary/30 bg-gradient-to-br from-card/50 to-secondary/30 backdrop-blur-sm shadow-2xl">
-            <CardContent className="flex flex-col items-center justify-center py-20">
-              <div className="p-8 bg-primary/10 rounded-full mb-8 shadow-lg">
-                <Upload className="h-16 w-16 text-primary" />
+          <Card className="border border-border bg-card shadow-sm">
+            <CardContent className="flex flex-col items-center justify-center py-16">
+              <div className="p-6 bg-primary/10 rounded-full mb-6">
+                <Upload className="h-12 w-12 text-primary" />
               </div>
-              <h3 className="text-3xl font-semibold mb-4 text-foreground">Upload your data</h3>
-              <p className="text-muted-foreground mb-10 text-center max-w-md text-xl">
+              <h3 className="text-2xl font-medium mb-3 text-foreground">Upload your data</h3>
+              <p className="text-muted-foreground mb-8 text-center max-w-md">
                 Upload a CSV file with your Meta Ads data
               </p>
               <CSVUploader onDataLoad={handleDataUpload} />
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-8">
+          <div className="space-y-6">
             <FilterPanel
               filters={filters}
               onFiltersChange={setFilters}
@@ -129,7 +129,7 @@ const Dashboard = () => {
             
             <NewAdsChart data={filteredData} />
             
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <SpendTable data={filteredData} />
               <MostRecentAds data={filteredData} />
             </div>

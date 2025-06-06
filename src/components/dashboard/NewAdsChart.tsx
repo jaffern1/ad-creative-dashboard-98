@@ -13,7 +13,7 @@ interface NewAdsChartProps {
 const chartConfig = {
   newAds: {
     label: "New Ads",
-    color: "rgb(180, 96, 50)",
+    color: "hsl(25, 56%, 39%)",
   },
 };
 
@@ -38,8 +38,8 @@ export const NewAdsChart: React.FC<NewAdsChartProps> = ({ data }) => {
   }, [data]);
 
   return (
-    <Card className="shadow-lg border-0 bg-gradient-to-br from-card/80 to-secondary/50 backdrop-blur-sm">
-      <CardHeader className="bg-gradient-to-r from-primary/10 to-secondary/20 rounded-t-lg pb-3">
+    <Card className="shadow-sm border border-border bg-card">
+      <CardHeader className="bg-card border-b border-border py-3">
         <CardTitle className="text-lg font-medium flex items-center gap-2 text-foreground">
           <TrendingUp className="h-5 w-5 text-primary" />
           New Ads Per Day
@@ -66,10 +66,10 @@ export const NewAdsChart: React.FC<NewAdsChartProps> = ({ data }) => {
               <Line 
                 type="monotone" 
                 dataKey="newAds" 
-                stroke="rgb(180, 96, 50)" 
-                strokeWidth={3}
-                dot={{ fill: "rgb(180, 96, 50)", strokeWidth: 2, r: 4 }}
-                activeDot={{ r: 6, stroke: "rgb(180, 96, 50)", strokeWidth: 2 }}
+                stroke="hsl(25, 56%, 39%)" 
+                strokeWidth={2}
+                dot={{ fill: "hsl(25, 56%, 39%)", strokeWidth: 2, r: 3 }}
+                activeDot={{ r: 5, stroke: "hsl(25, 56%, 39%)", strokeWidth: 2 }}
               />
             </LineChart>
           </ResponsiveContainer>

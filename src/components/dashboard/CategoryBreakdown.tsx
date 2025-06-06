@@ -1,4 +1,3 @@
-
 import React, { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
@@ -13,10 +12,10 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
   const categoryData = useMemo(() => {
     const categories = ['season', 'production_type', 'copy_hook', 'visual_hook'] as const;
     const categoryColors = [
-      'hsl(25, 15%, 45%)',   // Warm stone
-      'hsl(35, 20%, 50%)',   // Neutral brown
-      'hsl(15, 25%, 55%)',   // Warm taupe
-      'hsl(45, 18%, 48%)',   // Muted gold
+      'hsl(25, 56%, 39%)',   // Primary
+      'hsl(28, 59%, 66%)',   // Secondary
+      'hsl(25, 40%, 50%)',   // Darker variant
+      'hsl(28, 50%, 55%)',   // Lighter variant
     ];
 
     // Calculate total spend for percentage calculation
@@ -56,10 +55,10 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-3xl font-light text-stone-800 dark:text-stone-200">
+        <h2 className="text-2xl font-medium text-foreground">
           Category Performance
         </h2>
-        <p className="text-stone-600 dark:text-stone-400 mt-2">Percentage breakdown of ad spend across key categories</p>
+        <p className="text-muted-foreground mt-2">Percentage breakdown of ad spend across key categories</p>
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -74,10 +73,10 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
           return (
             <Card 
               key={category.category} 
-              className="shadow-lg border-0 bg-gradient-to-br from-white to-stone-50 dark:from-stone-900 dark:to-stone-800 hover:shadow-xl transition-all duration-300"
+              className="shadow-sm border border-border bg-card"
             >
-              <CardHeader className="bg-gradient-to-r from-stone-50 to-white dark:from-stone-800 dark:to-stone-700 border-b border-stone-200 dark:border-stone-600">
-                <CardTitle className="text-lg font-semibold flex items-center gap-2">
+              <CardHeader className="bg-card border-b border-border py-3">
+                <CardTitle className="text-lg font-medium flex items-center gap-2">
                   <div 
                     className="w-3 h-3 rounded-full" 
                     style={{ backgroundColor: category.color }}
@@ -114,17 +113,17 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
                         <Bar 
                           dataKey="percentage" 
                           fill={category.color}
-                          radius={[6, 6, 0, 0]}
+                          radius={[3, 3, 0, 0]}
                           className="hover:opacity-80 transition-opacity"
                         />
                       </BarChart>
                     </ResponsiveContainer>
                   </ChartContainer>
                 ) : (
-                  <div className="h-80 flex items-center justify-center text-stone-500 dark:text-stone-400">
+                  <div className="h-80 flex items-center justify-center text-muted-foreground">
                     <div className="text-center">
-                      <div className="w-12 h-12 bg-stone-200 dark:bg-stone-700 rounded-full mx-auto mb-3 flex items-center justify-center">
-                        <div className="w-6 h-6 bg-stone-400 dark:bg-stone-500 rounded"></div>
+                      <div className="w-12 h-12 bg-muted rounded-full mx-auto mb-3 flex items-center justify-center">
+                        <div className="w-6 h-6 bg-muted-foreground/30 rounded"></div>
                       </div>
                       No data available
                     </div>
