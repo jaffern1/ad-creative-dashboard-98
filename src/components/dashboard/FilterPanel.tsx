@@ -123,14 +123,14 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
           <div className="space-y-3">
             <Label className="text-sm font-medium">Country</Label>
             <Select
-              value={filters.country}
-              onValueChange={(value) => onFiltersChange({ ...filters, country: value })}
+              value={filters.country || "all"}
+              onValueChange={(value) => onFiltersChange({ ...filters, country: value === "all" ? "" : value })}
             >
               <SelectTrigger>
                 <SelectValue placeholder="All countries" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All countries</SelectItem>
+                <SelectItem value="all">All countries</SelectItem>
                 {countries.map((country) => (
                   <SelectItem key={country} value={country}>
                     {country}
