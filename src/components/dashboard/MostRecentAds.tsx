@@ -1,3 +1,4 @@
+
 import React, { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -50,17 +51,16 @@ export const MostRecentAds: React.FC<MostRecentAdsProps> = ({ data }) => {
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
       month: 'short',
       day: 'numeric'
     });
   };
 
   return (
-    <Card className="shadow-sm border border-border bg-card rounded-xl">
-      <CardHeader className="bg-[#e7e2d6] border-b border-border py-3 rounded-t-xl">
-        <CardTitle className="text-base font-medium flex items-center gap-2 text-[#b46032]">
-          <Calendar className="h-4 w-4 text-[#b46032]" />
+    <Card className="shadow-sm border border-border bg-card">
+      <CardHeader className="bg-muted border-b border-border py-3">
+        <CardTitle className="text-base font-medium flex items-center gap-2">
+          <Calendar className="h-4 w-4" />
           Most Recent Ads
         </CardTitle>
       </CardHeader>
@@ -71,7 +71,7 @@ export const MostRecentAds: React.FC<MostRecentAdsProps> = ({ data }) => {
               <TableHeader className="sticky top-0 bg-card">
                 <TableRow className="border-b border-border">
                   <TableHead className="font-medium text-foreground text-sm">Ad Name</TableHead>
-                  <TableHead className="font-medium text-foreground text-sm">Launch Date</TableHead>
+                  <TableHead className="font-medium text-foreground text-sm w-32">Launch Date</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
