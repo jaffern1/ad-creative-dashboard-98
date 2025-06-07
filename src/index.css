@@ -23,7 +23,7 @@
     --secondary-foreground: 0 0% 0%; /* Black text */
 
     --muted: 34 33% 95%;
-    --muted-foreground: 0 0% 40%; /* Dark gray for muted text */
+    --muted-foreground: 0 0% 20%; /* Darker gray for better readability */
 
     --accent: 28 59% 66%;
     --accent-foreground: 0 0% 0%; /* Black text */

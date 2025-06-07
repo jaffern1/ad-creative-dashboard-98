@@ -1,3 +1,4 @@
+
 import React, { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -101,12 +102,7 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
                       </div>
                     </TableCell>
                     <TableCell className="text-right font-mono font-medium text-sm py-3 px-4">
-                      <span className={`
-                        ${index === 0 ? 'text-primary' : ''}
-                        ${index === 1 ? 'text-primary/80' : ''}
-                        ${index === 2 ? 'text-primary/60' : ''}
-                        ${index >= 3 ? 'text-foreground' : ''}
-                      `}>
+                      <span className="text-foreground">
                         {formatPercentage(item.percentage)}
                       </span>
                     </TableCell>
