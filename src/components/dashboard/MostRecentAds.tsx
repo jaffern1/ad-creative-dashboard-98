@@ -57,9 +57,9 @@ export const MostRecentAds: React.FC<MostRecentAdsProps> = ({ data }) => {
   };
 
   return (
-    <Card className="shadow-none border border-border/50 bg-card">
-      <CardHeader className="bg-card border-b border-border/30 py-4">
-        <CardTitle className="text-lg font-light flex items-center gap-2 text-foreground tracking-tight">
+    <Card className="shadow-sm border border-border bg-card">
+      <CardHeader className="bg-card border-b border-border py-3">
+        <CardTitle className="text-base font-medium flex items-center gap-2 text-foreground">
           <Calendar className="h-4 w-4 text-primary" />
           Most Recent Ads
         </CardTitle>
@@ -69,37 +69,37 @@ export const MostRecentAds: React.FC<MostRecentAdsProps> = ({ data }) => {
           <div className="border-0">
             <Table>
               <TableHeader className="sticky top-0 bg-card">
-                <TableRow className="border-b border-border/30">
-                  <TableHead className="font-light text-foreground text-sm tracking-tight">Ad Name</TableHead>
-                  <TableHead className="font-light text-foreground text-sm tracking-tight">Launch Date</TableHead>
+                <TableRow className="border-b border-border">
+                  <TableHead className="font-medium text-foreground text-sm">Ad Name</TableHead>
+                  <TableHead className="font-medium text-foreground text-sm">Launch Date</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {recentAdsData.slice(0, 10).map((item, index) => (
                   <TableRow 
                     key={`${item.ad_name}-${index}`}
-                    className="hover:bg-muted/30 transition-colors bg-card border-b border-border/20"
+                    className="hover:bg-secondary/10 transition-colors bg-card"
                   >
-                    <TableCell className="font-light py-4 px-6">
-                      <div className="text-sm text-foreground tracking-tight" title={item.ad_name}>
+                    <TableCell className="font-medium py-3 px-4">
+                      <div className="text-sm text-foreground" title={item.ad_name}>
                         {item.ad_name}
                       </div>
                     </TableCell>
-                    <TableCell className="py-4 px-6 font-mono text-sm text-muted-foreground font-light">
+                    <TableCell className="py-3 px-4 font-mono text-sm text-foreground">
                       {formatDate(item.launch_date)}
                     </TableCell>
                   </TableRow>
                 ))}
                 {recentAdsData.length > 10 && (
                   <TableRow>
-                    <TableCell colSpan={2} className="text-center text-muted-foreground py-6 text-sm font-light">
+                    <TableCell colSpan={2} className="text-center text-muted-foreground py-4 text-sm">
                       Scroll to see more ads...
                     </TableCell>
                   </TableRow>
                 )}
                 {recentAdsData.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={2} className="text-center text-muted-foreground py-12 text-sm font-light">
+                    <TableCell colSpan={2} className="text-center text-muted-foreground py-8 text-sm">
                       No data available
                     </TableCell>
                   </TableRow>

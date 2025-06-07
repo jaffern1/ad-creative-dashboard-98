@@ -1,4 +1,3 @@
-
 import React, { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
@@ -54,12 +53,12 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-light text-foreground tracking-tight">
+        <h2 className="text-2xl font-medium text-foreground">
           Category Performance
         </h2>
-        <p className="text-muted-foreground mt-2 font-light">Percentage breakdown of ad spend across key categories</p>
+        <p className="text-muted-foreground mt-2">Percentage breakdown of ad spend across key categories</p>
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -74,10 +73,10 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
           return (
             <Card 
               key={category.category} 
-              className="shadow-none border border-border/50 bg-card"
+              className="shadow-sm border border-border bg-card"
             >
-              <CardHeader className="bg-card border-b border-border/30 py-4">
-                <CardTitle className="text-lg font-light flex items-center gap-2 tracking-tight">
+              <CardHeader className="bg-card border-b border-border py-3">
+                <CardTitle className="text-lg font-medium flex items-center gap-2">
                   <div 
                     className="w-3 h-3 rounded-full" 
                     style={{ backgroundColor: category.color }}
@@ -85,20 +84,20 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
                   {category.category}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-8">
+              <CardContent className="p-6">
                 {category.data.length > 0 ? (
                   <ChartContainer config={chartConfig} className="h-80">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={category.data} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
                         <XAxis 
                           dataKey="name" 
-                          tick={{ fontSize: 12, fill: 'hsl(25, 15%, 45%)' }}
+                          tick={{ fontSize: 12, fill: 'currentColor' }}
                           angle={-45}
                           textAnchor="end"
                           height={80}
                         />
                         <YAxis 
-                          tick={{ fontSize: 12, fill: 'hsl(25, 15%, 45%)' }}
+                          tick={{ fontSize: 12, fill: 'currentColor' }}
                           tickFormatter={formatPercentage}
                         />
                         <ChartTooltip
@@ -126,7 +125,7 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
                       <div className="w-12 h-12 bg-muted rounded-full mx-auto mb-3 flex items-center justify-center">
                         <div className="w-6 h-6 bg-muted-foreground/30 rounded"></div>
                       </div>
-                      <span className="font-light">No data available</span>
+                      No data available
                     </div>
                   </div>
                 )}
