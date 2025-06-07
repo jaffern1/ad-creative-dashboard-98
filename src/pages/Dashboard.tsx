@@ -80,68 +80,63 @@ const Dashboard = () => {
   }, [data]);
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto">
-        {/* Header Section - Ffern style */}
-        <div className="px-6 py-8 border-b border-border/30">
-          <div className="flex items-start gap-6">
-            <div className="flex-shrink-0">
-              <img 
-                src="/lovable-uploads/f14283ba-f6f3-4fa7-8ef8-f2953e8c3ac5.png" 
-                alt="Ffern Logo" 
-                className="h-12 w-auto"
-              />
-            </div>
-            <div className="flex-1 pt-1">
-              <h1 className="text-2xl font-light text-foreground mb-1 tracking-tight">
-                Ads Creative Dashboard
-              </h1>
-              <p className="text-muted-foreground text-sm font-light mb-2">
-                Best performing ads at Ffern
-              </p>
-              {lastUpdated && (
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <Clock className="h-3.5 w-3.5" />
-                  <span className="text-xs font-light">Last updated: {lastUpdated}</span>
-                </div>
-              )}
-            </div>
+    <div className="min-h-screen bg-background p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div className="flex items-center gap-6">
+          <div className="flex-shrink-0">
+            <img 
+              src="/lovable-uploads/f14283ba-f6f3-4fa7-8ef8-f2953e8c3ac5.png" 
+              alt="Ffern Logo" 
+              className="h-16 w-auto"
+            />
+          </div>
+          <div className="flex-1">
+            <h1 className="text-2xl font-medium text-foreground">
+              Ffern Ads Creative Dashboard
+            </h1>
+            <p className="text-muted-foreground text-base">
+              Best performing ads at Ffern
+            </p>
+            {lastUpdated && (
+              <div className="flex items-center gap-2 text-muted-foreground mt-1">
+                <Clock className="h-4 w-4" />
+                <span className="text-sm">Last updated: {lastUpdated}</span>
+              </div>
+            )}
           </div>
         </div>
 
-        <div className="p-6">
-          {data.length === 0 ? (
-            <Card className="border border-border/50 bg-card shadow-none">
-              <CardContent className="flex flex-col items-center justify-center py-20">
-                <div className="p-8 bg-primary/5 rounded-full mb-8">
-                  <Upload className="h-12 w-12 text-primary" />
-                </div>
-                <h3 className="text-xl font-light mb-3 text-foreground tracking-tight">Upload your data</h3>
-                <p className="text-muted-foreground mb-8 text-center max-w-md font-light text-sm">
-                  Upload a CSV file with your Meta Ads data to begin analyzing performance
-                </p>
-                <CSVUploader onDataLoad={handleDataUpload} />
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="space-y-8">
-              <FilterPanel
-                filters={filters}
-                onFiltersChange={setFilters}
-                countries={countries}
-              />
-              
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <SpendTable data={filteredData} />
-                <MostRecentAds data={filteredData} />
+        {data.length === 0 ? (
+          <Card className="border border-border bg-card shadow-sm">
+            <CardContent className="flex flex-col items-center justify-center py-16">
+              <div className="p-6 bg-primary/10 rounded-full mb-6">
+                <Upload className="h-12 w-12 text-primary" />
               </div>
-              
-              <NewAdsChart data={filteredData} />
-              
-              <CategoryBreakdown data={filteredData} />
+              <h3 className="text-2xl font-medium mb-3 text-foreground">Upload your data</h3>
+              <p className="text-muted-foreground mb-8 text-center max-w-md">
+                Upload a CSV file with your Meta Ads data
+              </p>
+              <CSVUploader onDataLoad={handleDataUpload} />
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-6">
+            <FilterPanel
+              filters={filters}
+              onFiltersChange={setFilters}
+              countries={countries}
+            />
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <SpendTable data={filteredData} />
+              <MostRecentAds data={filteredData} />
             </div>
-          )}
-        </div>
+            
+            <NewAdsChart data={filteredData} />
+            
+            <CategoryBreakdown data={filteredData} />
+          </div>
+        )}
       </div>
     </div>
   );
