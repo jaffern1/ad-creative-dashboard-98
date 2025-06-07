@@ -3,6 +3,7 @@ import React, { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { AdData } from '@/pages/Dashboard';
 
 interface SpendTableProps {
@@ -10,28 +11,29 @@ interface SpendTableProps {
 }
 
 export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
-  const [selectedShoot, setSelectedShoot] = useState<string | null>(null);
+  const [selectedItem, setSelectedItem] = useState<string | null>(null);
+  const [groupBy, setGroupBy] = useState<'shoot' | 'ad_name'>('shoot');
 
   const aggregatedData = useMemo(() => {
-    const spendByShoot = data.reduce((acc, row) => {
-      const shootName = row.shoot || 'Unknown';
-      if (!acc[shootName]) {
-        acc[shootName] = 0;
+    const spendByGroup = data.reduce((acc, row) => {
+      const groupKey = groupBy === 'shoot' ? (row.shoot || 'Unknown') : (row.ad_name || 'Unknown');
+      if (!acc[groupKey]) {
+        acc[groupKey] = 0;
       }
-      acc[shootName] += row.spend;
+      acc[groupKey] += row.spend;
       return acc;
     }, {} as Record<string, number>);
 
     // Calculate total spend for percentage calculation
-    const totalSpend = Object.values(spendByShoot).reduce((sum, spend) => sum + spend, 0);
+    const totalSpend = Object.values(spendByGroup).reduce((sum, spend) => sum + spend, 0);
 
-    return Object.entries(spendByShoot)
-      .map(([shootName, absoluteSpend]) => ({ 
-        shootName, 
+    return Object.entries(spendByGroup)
+      .map(([itemName, absoluteSpend]) => ({ 
+        itemName, 
         percentage: totalSpend > 0 ? (absoluteSpend / totalSpend) * 100 : 0
       }))
       .sort((a, b) => b.percentage - a.percentage);
-  }, [data]);
+  }, [data, groupBy]);
 
   const formatPercentage = (percentage: number) => {
     return `${percentage.toFixed(1)}%`;
@@ -51,10 +53,20 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
       <div className="lg:col-span-3">
         <Card className="shadow-sm border border-border bg-card">
           <CardHeader className="bg-muted border-b border-border py-3">
-            <CardTitle className="text-base font-medium flex items-center gap-2">
-              <div className="w-2 h-2 bg-primary rounded-full"></div>
-              Top Ad Spend by Shoot
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base font-medium flex items-center gap-2">
+                <div className="w-2 h-2 bg-primary rounded-full"></div>
+                Top Ads by Spend
+              </CardTitle>
+              <ToggleGroup type="single" value={groupBy} onValueChange={(value) => value && setGroupBy(value as 'shoot' | 'ad_name')}>
+                <ToggleGroupItem value="shoot" aria-label="Group by Shoot">
+                  Shoot
+                </ToggleGroupItem>
+                <ToggleGroupItem value="ad_name" aria-label="Group by Ad Name">
+                  Ad Name
+                </ToggleGroupItem>
+              </ToggleGroup>
+            </div>
           </CardHeader>
           <CardContent className="p-0">
             <ScrollArea className="h-[500px]">
@@ -62,20 +74,22 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
                 <Table>
                   <TableHeader className="sticky top-0 bg-card">
                     <TableRow className="border-b border-border">
-                      <TableHead className="font-medium text-foreground text-sm">Shoot</TableHead>
+                      <TableHead className="font-medium text-foreground text-sm">
+                        {groupBy === 'shoot' ? 'Shoot' : 'Ad Name'}
+                      </TableHead>
                       <TableHead className="text-right font-medium text-foreground text-sm">Percentage</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {aggregatedData.map((item, index) => (
                       <TableRow 
-                        key={item.shootName}
+                        key={item.itemName}
                         className={`
                           hover:bg-secondary/10 transition-colors cursor-pointer
                           ${index < 3 ? 'bg-primary/5' : 'bg-card'}
-                          ${selectedShoot === item.shootName ? 'bg-primary/20' : ''}
+                          ${selectedItem === item.itemName ? 'bg-primary/20' : ''}
                         `}
-                        onClick={() => setSelectedShoot(item.shootName)}
+                        onClick={() => setSelectedItem(item.itemName)}
                       >
                         <TableCell className="font-medium py-2 px-4">
                           <div className="flex items-center gap-2">
@@ -94,7 +108,7 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
                                 {index + 1}
                               </div>
                             )}
-                            <span className={`text-sm ${index < 3 ? 'font-medium' : ''} text-foreground`}>{item.shootName}</span>
+                            <span className={`text-sm ${index < 3 ? 'font-medium' : ''} text-foreground`}>{item.itemName}</span>
                           </div>
                         </TableCell>
                         <TableCell className="text-right font-mono font-medium text-sm py-2 px-4">
@@ -128,21 +142,21 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-4">
-            {selectedShoot ? (
+            {selectedItem ? (
               <div className="space-y-4">
-                <h3 className="text-sm font-medium text-foreground">{selectedShoot}</h3>
+                <h3 className="text-sm font-medium text-foreground">{selectedItem}</h3>
                 <div className="w-full aspect-[4/5] rounded-md overflow-hidden shadow-sm border border-border">
                   <iframe
                     src={videoUrl}
                     className="w-full h-full border-0"
                     allow="autoplay; encrypted-media"
-                    title={`Video for ${selectedShoot}`}
+                    title={`Video for ${selectedItem}`}
                   />
                 </div>
               </div>
             ) : (
               <div className="flex items-center justify-center h-40 text-muted-foreground text-sm">
-                Click on a shoot to view ad creative
+                Click on an item to view ad creative
               </div>
             )}
           </CardContent>

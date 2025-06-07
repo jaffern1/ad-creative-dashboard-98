@@ -1,3 +1,4 @@
+
 import React, { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
@@ -12,10 +13,10 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
   const categoryData = useMemo(() => {
     const categories = ['season', 'production_type', 'copy_hook', 'visual_hook'] as const;
     const categoryColors = [
-      'hsl(25, 56%, 39%)',   // Primary
-      'hsl(28, 59%, 66%)',   // Secondary
-      'hsl(25, 40%, 50%)',   // Darker variant
-      'hsl(28, 50%, 55%)',   // Lighter variant
+      '#C8B5D1',   // Pastel violet
+      '#B5D1B5',   // Pastel green
+      '#D1C8B5',   // Pastel beige
+      '#B5C8D1',   // Pastel blue
     ];
 
     // Calculate total spend for percentage calculation
@@ -75,10 +76,10 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
               key={category.category} 
               className="shadow-sm border border-border bg-card"
             >
-              <CardHeader className="bg-card border-b border-border py-3">
-                <CardTitle className="text-lg font-medium flex items-center gap-2">
+              <CardHeader className="bg-muted border-b border-border py-3">
+                <CardTitle className="text-base font-medium flex items-center gap-2">
                   <div 
-                    className="w-3 h-3 rounded-full" 
+                    className="w-2 h-2 rounded-full" 
                     style={{ backgroundColor: category.color }}
                   ></div>
                   {category.category}

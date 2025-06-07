@@ -68,8 +68,8 @@ export const NewAdsChart: React.FC<NewAdsChartProps> = ({ data }) => {
                 dataKey="newAds" 
                 stroke="hsl(25, 56%, 39%)" 
                 strokeWidth={2}
-                dot={{ fill: "hsl(25, 56%, 39%)", strokeWidth: 2, r: 3 }}
-                activeDot={{ r: 5, stroke: "hsl(25, 56%, 39%)", strokeWidth: 2 }}
+                dot={false}
+                activeDot={{ r: 4, stroke: "hsl(25, 56%, 39%)", strokeWidth: 1, fill: "hsl(25, 56%, 39%)" }}
               />
             </LineChart>
           </ResponsiveContainer>
