@@ -38,15 +38,15 @@ export const NewAdsChart: React.FC<NewAdsChartProps> = ({ data }) => {
   }, [data]);
 
   return (
-    <Card className="shadow-sm border border-border bg-card">
-      <CardHeader className="bg-card border-b border-border py-3">
-        <CardTitle className="text-lg font-medium flex items-center gap-2 text-foreground">
-          <TrendingUp className="h-5 w-5 text-primary" />
+    <Card className="shadow-sm border border-border bg-card rounded-xl">
+      <CardHeader className="bg-[#e7e2d6] border-b border-border py-3 rounded-t-xl">
+        <CardTitle className="text-base font-medium flex items-center gap-2 text-[#b46032]">
+          <TrendingUp className="h-5 w-5 text-[#b46032]" />
           New Ads Per Day
         </CardTitle>
       </CardHeader>
       <CardContent className="p-6">
-        <ChartContainer config={chartConfig} className="h-64 w-full">
+        <ChartContainer config={chartConfig} className="h-[340px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
               <XAxis 

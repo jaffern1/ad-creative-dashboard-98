@@ -57,15 +57,15 @@ export const MostRecentAds: React.FC<MostRecentAdsProps> = ({ data }) => {
   };
 
   return (
-    <Card className="shadow-sm border border-border bg-card">
-      <CardHeader className="bg-card border-b border-border py-3">
-        <CardTitle className="text-base font-medium flex items-center gap-2 text-foreground">
-          <Calendar className="h-4 w-4 text-primary" />
+    <Card className="shadow-sm border border-border bg-card rounded-xl">
+      <CardHeader className="bg-[#e7e2d6] border-b border-border py-3 rounded-t-xl">
+        <CardTitle className="text-base font-medium flex items-center gap-2 text-[#b46032]">
+          <Calendar className="h-4 w-4 text-[#b46032]" />
           Most Recent Ads
         </CardTitle>
       </CardHeader>
       <CardContent className="p-0">
-        <ScrollArea className="h-[600px]">
+        <ScrollArea className="h-[400px]">
           <div className="border-0">
             <Table>
               <TableHeader className="sticky top-0 bg-card">
@@ -75,7 +75,7 @@ export const MostRecentAds: React.FC<MostRecentAdsProps> = ({ data }) => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {recentAdsData.slice(0, 10).map((item, index) => (
+                {recentAdsData.map((item, index) => (
                   <TableRow 
                     key={`${item.ad_name}-${index}`}
                     className="hover:bg-secondary/10 transition-colors bg-card"
@@ -90,13 +90,6 @@ export const MostRecentAds: React.FC<MostRecentAdsProps> = ({ data }) => {
                     </TableCell>
                   </TableRow>
                 ))}
-                {recentAdsData.length > 10 && (
-                  <TableRow>
-                    <TableCell colSpan={2} className="text-center text-muted-foreground py-4 text-sm">
-                      Scroll to see more ads...
-                    </TableCell>
-                  </TableRow>
-                )}
                 {recentAdsData.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={2} className="text-center text-muted-foreground py-8 text-sm">

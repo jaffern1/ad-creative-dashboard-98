@@ -43,10 +43,10 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
   const videoUrl = getEmbedUrl('https://drive.google.com/file/d/1PiCiQio-fDWvT-R53SjxZF-kZ7QPvpD9/view?usp=sharing');
 
   return (
-    <Card className="shadow-sm border border-border bg-card">
-      <CardHeader className="bg-card border-b border-border py-3">
-        <CardTitle className="text-base font-medium flex items-center gap-2 text-foreground">
-          <div className="w-2 h-2 bg-primary rounded-full"></div>
+    <Card className="shadow-sm border border-border bg-card rounded-xl">
+      <CardHeader className="bg-[#e7e2d6] border-b border-border py-3 rounded-t-xl">
+        <CardTitle className="text-base font-medium flex items-center gap-2 text-[#b46032]">
+          <div className="w-2 h-2 bg-[#b46032] rounded-full"></div>
           Top Ad Spend by Shoot
         </CardTitle>
       </CardHeader>
@@ -101,12 +101,7 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
                       </div>
                     </TableCell>
                     <TableCell className="text-right font-mono font-medium text-sm py-3 px-4">
-                      <span className={`
-                        ${index === 0 ? 'text-primary' : ''}
-                        ${index === 1 ? 'text-primary/80' : ''}
-                        ${index === 2 ? 'text-primary/60' : ''}
-                        ${index >= 3 ? 'text-foreground' : ''}
-                      `}>
+                      <span className="text-black">
                         {formatPercentage(item.percentage)}
                       </span>
                     </TableCell>

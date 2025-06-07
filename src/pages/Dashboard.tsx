@@ -127,12 +127,14 @@ const Dashboard = () => {
               countries={countries}
             />
             
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <SpendTable data={filteredData} />
-              <MostRecentAds data={filteredData} />
-            </div>
+            {/* Full width Top Ad Spend */}
+            <SpendTable data={filteredData} />
             
-            <NewAdsChart data={filteredData} />
+            {/* Side by side: Most Recent Ads (left) and New Ads Chart (right) */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <MostRecentAds data={filteredData} />
+              <NewAdsChart data={filteredData} />
+            </div>
             
             <CategoryBreakdown data={filteredData} />
           </div>
