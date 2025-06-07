@@ -1,4 +1,3 @@
-
 import React, { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
@@ -38,29 +37,27 @@ export const NewAdsChart: React.FC<NewAdsChartProps> = ({ data }) => {
   }, [data]);
 
   return (
-    <Card className="shadow-sm border border-border bg-card">
-      <CardHeader className="bg-card border-b border-border py-3">
-        <CardTitle className="text-lg font-medium flex items-center gap-2 text-foreground">
-          <TrendingUp className="h-5 w-5 text-primary" />
+    <Card className="shadow-none border border-border/50 bg-card">
+      <CardHeader className="bg-card border-b border-border/30 py-4">
+        <CardTitle className="text-lg font-light flex items-center gap-2 text-foreground tracking-tight">
+          <TrendingUp className="h-4 w-4 text-primary" />
           New Ads Per Day
         </CardTitle>
       </CardHeader>
-      <CardContent className="p-6">
+      <CardContent className="p-8">
         <ChartContainer config={chartConfig} className="h-64 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
               <XAxis 
                 dataKey="day" 
-                tick={{ fontSize: 12 }}
+                tick={{ fontSize: 12, fill: 'hsl(25, 15%, 45%)' }}
                 tickLine={false}
                 axisLine={false}
-                className="text-muted-foreground"
               />
               <YAxis 
-                tick={{ fontSize: 12 }}
+                tick={{ fontSize: 12, fill: 'hsl(25, 15%, 45%)' }}
                 tickLine={false}
                 axisLine={false}
-                className="text-muted-foreground"
               />
               <ChartTooltip content={<ChartTooltipContent />} />
               <Line 

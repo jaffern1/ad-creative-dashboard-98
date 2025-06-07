@@ -7,82 +7,82 @@
 
 @layer base {
   :root {
-    --background: 34 9% 96%; /* #f6f2ed */
-    --foreground: 0 0% 0%; /* Black text */
+    --background: 40 20% 97%; /* #f6f4f0 - warm off-white like Ffern */
+    --foreground: 20 20% 15%; /* #2a2520 - warm dark brown */
 
-    --card: 40 29% 98%; /* #fcfbf8 */
-    --card-foreground: 0 0% 0%; /* Black text */
+    --card: 40 25% 98%; /* #fcfbf8 - slightly warmer white for cards */
+    --card-foreground: 20 20% 15%; /* warm dark brown */
 
-    --popover: 40 29% 98%;
-    --popover-foreground: 0 0% 0%; /* Black text */
+    --popover: 40 25% 98%;
+    --popover-foreground: 20 20% 15%;
 
-    --primary: 25 56% 39%; /* #98512b */
-    --primary-foreground: 40 29% 98%;
+    --primary: 25 56% 39%; /* #98512b - rich terracotta brown */
+    --primary-foreground: 40 25% 98%;
 
-    --secondary: 28 59% 66%; /* #e2976e */
-    --secondary-foreground: 0 0% 0%; /* Black text */
+    --secondary: 28 50% 70%; /* #d4a574 - warm light brown */
+    --secondary-foreground: 20 20% 15%;
 
-    --muted: 34 33% 95%;
-    --muted-foreground: 0 0% 40%; /* Dark gray for muted text */
+    --muted: 35 15% 92%; /* #ebe8e2 - very light warm gray */
+    --muted-foreground: 25 15% 45%; /* #726355 - medium brown */
 
-    --accent: 28 59% 66%;
-    --accent-foreground: 0 0% 0%; /* Black text */
+    --accent: 28 50% 70%;
+    --accent-foreground: 20 20% 15%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 34 9% 88%;
-    --input: 34 9% 88%;
+    --border: 35 12% 88%; /* #ddd7d0 - warm light border */
+    --input: 35 12% 88%;
     --ring: 25 56% 39%;
 
-    --radius: 0.5rem;
+    --radius: 0.375rem; /* Slightly smaller radius for cleaner look */
 
-    --sidebar-background: 40 29% 98%;
-    --sidebar-foreground: 0 0% 0%; /* Black text */
+    --sidebar-background: 40 25% 98%;
+    --sidebar-foreground: 20 20% 15%;
     --sidebar-primary: 25 56% 39%;
-    --sidebar-primary-foreground: 40 29% 98%;
-    --sidebar-accent: 34 9% 96%;
-    --sidebar-accent-foreground: 0 0% 0%; /* Black text */
-    --sidebar-border: 34 9% 88%;
+    --sidebar-primary-foreground: 40 25% 98%;
+    --sidebar-accent: 35 15% 92%;
+    --sidebar-accent-foreground: 20 20% 15%;
+    --sidebar-border: 35 12% 88%;
     --sidebar-ring: 25 56% 39%;
   }
 
   .dark {
-    --background: 25 42% 15%;
-    --foreground: 40 29% 98%;
+    --background: 25 35% 8%;
+    --foreground: 40 25% 98%;
 
-    --card: 25 42% 18%;
-    --card-foreground: 40 29% 98%;
+    --card: 25 35% 12%;
+    --card-foreground: 40 25% 98%;
 
-    --popover: 25 42% 18%;
-    --popover-foreground: 40 29% 98%;
+    --popover: 25 35% 12%;
+    --popover-foreground: 40 25% 98%;
 
-    --primary: 40 29% 98%;
+    --primary: 40 25% 98%;
     --primary-foreground: 25 56% 39%;
 
-    --secondary: 28 59% 45%;
-    --secondary-foreground: 40 29% 98%;
+    --secondary: 28 40% 35%;
+    --secondary-foreground: 40 25% 98%;
 
-    --muted: 25 42% 22%;
-    --muted-foreground: 34 15% 70%;
+    --muted: 25 35% 18%;
+    --muted-foreground: 35 15% 65%;
 
-    --accent: 28 59% 45%;
-    --accent-foreground: 40 29% 98%;
+    --accent: 28 40% 35%;
+    --accent-foreground: 40 25% 98%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 25 42% 22%;
-    --input: 25 42% 22%;
-    --ring: 40 29% 98%;
-    --sidebar-background: 25 42% 15%;
-    --sidebar-foreground: 40 29% 98%;
-    --sidebar-primary: 40 29% 98%;
+    --border: 25 35% 18%;
+    --input: 25 35% 18%;
+    --ring: 40 25% 98%;
+    --sidebar-background: 25 35% 8%;
+    --sidebar-foreground: 40 25% 98%;
+    --sidebar-primary: 40 25% 98%;
     --sidebar-primary-foreground: 25 56% 39%;
-    --sidebar-accent: 25 42% 22%;
-    --sidebar-accent-foreground: 40 29% 98%;
-    --sidebar-border: 25 42% 22%;
-    --sidebar-ring: 40 29% 98%;
+    --sidebar-accent: 25 35% 18%;
+    --sidebar-accent-foreground: 40 25% 98%;
+    --sidebar-border: 25 35% 18%;
+    --sidebar-ring: 40 25% 98%;
   }
 }
 
@@ -92,6 +92,28 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-light;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    letter-spacing: -0.01em;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-normal;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Custom styling for Ffern-like aesthetic */
+@layer utilities {
+  .text-brand {
+    @apply text-primary;
+  }
+  
+  .bg-brand {
+    @apply bg-primary;
+  }
+  
+  .border-brand {
+    @apply border-primary;
   }
 }
