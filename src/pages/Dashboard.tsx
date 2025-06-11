@@ -81,7 +81,9 @@ const Dashboard = () => {
   }, [data]);
 
   const objectives = useMemo(() => {
-    return Array.from(new Set(data.map(row => row.objective))).filter(Boolean);
+    const allowedObjectives = ['Prospecting', 'Remarketing', 'Testing', 'Brand'];
+    const dataObjectives = Array.from(new Set(data.map(row => row.objective))).filter(Boolean);
+    return dataObjectives.filter(objective => allowedObjectives.includes(objective));
   }, [data]);
 
   const shoots = useMemo(() => {
