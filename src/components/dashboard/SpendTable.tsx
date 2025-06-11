@@ -3,7 +3,7 @@ import React, { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { Button } from '@/components/ui/button';
 import { AdData } from '@/pages/Dashboard';
 
 interface SpendTableProps {
@@ -58,14 +58,24 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
                 <div className="w-2 h-2 bg-primary rounded-full"></div>
                 Top Ads by Spend
               </CardTitle>
-              <ToggleGroup type="single" value={groupBy} onValueChange={(value) => value && setGroupBy(value as 'shoot' | 'ad_name')}>
-                <ToggleGroupItem value="shoot" aria-label="Group by Shoot">
+              <div className="flex gap-2">
+                <Button
+                  variant={groupBy === 'shoot' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setGroupBy('shoot')}
+                  className="text-xs border-primary/20 hover:bg-primary/10"
+                >
                   Shoot
-                </ToggleGroupItem>
-                <ToggleGroupItem value="ad_name" aria-label="Group by Ad Name">
+                </Button>
+                <Button
+                  variant={groupBy === 'ad_name' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setGroupBy('ad_name')}
+                  className="text-xs border-primary/20 hover:bg-primary/10"
+                >
                   Ad Name
-                </ToggleGroupItem>
-              </ToggleGroup>
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent className="p-0">

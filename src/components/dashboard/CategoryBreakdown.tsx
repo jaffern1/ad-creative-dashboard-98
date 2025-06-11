@@ -11,12 +11,13 @@ interface CategoryBreakdownProps {
 
 export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) => {
   const categoryData = useMemo(() => {
-    const categories = ['season', 'production_type', 'copy_hook', 'visual_hook'] as const;
+    const categories = ['season', 'production_type', 'copy_hook', 'visual_hook', 'objective'] as const;
     const categoryColors = [
       '#C8B5D1',   // Pastel violet
       '#B5D1B5',   // Pastel green
       '#D1C8B5',   // Pastel beige
       '#B5C8D1',   // Pastel blue
+      '#D1B5C8',   // Pastel pink
     ];
 
     // Calculate total spend for percentage calculation
@@ -62,7 +63,7 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
         <p className="text-muted-foreground mt-2">Percentage breakdown of ad spend across key categories</p>
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {categoryData.map((category, index) => {
           const chartConfig = {
             percentage: {

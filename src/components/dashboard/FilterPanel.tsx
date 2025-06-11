@@ -15,12 +15,16 @@ interface FilterPanelProps {
   filters: FilterState;
   onFiltersChange: (filters: FilterState) => void;
   countries: string[];
+  objectives: string[];
+  shoots: string[];
 }
 
 export const FilterPanel: React.FC<FilterPanelProps> = ({
   filters,
   onFiltersChange,
   countries,
+  objectives,
+  shoots,
 }) => {
   const setDateRange = (days: number) => {
     const endDate = new Date();
@@ -48,7 +52,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
   return (
     <Card className="bg-card/90 backdrop-blur-sm border-border/50 shadow-lg">
       <CardContent className="p-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
           {/* Date Range */}
           <div className="space-y-3">
             <Label className="text-sm font-medium text-foreground">Date Range</Label>
@@ -159,12 +163,54 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
             </Select>
           </div>
 
+          {/* Objective Filter */}
+          <div className="space-y-3">
+            <Label className="text-sm font-medium text-foreground">Objective</Label>
+            <Select
+              value={filters.objective || "all"}
+              onValueChange={(value) => onFiltersChange({ ...filters, objective: value === "all" ? "" : value })}
+            >
+              <SelectTrigger className="border-primary/20">
+                <SelectValue placeholder="All objectives" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All objectives</SelectItem>
+                {objectives.map((objective) => (
+                  <SelectItem key={objective} value={objective}>
+                    {objective}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Shoot Filter */}
+          <div className="space-y-3">
+            <Label className="text-sm font-medium text-foreground">Shoot</Label>
+            <Select
+              value={filters.shoot || "all"}
+              onValueChange={(value) => onFiltersChange({ ...filters, shoot: value === "all" ? "" : value })}
+            >
+              <SelectTrigger className="border-primary/20">
+                <SelectValue placeholder="All shoots" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All shoots</SelectItem>
+                {shoots.map((shoot) => (
+                  <SelectItem key={shoot} value={shoot}>
+                    {shoot}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* Clear Filters */}
           <div className="space-y-3">
             <Label className="text-sm font-medium text-foreground">Actions</Label>
             <Button
               variant="outline"
-              onClick={() => onFiltersChange({ country: '' })}
+              onClick={() => onFiltersChange({ country: '', objective: '', shoot: '' })}
               className="w-full border-primary/20 hover:bg-primary/10"
             >
               Clear Filters

@@ -26,18 +26,23 @@ export interface AdData {
   ad_unique: string;
   copy_hook: string;
   visual_hook: string;
+  objective: string;
 }
 
 export interface FilterState {
   startDate?: Date;
   endDate?: Date;
   country: string;
+  objective: string;
+  shoot: string;
 }
 
 const Dashboard = () => {
   const [data, setData] = useState<AdData[]>([]);
   const [filters, setFilters] = useState<FilterState>({
     country: '',
+    objective: '',
+    shoot: '',
   });
   const { toast } = useToast();
 
@@ -61,12 +66,26 @@ const Dashboard = () => {
       // Country filter
       if (filters.country && row.country !== filters.country) return false;
       
+      // Objective filter
+      if (filters.objective && row.objective !== filters.objective) return false;
+      
+      // Shoot filter
+      if (filters.shoot && row.shoot !== filters.shoot) return false;
+      
       return true;
     });
   }, [data, filters]);
 
   const countries = useMemo(() => {
     return Array.from(new Set(data.map(row => row.country))).filter(Boolean);
+  }, [data]);
+
+  const objectives = useMemo(() => {
+    return Array.from(new Set(data.map(row => row.objective))).filter(Boolean);
+  }, [data]);
+
+  const shoots = useMemo(() => {
+    return Array.from(new Set(data.map(row => row.shoot))).filter(Boolean);
   }, [data]);
 
   const lastUpdated = useMemo(() => {
@@ -125,6 +144,8 @@ const Dashboard = () => {
               filters={filters}
               onFiltersChange={setFilters}
               countries={countries}
+              objectives={objectives}
+              shoots={shoots}
             />
             
             {/* Full width Top Ad Spend */}
