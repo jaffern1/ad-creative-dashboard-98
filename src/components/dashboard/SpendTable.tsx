@@ -47,10 +47,13 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
 
   const videoUrl = getEmbedUrl('https://drive.google.com/file/d/1PiCiQio-fDWvT-R53SjxZF-kZ7QPvpD9/view?usp=sharing');
 
+  // Show Ad Creative only when Ad Name tab is active
+  const showAdCreative = groupBy === 'ad_name';
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-      {/* Main table section - takes up 3/4 of the width */}
-      <div className="lg:col-span-3">
+    <div className={`grid grid-cols-1 ${showAdCreative ? 'lg:grid-cols-4' : ''} gap-6`}>
+      {/* Main table section */}
+      <div className={showAdCreative ? 'lg:col-span-3' : ''}>
         <Card className="shadow-sm border border-border bg-card">
           <CardHeader className="bg-muted border-b border-border py-3">
             <div className="flex items-center justify-between">
@@ -143,35 +146,37 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
         </Card>
       </div>
 
-      {/* Ad Creative section - takes up 1/4 of the width */}
-      <div className="lg:col-span-1">
-        <Card className="shadow-sm border border-border bg-card">
-          <CardHeader className="bg-muted border-b border-border py-3">
-            <CardTitle className="text-base font-medium">
-              Ad Creative
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-4">
-            {selectedItem ? (
-              <div className="space-y-4">
-                <h3 className="text-sm font-medium text-foreground">{selectedItem}</h3>
-                <div className="w-full aspect-[4/5] rounded-md overflow-hidden shadow-sm border border-border">
-                  <iframe
-                    src={videoUrl}
-                    className="w-full h-full border-0"
-                    allow="autoplay; encrypted-media"
-                    title={`Video for ${selectedItem}`}
-                  />
+      {/* Ad Creative section - only show when Ad Name tab is active */}
+      {showAdCreative && (
+        <div className="lg:col-span-1">
+          <Card className="shadow-sm border border-border bg-card">
+            <CardHeader className="bg-muted border-b border-border py-3">
+              <CardTitle className="text-base font-medium">
+                Ad Creative
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4">
+              {selectedItem ? (
+                <div className="space-y-4">
+                  <h3 className="text-sm font-medium text-foreground">{selectedItem}</h3>
+                  <div className="w-full aspect-[4/5] rounded-md overflow-hidden shadow-sm border border-border">
+                    <iframe
+                      src={videoUrl}
+                      className="w-full h-full border-0"
+                      allow="autoplay; encrypted-media"
+                      title={`Video for ${selectedItem}`}
+                    />
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <div className="flex items-center justify-center h-40 text-muted-foreground text-sm">
-                Click on an item to view ad creative
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+              ) : (
+                <div className="flex items-center justify-center h-40 text-muted-foreground text-sm">
+                  Click on an item to view ad creative
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 };

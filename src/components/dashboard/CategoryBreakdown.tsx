@@ -40,7 +40,7 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
           percentage: totalSpend > 0 ? (spend / totalSpend) * 100 : 0
         }))
         .sort((a, b) => b.spend - a.spend)
-        .slice(0, 10); // Top 10 items
+        .slice(0, 8); // Limit to 8 items for better visibility
 
       return {
         category: category.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
@@ -63,7 +63,8 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
         <p className="text-muted-foreground mt-2">Percentage breakdown of ad spend across key categories</p>
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+      {/* Display only 2 charts per row for better visibility */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {categoryData.map((category, index) => {
           const chartConfig = {
             percentage: {
@@ -90,17 +91,22 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
                 {category.data.length > 0 ? (
                   <ChartContainer config={chartConfig} className="h-80">
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={category.data} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+                      <BarChart 
+                        data={category.data} 
+                        margin={{ top: 5, right: 20, left: 20, bottom: 80 }}
+                      >
                         <XAxis 
                           dataKey="name" 
-                          tick={{ fontSize: 12, fill: 'currentColor' }}
+                          tick={{ fontSize: 11, fill: 'currentColor' }}
                           angle={-45}
                           textAnchor="end"
                           height={80}
+                          interval={0}
                         />
                         <YAxis 
                           tick={{ fontSize: 12, fill: 'currentColor' }}
                           tickFormatter={formatPercentage}
+                          width={60}
                         />
                         <ChartTooltip
                           content={

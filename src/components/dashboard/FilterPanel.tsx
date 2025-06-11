@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -49,10 +50,35 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
     });
   };
 
+  const handleObjectiveChange = (objective: string, checked: boolean) => {
+    const currentObjectives = Array.isArray(filters.objective) 
+      ? filters.objective 
+      : filters.objective ? [filters.objective] : [];
+    
+    let newObjectives;
+    if (checked) {
+      newObjectives = [...currentObjectives, objective];
+    } else {
+      newObjectives = currentObjectives.filter(obj => obj !== objective);
+    }
+    
+    onFiltersChange({
+      ...filters,
+      objective: newObjectives.length > 0 ? newObjectives : '',
+    });
+  };
+
+  const getSelectedObjectives = () => {
+    if (Array.isArray(filters.objective)) {
+      return filters.objective;
+    }
+    return filters.objective ? [filters.objective] : [];
+  };
+
   return (
     <Card className="bg-card/90 backdrop-blur-sm border-border/50 shadow-lg">
       <CardContent className="p-6">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-6">
           {/* Date Range */}
           <div className="space-y-3">
             <Label className="text-sm font-medium text-foreground">Date Range</Label>
@@ -163,25 +189,16 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
             </Select>
           </div>
 
-          {/* Objective Filter */}
+          {/* Actions */}
           <div className="space-y-3">
-            <Label className="text-sm font-medium text-foreground">Objective</Label>
-            <Select
-              value={filters.objective || "all"}
-              onValueChange={(value) => onFiltersChange({ ...filters, objective: value === "all" ? "" : value })}
+            <Label className="text-sm font-medium text-foreground">Actions</Label>
+            <Button
+              variant="outline"
+              onClick={() => onFiltersChange({ country: '', objective: '', shoot: '' })}
+              className="w-full border-primary/20 hover:bg-primary/10"
             >
-              <SelectTrigger className="border-primary/20">
-                <SelectValue placeholder="All objectives" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All objectives</SelectItem>
-                {objectives.map((objective) => (
-                  <SelectItem key={objective} value={objective}>
-                    {objective}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              Clear Filters
+            </Button>
           </div>
 
           {/* Shoot Filter */}
@@ -205,16 +222,42 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
             </Select>
           </div>
 
-          {/* Clear Filters */}
+          {/* Objective Filter - Multiple Selection */}
           <div className="space-y-3">
-            <Label className="text-sm font-medium text-foreground">Actions</Label>
-            <Button
-              variant="outline"
-              onClick={() => onFiltersChange({ country: '', objective: '', shoot: '' })}
-              className="w-full border-primary/20 hover:bg-primary/10"
-            >
-              Clear Filters
-            </Button>
+            <Label className="text-sm font-medium text-foreground">Objectives</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start text-left font-normal border-primary/20"
+                >
+                  {getSelectedObjectives().length === 0 
+                    ? "All objectives"
+                    : `${getSelectedObjectives().length} selected`
+                  }
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-64 p-4" align="start">
+                <div className="space-y-3">
+                  <div className="text-sm font-medium">Select Objectives</div>
+                  {objectives.map((objective) => (
+                    <div key={objective} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={objective}
+                        checked={getSelectedObjectives().includes(objective)}
+                        onCheckedChange={(checked) => handleObjectiveChange(objective, checked as boolean)}
+                      />
+                      <Label 
+                        htmlFor={objective}
+                        className="text-sm font-normal cursor-pointer"
+                      >
+                        {objective}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
       </CardContent>

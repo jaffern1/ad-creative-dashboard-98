@@ -33,7 +33,7 @@ export interface FilterState {
   startDate?: Date;
   endDate?: Date;
   country: string;
-  objective: string;
+  objective: string | string[];
   shoot: string;
 }
 
@@ -66,8 +66,13 @@ const Dashboard = () => {
       // Country filter
       if (filters.country && row.country !== filters.country) return false;
       
-      // Objective filter
-      if (filters.objective && row.objective !== filters.objective) return false;
+      // Objective filter - support multiple selection
+      if (filters.objective) {
+        const selectedObjectives = Array.isArray(filters.objective) 
+          ? filters.objective 
+          : [filters.objective];
+        if (selectedObjectives.length > 0 && !selectedObjectives.includes(row.objective)) return false;
+      }
       
       // Shoot filter
       if (filters.shoot && row.shoot !== filters.shoot) return false;
@@ -75,6 +80,28 @@ const Dashboard = () => {
       return true;
     });
   }, [data, filters]);
+
+  // Data for Category Performance that ignores Objective filter
+  const categoryData = useMemo(() => {
+    return data.filter(row => {
+      // Date filter
+      if (filters.startDate || filters.endDate) {
+        const rowDate = new Date(row.day);
+        if (filters.startDate && rowDate < filters.startDate) return false;
+        if (filters.endDate && rowDate > filters.endDate) return false;
+      }
+      
+      // Country filter
+      if (filters.country && row.country !== filters.country) return false;
+      
+      // Shoot filter
+      if (filters.shoot && row.shoot !== filters.shoot) return false;
+      
+      // NOTE: Objective filter is ignored for Category Performance
+      
+      return true;
+    });
+  }, [data, filters.startDate, filters.endDate, filters.country, filters.shoot]);
 
   const countries = useMemo(() => {
     return Array.from(new Set(data.map(row => row.country))).filter(Boolean);
@@ -159,7 +186,8 @@ const Dashboard = () => {
               <NewAdsChart data={filteredData} />
             </div>
             
-            <CategoryBreakdown data={filteredData} />
+            {/* Category Performance using data that ignores Objective filter */}
+            <CategoryBreakdown data={categoryData} />
           </div>
         )}
       </div>
