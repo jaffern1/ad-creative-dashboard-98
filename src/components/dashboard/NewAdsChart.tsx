@@ -24,7 +24,7 @@ export const NewAdsChart: React.FC<NewAdsChartProps> = ({ data }) => {
       if (!acc[day]) {
         acc[day] = 0;
       }
-      acc[day] += Number(row.is_first_instance);
+      acc[day] += Number(row.is_first_instance) || 0;
       return acc;
     }, {} as Record<string, number>);
 
