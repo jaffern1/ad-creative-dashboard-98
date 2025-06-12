@@ -21,12 +21,16 @@ export const NewAdsChart: React.FC<NewAdsChartProps> = ({ data }) => {
   const chartData = useMemo(() => {
     const newAdsByDay = data.reduce((acc, row) => {
       const day = row.day;
+      const count = Number(row.is_first_instance);
+      
       if (!acc[day]) {
         acc[day] = 0;
       }
-      acc[day] += Number(row.is_first_instance) || 0;
+    
+      acc[day] += isNaN(count) ? 0 : count;
       return acc;
     }, {} as Record<string, number>);
+
 
     return Object.entries(newAdsByDay)
       .map(([day, newAds]) => ({
