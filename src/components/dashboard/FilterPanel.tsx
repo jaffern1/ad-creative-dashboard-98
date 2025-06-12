@@ -201,27 +201,6 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
             </Button>
           </div>
 
-          {/* Shoot Filter */}
-          <div className="space-y-3">
-            <Label className="text-sm font-medium text-foreground">Shoot</Label>
-            <Select
-              value={filters.shoot || "all"}
-              onValueChange={(value) => onFiltersChange({ ...filters, shoot: value === "all" ? "" : value })}
-            >
-              <SelectTrigger className="border-primary/20">
-                <SelectValue placeholder="All shoots" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All shoots</SelectItem>
-                {shoots.map((shoot) => (
-                  <SelectItem key={shoot} value={shoot}>
-                    {shoot}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
           {/* Objective Filter - Multiple Selection */}
           <div className="space-y-3">
             <Label className="text-sm font-medium text-foreground">Objectives</Label>
@@ -258,6 +237,27 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                 </div>
               </PopoverContent>
             </Popover>
+          </div>
+
+          {/* Shoot Filter */}
+          <div className="space-y-3">
+            <Label className="text-sm font-medium text-foreground">Shoot</Label>
+            <Select
+              value={filters.shoot || "all"}
+              onValueChange={(value) => onFiltersChange({ ...filters, shoot: value === "all" ? "" : value })}
+            >
+              <SelectTrigger className="border-primary/20">
+                <SelectValue placeholder="All shoots" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All shoots</SelectItem>
+                {shoots.map((shoot) => (
+                  <SelectItem key={shoot} value={shoot}>
+                    {shoot}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </CardContent>
