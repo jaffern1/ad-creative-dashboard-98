@@ -182,9 +182,11 @@ const Dashboard = () => {
             {/* Full width Top Ad Spend */}
             <SpendTable data={filteredData} />
             
-            {/* Side by side: Most Recent Ads (left), Active Ads Chart (middle), and New Ads Chart (right) */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <MostRecentAds data={filteredData} />
+            {/* Most Recent Ads (full width) */}
+            <MostRecentAds data={filteredData} />
+            
+            {/* Side by side: Active Ads Chart and New Ads Chart */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <ActiveAdsChart data={filteredData} />
               <NewAdsChart data={filteredData} />
             </div>
