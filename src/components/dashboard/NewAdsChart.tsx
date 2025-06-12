@@ -21,7 +21,7 @@ export const NewAdsChart: React.FC<NewAdsChartProps> = ({ data }) => {
   const chartData = useMemo(() => {
     const newAdsByDay = data.reduce((acc, row) => {
       const day = row.day;
-      const isFirstInstance = row.is_first_instance || 0; // Default to 0 if undefined
+      const isFirstInstance = Number(row.is_first_instance) || 0; // Default to 0 if undefined
       
       if (!acc[day]) {
         acc[day] = 0;
