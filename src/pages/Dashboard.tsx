@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,6 +8,7 @@ import { SpendTable } from '@/components/dashboard/SpendTable';
 import { CategoryBreakdown } from '@/components/dashboard/CategoryBreakdown';
 import { MostRecentAds } from '@/components/dashboard/MostRecentAds';
 import { NewAdsChart } from '@/components/dashboard/NewAdsChart';
+import { ActiveAdsChart } from '@/components/dashboard/ActiveAdsChart';
 import { useToast } from '@/hooks/use-toast';
 
 export interface AdData {
@@ -19,6 +19,7 @@ export interface AdData {
   adset_name: string;
   old_ad_name: string;
   ad_name: string;
+  file_link: string;
   spend: number;
   season: string;
   production_type: string;
@@ -26,7 +27,8 @@ export interface AdData {
   ad_unique: string;
   copy_hook: string;
   visual_hook: string;
-  objective: string;
+  Objective: string;
+  is_first_instance: number;
 }
 
 export interface FilterState {
@@ -71,7 +73,7 @@ const Dashboard = () => {
         const selectedObjectives = Array.isArray(filters.objective) 
           ? filters.objective 
           : [filters.objective];
-        if (selectedObjectives.length > 0 && !selectedObjectives.includes(row.objective)) return false;
+        if (selectedObjectives.length > 0 && !selectedObjectives.includes(row.Objective)) return false;
       }
       
       // Shoot filter
@@ -109,7 +111,7 @@ const Dashboard = () => {
 
   const objectives = useMemo(() => {
     const allowedObjectives = ['Prospecting', 'Remarketing', 'Testing', 'Brand'];
-    const dataObjectives = Array.from(new Set(data.map(row => row.objective))).filter(Boolean);
+    const dataObjectives = Array.from(new Set(data.map(row => row.Objective))).filter(Boolean);
     return dataObjectives.filter(objective => allowedObjectives.includes(objective));
   }, [data]);
 
@@ -180,9 +182,10 @@ const Dashboard = () => {
             {/* Full width Top Ad Spend */}
             <SpendTable data={filteredData} />
             
-            {/* Side by side: Most Recent Ads (left) and New Ads Chart (right) */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Side by side: Most Recent Ads (left), Active Ads Chart (middle), and New Ads Chart (right) */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <MostRecentAds data={filteredData} />
+              <ActiveAdsChart data={filteredData} />
               <NewAdsChart data={filteredData} />
             </div>
             

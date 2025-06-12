@@ -35,6 +35,13 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
       .sort((a, b) => b.percentage - a.percentage);
   }, [data, groupBy]);
 
+  // Get the file_link for the selected ad
+  const selectedAdFileLink = useMemo(() => {
+    if (!selectedItem || groupBy !== 'ad_name') return null;
+    const adData = data.find(row => row.ad_name === selectedItem);
+    return adData?.file_link || null;
+  }, [selectedItem, data, groupBy]);
+
   const formatPercentage = (percentage: number) => {
     return `${percentage.toFixed(1)}%`;
   };
@@ -42,10 +49,8 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
   // Convert Google Drive share link to embeddable format
   const getEmbedUrl = (driveUrl: string) => {
     const fileId = driveUrl.match(/\/d\/([a-zA-Z0-9-_]+)/)?.[1];
-    return fileId ? `https://drive.google.com/file/d/${fileId}/preview` : '';
+    return fileId ? `https://drive.google.com/file/d/${fileId}/preview` : driveUrl;
   };
-
-  const videoUrl = getEmbedUrl('https://drive.google.com/file/d/1PiCiQio-fDWvT-R53SjxZF-kZ7QPvpD9/view?usp=sharing');
 
   // Show Ad Creative only when Ad Name tab is active
   const showAdCreative = groupBy === 'ad_name';
@@ -156,21 +161,21 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4">
-              {selectedItem ? (
+              {selectedItem && selectedAdFileLink ? (
                 <div className="space-y-4">
                   <h3 className="text-sm font-medium text-foreground">{selectedItem}</h3>
                   <div className="w-full aspect-[4/5] rounded-md overflow-hidden shadow-sm border border-border">
                     <iframe
-                      src={videoUrl}
+                      src={getEmbedUrl(selectedAdFileLink)}
                       className="w-full h-full border-0"
                       allow="autoplay; encrypted-media"
-                      title={`Video for ${selectedItem}`}
+                      title={`Creative for ${selectedItem}`}
                     />
                   </div>
                 </div>
               ) : (
                 <div className="flex items-center justify-center h-40 text-muted-foreground text-sm">
-                  Click on an item to view ad creative
+                  {selectedItem ? 'No creative available for this ad' : 'Click on an item to view ad creative'}
                 </div>
               )}
             </CardContent>

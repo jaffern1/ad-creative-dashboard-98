@@ -11,7 +11,7 @@ interface CategoryBreakdownProps {
 
 export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) => {
   const categoryData = useMemo(() => {
-    const categories = ['season', 'production_type', 'copy_hook', 'visual_hook', 'objective'] as const;
+    const categories = ['season', 'production_type', 'copy_hook', 'visual_hook', 'Objective'] as const;
     const categoryColors = [
       '#C8B5D1',   // Pastel violet
       '#B5D1B5',   // Pastel green
@@ -25,7 +25,16 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
     
     return categories.map((category, index) => {
       const spendByCategory = data.reduce((acc, row) => {
-        const categoryValue = row[category] || 'Unknown';
+        let categoryValue = row[category] || 'Unknown';
+        
+        // For Objective category, filter to only allowed values
+        if (category === 'Objective') {
+          const allowedObjectives = ['Prospecting', 'Remarketing', 'Testing', 'Brand'];
+          if (!allowedObjectives.includes(categoryValue)) {
+            return acc; // Skip this row if objective is not in allowed list
+          }
+        }
+        
         if (!acc[categoryValue]) {
           acc[categoryValue] = 0;
         }
@@ -40,7 +49,7 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
           percentage: totalSpend > 0 ? (spend / totalSpend) * 100 : 0
         }))
         .sort((a, b) => b.spend - a.spend)
-        .slice(0, 8); // Limit to 8 items for better visibility
+        .slice(0, 6); // Limit to 6 items for better visibility
 
       return {
         category: category.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
@@ -105,14 +114,14 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
                         />
                         <YAxis 
                           tick={{ fontSize: 12, fill: 'currentColor' }}
-                          tickFormatter={formatPercentage}
+                          tickFormatter={(value) => `${value.toFixed(0)}%`}
                           width={60}
                         />
                         <ChartTooltip
                           content={
                             <ChartTooltipContent
                               formatter={(value) => [
-                                formatPercentage(Number(value)), 
+                                `${Number(value).toFixed(0)}%`, 
                                 "Percentage"
                               ]}
                             />
