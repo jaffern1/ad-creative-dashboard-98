@@ -78,9 +78,9 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
   return (
     <Card className="bg-card/90 backdrop-blur-sm border-border/50 shadow-lg">
       <CardContent className="p-6">
-        <div className="grid grid-cols-1 md:grid-cols-6 gap-6">
-          {/* Date Range */}
-          <div className="space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {/* Row 1: Date Range (spans 2 cols), Country, Actions */}
+          <div className="md:col-span-2 space-y-3">
             <Label className="text-sm font-medium text-foreground">Date Range</Label>
             <div className="flex gap-2 mb-3 flex-wrap">
               <Button
@@ -200,6 +200,9 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
               Clear Filters
             </Button>
           </div>
+
+          {/* Row 2: Empty, Empty, Objectives, Shoot */}
+          <div className="md:col-span-2"></div>
 
           {/* Objective Filter - Multiple Selection */}
           <div className="space-y-3">
