@@ -19,6 +19,7 @@ export const useFilterOptions = (dateFilteredData: AdData[]) => {
     }, {} as Record<string, number>);
 
     return Object.entries(countrySpend)
+      .filter(([, spend]) => spend > 0) // Filter out countries with zero spend
       .sort(([,a], [,b]) => b - a)
       .map(([country, spend]) => ({
         value: country,
@@ -38,6 +39,7 @@ export const useFilterOptions = (dateFilteredData: AdData[]) => {
     }, {} as Record<string, number>);
 
     return Object.entries(objectiveSpend)
+      .filter(([, spend]) => spend > 0) // Filter out objectives with zero spend
       .sort(([,a], [,b]) => b - a)
       .map(([objective, spend]) => ({
         value: objective,
@@ -61,6 +63,7 @@ export const useFilterOptions = (dateFilteredData: AdData[]) => {
     }, {} as Record<string, number>);
 
     return Object.entries(shootSpend)
+      .filter(([, spend]) => spend > 0) // Filter out shoots with zero spend
       .sort(([,a], [,b]) => b - a)
       .map(([shoot, spend]) => ({
         value: shoot,
