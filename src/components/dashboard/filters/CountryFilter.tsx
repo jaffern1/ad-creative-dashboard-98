@@ -35,7 +35,10 @@ export const CountryFilter: React.FC<CountryFilterProps> = ({
           <SelectItem value="all">All countries</SelectItem>
           {countries.map((country) => (
             <SelectItem key={country.value} value={country.value}>
-              {country.label}
+              <div className="flex w-full justify-between items-center">
+                <span>{country.label}</span>
+                <span className="text-muted-foreground ml-2">£{Math.round(country.spend / 1000)}K</span>
+              </div>
             </SelectItem>
           ))}
         </SelectContent>

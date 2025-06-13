@@ -35,7 +35,10 @@ export const ShootFilter: React.FC<ShootFilterProps> = ({
           <SelectItem value="all">All shoots</SelectItem>
           {shoots.map((shoot) => (
             <SelectItem key={shoot.value} value={shoot.value}>
-              {shoot.label}
+              <div className="flex w-full justify-between items-center">
+                <span>{shoot.label}</span>
+                <span className="text-muted-foreground ml-2">£{Math.round(shoot.spend / 1000)}K</span>
+              </div>
             </SelectItem>
           ))}
         </SelectContent>

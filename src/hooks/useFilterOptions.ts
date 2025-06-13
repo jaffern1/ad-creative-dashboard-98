@@ -22,7 +22,7 @@ export const useFilterOptions = (dateFilteredData: AdData[]) => {
       .sort(([,a], [,b]) => b - a)
       .map(([country, spend]) => ({
         value: country,
-        label: `${country} (£${Math.round(spend / 1000)}K)`,
+        label: country,
         spend
       }));
   }, [dateFilteredData]);
@@ -41,7 +41,7 @@ export const useFilterOptions = (dateFilteredData: AdData[]) => {
       .sort(([,a], [,b]) => b - a)
       .map(([objective, spend]) => ({
         value: objective,
-        label: `${objective} (£${Math.round(spend / 1000)}K)`,
+        label: objective,
         spend
       }));
   }, [dateFilteredData]);
@@ -64,7 +64,7 @@ export const useFilterOptions = (dateFilteredData: AdData[]) => {
       .sort(([,a], [,b]) => b - a)
       .map(([shoot, spend]) => ({
         value: shoot,
-        label: `${shoot} (£${Math.round(spend / 1000)}K)`,
+        label: shoot,
         spend
       }));
   }, [dateFilteredData]);

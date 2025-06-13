@@ -75,9 +75,10 @@ export const ObjectiveFilter: React.FC<ObjectiveFilterProps> = ({
                 />
                 <Label 
                   htmlFor={objective.value}
-                  className="text-sm font-normal cursor-pointer"
+                  className="text-sm font-normal cursor-pointer flex-1 flex justify-between items-center"
                 >
-                  {objective.label}
+                  <span>{objective.label}</span>
+                  <span className="text-muted-foreground ml-2">£{Math.round(objective.spend / 1000)}K</span>
                 </Label>
               </div>
             ))}
