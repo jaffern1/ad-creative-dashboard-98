@@ -44,7 +44,7 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
   return (
     <div className="md:col-span-2 space-y-3">
       <Label className="text-sm font-medium text-foreground">Date Range</Label>
-      <div className="flex gap-2 mb-3 flex-wrap">
+      <div className="grid grid-cols-4 gap-2 mb-3">
         <Button
           variant="outline"
           size="sm"
@@ -79,13 +79,13 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
         </Button>
       </div>
       
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-4 gap-2">
         <Popover>
           <PopoverTrigger asChild>
             <Button
               variant="outline"
               className={cn(
-                "justify-start text-left font-normal border-primary/20",
+                "col-span-2 justify-start text-left font-normal border-primary/20",
                 !filters.startDate && "text-muted-foreground"
               )}
             >
@@ -109,7 +109,7 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
             <Button
               variant="outline"
               className={cn(
-                "justify-start text-left font-normal border-primary/20",
+                "col-span-2 justify-start text-left font-normal border-primary/20",
                 !filters.endDate && "text-muted-foreground"
               )}
             >
