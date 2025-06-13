@@ -15,6 +15,14 @@ export const ShootFilter: React.FC<ShootFilterProps> = ({
   onFiltersChange,
   shoots,
 }) => {
+  // Filter out URLs, empty strings, and other invalid values
+  const validShoots = shoots.filter(shoot => 
+    shoot && 
+    shoot.trim() !== '' && 
+    !shoot.startsWith('http') && 
+    !shoot.includes('drive.google.com')
+  );
+
   return (
     <div className="space-y-3">
       <Label className="text-sm font-medium text-foreground">Shoot</Label>
@@ -27,7 +35,7 @@ export const ShootFilter: React.FC<ShootFilterProps> = ({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All shoots</SelectItem>
-          {shoots.map((shoot) => (
+          {validShoots.map((shoot) => (
             <SelectItem key={shoot} value={shoot}>
               {shoot}
             </SelectItem>
