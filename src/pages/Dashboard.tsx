@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -56,6 +57,20 @@ const Dashboard = () => {
     });
   };
 
+  // Filter data based on date range only (for getting available filter options)
+  const dateFilteredData = useMemo(() => {
+    if (!filters.startDate && !filters.endDate) {
+      return data;
+    }
+
+    return data.filter(row => {
+      const rowDate = new Date(row.day);
+      if (filters.startDate && rowDate < filters.startDate) return false;
+      if (filters.endDate && rowDate > filters.endDate) return false;
+      return true;
+    });
+  }, [data, filters.startDate, filters.endDate]);
+
   const filteredData = useMemo(() => {
     return data.filter(row => {
       // Date filter
@@ -105,19 +120,20 @@ const Dashboard = () => {
     });
   }, [data, filters.startDate, filters.endDate, filters.country, filters.shoot]);
 
+  // Filter options based on date range
   const countries = useMemo(() => {
-    return Array.from(new Set(data.map(row => row.country))).filter(Boolean);
-  }, [data]);
+    return Array.from(new Set(dateFilteredData.map(row => row.country))).filter(Boolean);
+  }, [dateFilteredData]);
 
   const objectives = useMemo(() => {
     const allowedObjectives = ['Prospecting', 'Remarketing', 'Testing', 'Brand'];
-    const dataObjectives = Array.from(new Set(data.map(row => row.Objective))).filter(Boolean);
+    const dataObjectives = Array.from(new Set(dateFilteredData.map(row => row.Objective))).filter(Boolean);
     return dataObjectives.filter(objective => allowedObjectives.includes(objective));
-  }, [data]);
+  }, [dateFilteredData]);
 
   const shoots = useMemo(() => {
-    return Array.from(new Set(data.map(row => row.shoot))).filter(Boolean);
-  }, [data]);
+    return Array.from(new Set(dateFilteredData.map(row => row.shoot))).filter(Boolean);
+  }, [dateFilteredData]);
 
   const lastUpdated = useMemo(() => {
     if (data.length === 0) return null;
