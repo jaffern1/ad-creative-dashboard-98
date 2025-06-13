@@ -63,7 +63,7 @@ export const ShootFilter: React.FC<ShootFilterProps> = ({
             }
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-64 p-4" align="start">
+        <PopoverContent className="p-4" align="start" style={{ width: 'var(--radix-popover-trigger-width)' }}>
           <div className="space-y-3">
             <div className="text-sm font-medium">Select Shoots</div>
             {shoots.map((shoot) => (

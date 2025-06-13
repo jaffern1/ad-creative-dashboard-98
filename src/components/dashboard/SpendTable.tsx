@@ -64,7 +64,7 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
             <div className="flex items-center justify-between">
               <CardTitle className="text-base font-medium flex items-center gap-2">
                 <div className="w-2 h-2 bg-primary rounded-full"></div>
-                Top Ads by Spend
+                {groupBy === 'shoot' ? 'Top Shoots by Spend' : 'Top Ads by Spend'}
               </CardTitle>
               <div className="flex gap-2">
                 <Button
