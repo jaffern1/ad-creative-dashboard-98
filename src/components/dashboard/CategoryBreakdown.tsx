@@ -87,8 +87,8 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
               key={category.category} 
               className="shadow-sm border border-border bg-card"
             >
-              <CardHeader className="bg-muted border-b border-border py-3">
-                <CardTitle className="text-base font-medium flex items-center gap-2">
+              <CardHeader className="bg-muted border-b border-border py-2 px-4">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
                   <div 
                     className="w-2 h-2 rounded-full" 
                     style={{ backgroundColor: category.color }}
@@ -96,26 +96,26 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
                   {category.category}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-6">
+              <CardContent className="p-2">
                 {category.data.length > 0 ? (
-                  <ChartContainer config={chartConfig} className="h-80">
+                  <ChartContainer config={chartConfig} className="h-96">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart 
                         data={category.data} 
-                        margin={{ top: 5, right: 20, left: 20, bottom: 80 }}
+                        margin={{ top: 10, right: 10, left: 10, bottom: 90 }}
                       >
                         <XAxis 
                           dataKey="name" 
-                          tick={{ fontSize: 11, fill: 'currentColor' }}
+                          tick={{ fontSize: 10, fill: 'currentColor' }}
                           angle={-45}
                           textAnchor="end"
-                          height={80}
+                          height={90}
                           interval={0}
                         />
                         <YAxis 
-                          tick={{ fontSize: 12, fill: 'currentColor' }}
+                          tick={{ fontSize: 11, fill: 'currentColor' }}
                           tickFormatter={(value) => `${value.toFixed(0)}%`}
-                          width={60}
+                          width={40}
                         />
                         <ChartTooltip
                           content={
@@ -137,7 +137,7 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
                     </ResponsiveContainer>
                   </ChartContainer>
                 ) : (
-                  <div className="h-80 flex items-center justify-center text-muted-foreground">
+                  <div className="h-96 flex items-center justify-center text-muted-foreground">
                     <div className="text-center">
                       <div className="w-12 h-12 bg-muted rounded-full mx-auto mb-3 flex items-center justify-center">
                         <div className="w-6 h-6 bg-muted-foreground/30 rounded"></div>

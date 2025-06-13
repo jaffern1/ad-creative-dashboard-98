@@ -136,15 +136,22 @@ export const MostRecentAds: React.FC<MostRecentAdsProps> = ({ data }) => {
         </div>
       </CardHeader>
       <CardContent className="p-0">
-        <ScrollArea className="h-[400px]">
-          <div className="border-0">
+        <div className="relative">
+          {/* Fixed Header */}
+          <div className="sticky top-0 z-10 bg-card border-b border-border">
             <Table>
-              <TableHeader className="sticky top-0 bg-card">
-                <TableRow className="border-b border-border">
+              <TableHeader>
+                <TableRow className="border-b border-border hover:bg-transparent">
                   <TableHead className="font-medium text-foreground text-sm">Ad Name</TableHead>
                   <TableHead className="font-medium text-foreground text-sm w-32">Launch Date</TableHead>
                 </TableRow>
               </TableHeader>
+            </Table>
+          </div>
+          
+          {/* Scrollable Content */}
+          <ScrollArea className="h-[340px]">
+            <Table>
               <TableBody>
                 {paginatedData.map((item, index) => (
                   <TableRow 
@@ -170,8 +177,8 @@ export const MostRecentAds: React.FC<MostRecentAdsProps> = ({ data }) => {
                 )}
               </TableBody>
             </Table>
-          </div>
-        </ScrollArea>
+          </ScrollArea>
+        </div>
         
         {/* Pagination */}
         {itemsPerPage > 0 && totalPages > 1 && (
