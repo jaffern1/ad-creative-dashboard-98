@@ -1,4 +1,3 @@
-
 import React, { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
@@ -96,26 +95,26 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
                   {category.category}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-2">
+              <CardContent className="p-3">
                 {category.data.length > 0 ? (
-                  <ChartContainer config={chartConfig} className="h-96">
+                  <ChartContainer config={chartConfig} className="h-80 w-full">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart 
                         data={category.data} 
-                        margin={{ top: 10, right: 10, left: 10, bottom: 90 }}
+                        margin={{ top: 10, right: 5, left: 5, bottom: 80 }}
                       >
                         <XAxis 
                           dataKey="name" 
                           tick={{ fontSize: 10, fill: 'currentColor' }}
                           angle={-45}
                           textAnchor="end"
-                          height={90}
+                          height={80}
                           interval={0}
                         />
                         <YAxis 
                           tick={{ fontSize: 11, fill: 'currentColor' }}
                           tickFormatter={(value) => `${value.toFixed(0)}%`}
-                          width={40}
+                          width={35}
                         />
                         <ChartTooltip
                           content={
@@ -137,7 +136,7 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
                     </ResponsiveContainer>
                   </ChartContainer>
                 ) : (
-                  <div className="h-96 flex items-center justify-center text-muted-foreground">
+                  <div className="h-80 flex items-center justify-center text-muted-foreground">
                     <div className="text-center">
                       <div className="w-12 h-12 bg-muted rounded-full mx-auto mb-3 flex items-center justify-center">
                         <div className="w-6 h-6 bg-muted-foreground/30 rounded"></div>

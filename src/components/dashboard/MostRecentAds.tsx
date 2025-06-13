@@ -1,4 +1,3 @@
-
 import React, { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -143,7 +142,7 @@ export const MostRecentAds: React.FC<MostRecentAdsProps> = ({ data }) => {
               <TableHeader>
                 <TableRow className="border-b border-border hover:bg-transparent">
                   <TableHead className="font-medium text-foreground text-sm">Ad Name</TableHead>
-                  <TableHead className="font-medium text-foreground text-sm w-32">Launch Date</TableHead>
+                  <TableHead className="font-medium text-foreground text-sm w-32 text-center">Launch Date</TableHead>
                 </TableRow>
               </TableHeader>
             </Table>
@@ -163,7 +162,7 @@ export const MostRecentAds: React.FC<MostRecentAdsProps> = ({ data }) => {
                         {item.ad_name}
                       </div>
                     </TableCell>
-                    <TableCell className="py-3 px-4 font-mono text-sm text-foreground">
+                    <TableCell className="py-3 px-4 font-mono text-sm text-foreground text-center">
                       {formatDate(item.launch_date)}
                     </TableCell>
                   </TableRow>
