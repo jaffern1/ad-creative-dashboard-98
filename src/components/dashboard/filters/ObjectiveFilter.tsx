@@ -6,10 +6,16 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Checkbox } from '@/components/ui/checkbox';
 import { FilterState } from '@/pages/Dashboard';
 
+interface FilterOption {
+  value: string;
+  label: string;
+  spend: number;
+}
+
 interface ObjectiveFilterProps {
   filters: FilterState;
   onFiltersChange: (filters: FilterState) => void;
-  objectives: string[];
+  objectives: FilterOption[];
 }
 
 export const ObjectiveFilter: React.FC<ObjectiveFilterProps> = ({
@@ -61,17 +67,17 @@ export const ObjectiveFilter: React.FC<ObjectiveFilterProps> = ({
           <div className="space-y-3">
             <div className="text-sm font-medium">Select Objectives</div>
             {objectives.map((objective) => (
-              <div key={objective} className="flex items-center space-x-2">
+              <div key={objective.value} className="flex items-center space-x-2">
                 <Checkbox
-                  id={objective}
-                  checked={getSelectedObjectives().includes(objective)}
-                  onCheckedChange={(checked) => handleObjectiveChange(objective, checked as boolean)}
+                  id={objective.value}
+                  checked={getSelectedObjectives().includes(objective.value)}
+                  onCheckedChange={(checked) => handleObjectiveChange(objective.value, checked as boolean)}
                 />
                 <Label 
-                  htmlFor={objective}
+                  htmlFor={objective.value}
                   className="text-sm font-normal cursor-pointer"
                 >
-                  {objective}
+                  {objective.label}
                 </Label>
               </div>
             ))}

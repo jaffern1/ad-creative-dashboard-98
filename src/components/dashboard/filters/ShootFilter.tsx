@@ -4,10 +4,16 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { FilterState } from '@/pages/Dashboard';
 
+interface FilterOption {
+  value: string;
+  label: string;
+  spend: number;
+}
+
 interface ShootFilterProps {
   filters: FilterState;
   onFiltersChange: (filters: FilterState) => void;
-  shoots: string[];
+  shoots: FilterOption[];
 }
 
 export const ShootFilter: React.FC<ShootFilterProps> = ({
@@ -15,14 +21,6 @@ export const ShootFilter: React.FC<ShootFilterProps> = ({
   onFiltersChange,
   shoots,
 }) => {
-  // Filter out URLs, empty strings, and other invalid values
-  const validShoots = shoots.filter(shoot => 
-    shoot && 
-    shoot.trim() !== '' && 
-    !shoot.startsWith('http') && 
-    !shoot.includes('drive.google.com')
-  );
-
   return (
     <div className="space-y-3">
       <Label className="text-sm font-medium text-foreground">Shoot</Label>
@@ -35,9 +33,9 @@ export const ShootFilter: React.FC<ShootFilterProps> = ({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All shoots</SelectItem>
-          {validShoots.map((shoot) => (
-            <SelectItem key={shoot} value={shoot}>
-              {shoot}
+          {shoots.map((shoot) => (
+            <SelectItem key={shoot.value} value={shoot.value}>
+              {shoot.label}
             </SelectItem>
           ))}
         </SelectContent>

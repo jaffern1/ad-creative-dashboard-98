@@ -4,10 +4,16 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { FilterState } from '@/pages/Dashboard';
 
+interface FilterOption {
+  value: string;
+  label: string;
+  spend: number;
+}
+
 interface CountryFilterProps {
   filters: FilterState;
   onFiltersChange: (filters: FilterState) => void;
-  countries: string[];
+  countries: FilterOption[];
 }
 
 export const CountryFilter: React.FC<CountryFilterProps> = ({
@@ -28,8 +34,8 @@ export const CountryFilter: React.FC<CountryFilterProps> = ({
         <SelectContent>
           <SelectItem value="all">All countries</SelectItem>
           {countries.map((country) => (
-            <SelectItem key={country} value={country}>
-              {country}
+            <SelectItem key={country.value} value={country.value}>
+              {country.label}
             </SelectItem>
           ))}
         </SelectContent>

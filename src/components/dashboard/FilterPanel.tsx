@@ -8,12 +8,18 @@ import { ObjectiveFilter } from './filters/ObjectiveFilter';
 import { ShootFilter } from './filters/ShootFilter';
 import { FilterActions } from './filters/FilterActions';
 
+interface FilterOption {
+  value: string;
+  label: string;
+  spend: number;
+}
+
 interface FilterPanelProps {
   filters: FilterState;
   onFiltersChange: (filters: FilterState) => void;
-  countries: string[];
-  objectives: string[];
-  shoots: string[];
+  countries: FilterOption[];
+  objectives: FilterOption[];
+  shoots: FilterOption[];
 }
 
 export const FilterPanel: React.FC<FilterPanelProps> = ({
