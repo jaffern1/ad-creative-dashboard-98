@@ -1,10 +1,10 @@
-
 import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Checkbox } from '@/components/ui/checkbox';
 import { FilterState } from '@/pages/Dashboard';
+import { formatSpend } from '@/utils/formatSpend';
 
 interface FilterOption {
   value: string;
@@ -78,7 +78,7 @@ export const CountryFilter: React.FC<CountryFilterProps> = ({
                   className="text-sm font-normal cursor-pointer flex-1 flex justify-between items-center"
                 >
                   <span>{country.label}</span>
-                  <span className="text-muted-foreground ml-2">£{Math.round(country.spend / 1000)}K</span>
+                  <span className="text-muted-foreground ml-2">{formatSpend(country.spend)}</span>
                 </Label>
               </div>
             ))}
