@@ -26,8 +26,13 @@ export const useDataFiltering = (data: AdData[], filters: FilterState) => {
         if (filters.endDate && rowDate > filters.endDate) return false;
       }
       
-      // Country filter
-      if (filters.country && row.country !== filters.country) return false;
+      // Country filter - support multiple selection
+      if (filters.country) {
+        const selectedCountries = Array.isArray(filters.country) 
+          ? filters.country 
+          : [filters.country];
+        if (selectedCountries.length > 0 && !selectedCountries.includes(row.country)) return false;
+      }
       
       // Objective filter - support multiple selection
       if (filters.objective) {
@@ -37,8 +42,13 @@ export const useDataFiltering = (data: AdData[], filters: FilterState) => {
         if (selectedObjectives.length > 0 && !selectedObjectives.includes(row.Objective)) return false;
       }
       
-      // Shoot filter
-      if (filters.shoot && row.shoot !== filters.shoot) return false;
+      // Shoot filter - support multiple selection
+      if (filters.shoot) {
+        const selectedShoots = Array.isArray(filters.shoot) 
+          ? filters.shoot 
+          : [filters.shoot];
+        if (selectedShoots.length > 0 && !selectedShoots.includes(row.shoot)) return false;
+      }
       
       return true;
     });
@@ -54,11 +64,21 @@ export const useDataFiltering = (data: AdData[], filters: FilterState) => {
         if (filters.endDate && rowDate > filters.endDate) return false;
       }
       
-      // Country filter
-      if (filters.country && row.country !== filters.country) return false;
+      // Country filter - support multiple selection
+      if (filters.country) {
+        const selectedCountries = Array.isArray(filters.country) 
+          ? filters.country 
+          : [filters.country];
+        if (selectedCountries.length > 0 && !selectedCountries.includes(row.country)) return false;
+      }
       
-      // Shoot filter
-      if (filters.shoot && row.shoot !== filters.shoot) return false;
+      // Shoot filter - support multiple selection
+      if (filters.shoot) {
+        const selectedShoots = Array.isArray(filters.shoot) 
+          ? filters.shoot 
+          : [filters.shoot];
+        if (selectedShoots.length > 0 && !selectedShoots.includes(row.shoot)) return false;
+      }
       
       // NOTE: Objective filter is ignored for Category Performance
       

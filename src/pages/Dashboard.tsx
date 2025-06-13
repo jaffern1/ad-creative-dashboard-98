@@ -34,9 +34,9 @@ export interface AdData {
 export interface FilterState {
   startDate?: Date;
   endDate?: Date;
-  country: string;
+  country: string | string[];
   objective: string | string[];
-  shoot: string;
+  shoot: string | string[];
 }
 
 const Dashboard = () => {
