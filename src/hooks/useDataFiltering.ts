@@ -1,0 +1,74 @@
+
+import { useMemo } from 'react';
+import { AdData, FilterState } from '@/pages/Dashboard';
+
+export const useDataFiltering = (data: AdData[], filters: FilterState) => {
+  // Filter data based on date range only (for getting available filter options)
+  const dateFilteredData = useMemo(() => {
+    if (!filters.startDate && !filters.endDate) {
+      return data;
+    }
+
+    return data.filter(row => {
+      const rowDate = new Date(row.day);
+      if (filters.startDate && rowDate < filters.startDate) return false;
+      if (filters.endDate && rowDate > filters.endDate) return false;
+      return true;
+    });
+  }, [data, filters.startDate, filters.endDate]);
+
+  const filteredData = useMemo(() => {
+    return data.filter(row => {
+      // Date filter
+      if (filters.startDate || filters.endDate) {
+        const rowDate = new Date(row.day);
+        if (filters.startDate && rowDate < filters.startDate) return false;
+        if (filters.endDate && rowDate > filters.endDate) return false;
+      }
+      
+      // Country filter
+      if (filters.country && row.country !== filters.country) return false;
+      
+      // Objective filter - support multiple selection
+      if (filters.objective) {
+        const selectedObjectives = Array.isArray(filters.objective) 
+          ? filters.objective 
+          : [filters.objective];
+        if (selectedObjectives.length > 0 && !selectedObjectives.includes(row.Objective)) return false;
+      }
+      
+      // Shoot filter
+      if (filters.shoot && row.shoot !== filters.shoot) return false;
+      
+      return true;
+    });
+  }, [data, filters]);
+
+  // Data for Category Performance that ignores Objective filter
+  const categoryData = useMemo(() => {
+    return data.filter(row => {
+      // Date filter
+      if (filters.startDate || filters.endDate) {
+        const rowDate = new Date(row.day);
+        if (filters.startDate && rowDate < filters.startDate) return false;
+        if (filters.endDate && rowDate > filters.endDate) return false;
+      }
+      
+      // Country filter
+      if (filters.country && row.country !== filters.country) return false;
+      
+      // Shoot filter
+      if (filters.shoot && row.shoot !== filters.shoot) return false;
+      
+      // NOTE: Objective filter is ignored for Category Performance
+      
+      return true;
+    });
+  }, [data, filters.startDate, filters.endDate, filters.country, filters.shoot]);
+
+  return {
+    dateFilteredData,
+    filteredData,
+    categoryData
+  };
+};
