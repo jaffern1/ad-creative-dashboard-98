@@ -1,3 +1,4 @@
+
 import React, { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -162,7 +163,7 @@ export const MostRecentAds: React.FC<MostRecentAdsProps> = ({ data }) => {
                         {item.ad_name}
                       </div>
                     </TableCell>
-                    <TableCell className="py-3 px-4 font-mono text-sm text-foreground text-center">
+                    <TableCell className="py-3 px-4 font-mono text-sm text-foreground text-center w-32">
                       {formatDate(item.launch_date)}
                     </TableCell>
                   </TableRow>
