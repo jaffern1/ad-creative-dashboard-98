@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { FilterPanel } from '@/components/dashboard/FilterPanel';
 import { SpendTable } from '@/components/dashboard/SpendTable';
@@ -41,6 +40,7 @@ export interface FilterState {
 
 const Dashboard = () => {
   const [data, setData] = useState<AdData[]>([]);
+  const [dataSource, setDataSource] = useState<'csv' | 'sheets' | null>(null);
   const [filters, setFilters] = useState<FilterState>({
     country: '',
     objective: '',
@@ -50,6 +50,7 @@ const Dashboard = () => {
 
   const handleDataUpload = (csvData: AdData[]) => {
     setData(csvData);
+    setDataSource('csv');
     toast({
       title: "Data uploaded successfully",
       description: `Loaded ${csvData.length} records`,
@@ -78,6 +79,13 @@ const Dashboard = () => {
           <EmptyState onDataUpload={handleDataUpload} />
         ) : (
           <div className="space-y-6">
+            {/* Data source indicator */}
+            {dataSource && (
+              <div className="text-sm text-muted-foreground">
+                Data source: {dataSource === 'csv' ? 'CSV Upload' : 'Google Sheets'}
+              </div>
+            )}
+            
             <FilterPanel
               filters={filters}
               onFiltersChange={setFilters}

@@ -1,8 +1,8 @@
 
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Upload } from 'lucide-react';
-import { CSVUploader } from './CSVUploader';
+import { Database } from 'lucide-react';
+import { DataSourceSelector } from './DataSourceSelector';
 import { AdData } from '@/pages/Dashboard';
 
 interface EmptyStateProps {
@@ -14,13 +14,13 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ onDataUpload }) => {
     <Card className="border border-border bg-card shadow-sm">
       <CardContent className="flex flex-col items-center justify-center py-16">
         <div className="p-6 bg-primary/10 rounded-full mb-6">
-          <Upload className="h-12 w-12 text-primary" />
+          <Database className="h-12 w-12 text-primary" />
         </div>
-        <h3 className="text-2xl font-medium mb-3 text-foreground">Upload your data</h3>
+        <h3 className="text-2xl font-medium mb-3 text-foreground">Connect your data</h3>
         <p className="text-muted-foreground mb-8 text-center max-w-md">
-          Upload a CSV file with your Meta Ads data
+          Upload a CSV file or connect to Google Sheets with your Meta Ads data
         </p>
-        <CSVUploader onDataLoad={onDataUpload} />
+        <DataSourceSelector onDataLoad={onDataUpload} />
       </CardContent>
     </Card>
   );
