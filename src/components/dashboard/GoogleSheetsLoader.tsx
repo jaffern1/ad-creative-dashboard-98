@@ -23,11 +23,72 @@ export const GoogleSheetsLoader: React.FC<GoogleSheetsLoaderProps> = ({ onDataLo
   };
 
   const buildCsvUrl = (sheetId: string) => {
-    return `https://docs.google.com/spreadsheets/d/${sheetId}/pub?output=csv`;
+    return `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=0`;
   };
 
   const isValidGoogleSheetsUrl = (url: string) => {
     return url.includes('docs.google.com/spreadsheets') && extractSheetId(url) !== null;
+  };
+
+  const parseCsvText = (csvText: string): AdData[] => {
+    const lines = csvText.split('\n').filter(line => line.trim());
+    if (lines.length < 2) {
+      throw new Error('CSV file appears to be empty or invalid');
+    }
+
+    const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+    console.log('CSV Headers:', headers);
+
+    const data: AdData[] = [];
+    
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (!line) continue;
+
+      // Parse CSV line properly handling quoted values
+      const values: string[] = [];
+      let current = '';
+      let inQuotes = false;
+      
+      for (let j = 0; j < line.length; j++) {
+        const char = line[j];
+        if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+          values.push(current.trim());
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      values.push(current.trim());
+
+      const obj: any = {};
+      headers.forEach((header, index) => {
+        obj[header] = values[index] || '';
+      });
+
+      // Convert spend to number
+      if (obj.spend) {
+        obj.spend = parseFloat(obj.spend.toString().replace(/[^0-9.-]/g, '')) || 0;
+      } else {
+        obj.spend = 0;
+      }
+
+      // Convert is_first_instance to number
+      if (obj.is_first_instance) {
+        obj.is_first_instance = parseInt(obj.is_first_instance) || 0;
+      } else {
+        obj.is_first_instance = 0;
+      }
+
+      // Only add rows that have an ad_name
+      if (obj.ad_name && obj.ad_name.trim()) {
+        data.push(obj as AdData);
+      }
+    }
+
+    return data;
   };
 
   const handleLoadData = async () => {
@@ -56,29 +117,45 @@ export const GoogleSheetsLoader: React.FC<GoogleSheetsLoaderProps> = ({ onDataLo
       if (!sheetId) throw new Error('Could not extract sheet ID');
       
       const csvUrl = buildCsvUrl(sheetId);
-      const response = await fetch(csvUrl);
+      console.log('Fetching data from:', csvUrl);
+      
+      // Try to fetch with different approaches to handle CORS
+      let response;
+      try {
+        response = await fetch(csvUrl, {
+          mode: 'cors',
+          headers: {
+            'Accept': 'text/csv',
+          }
+        });
+      } catch (corsError) {
+        console.log('CORS error, trying alternative approach');
+        // Fallback: try the publish to web URL format
+        const publishUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/pub?output=csv`;
+        response = await fetch(publishUrl, {
+          mode: 'cors',
+          headers: {
+            'Accept': 'text/csv',
+          }
+        });
+      }
       
       if (!response.ok) {
-        throw new Error('Failed to fetch data from Google Sheets');
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
       
       const csvText = await response.text();
-      const rows = csvText.split('\n').filter(row => row.trim());
-      const headers = rows[0].split(',').map(h => h.trim().replace(/"/g, ''));
+      console.log('CSV data received, length:', csvText.length);
       
-      const data: AdData[] = rows.slice(1).map(row => {
-        const values = row.split(',').map(v => v.trim().replace(/"/g, ''));
-        const obj: any = {};
-        
-        headers.forEach((header, index) => {
-          obj[header] = values[index] || '';
-        });
-        
-        // Convert spend to number
-        obj.spend = parseFloat(obj.spend) || 0;
-        
-        return obj as AdData;
-      }).filter(row => row.ad_name); // Filter out empty rows
+      if (!csvText || csvText.length < 10) {
+        throw new Error('No data received from Google Sheets');
+      }
+
+      const data = parseCsvText(csvText);
+      
+      if (data.length === 0) {
+        throw new Error('No valid data rows found in the sheet');
+      }
 
       // Store the URL in localStorage for next time
       localStorage.setItem('lastGoogleSheetsUrl', sheetUrl);
@@ -92,9 +169,21 @@ export const GoogleSheetsLoader: React.FC<GoogleSheetsLoaderProps> = ({ onDataLo
       
     } catch (error) {
       console.error('Error loading Google Sheets data:', error);
+      let errorMessage = 'Failed to load data from Google Sheets.';
+      
+      if (error instanceof Error) {
+        if (error.message.includes('CORS')) {
+          errorMessage += ' CORS error - make sure the sheet is published to web and publicly accessible.';
+        } else if (error.message.includes('HTTP error')) {
+          errorMessage += ' The sheet may not be publicly accessible or the URL is incorrect.';
+        } else {
+          errorMessage += ` ${error.message}`;
+        }
+      }
+      
       toast({
         title: "Error loading data",
-        description: "Failed to load data from Google Sheets. Make sure the sheet is published to web.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -123,9 +212,14 @@ export const GoogleSheetsLoader: React.FC<GoogleSheetsLoaderProps> = ({ onDataLo
             onChange={(e) => setSheetUrl(e.target.value)}
             className="w-full"
           />
-          <p className="text-xs text-muted-foreground">
-            Make sure your Google Sheet is published to web (File → Share → Publish to web)
-          </p>
+          <div className="text-xs text-muted-foreground space-y-1">
+            <p>Make sure your Google Sheet is:</p>
+            <ul className="list-disc list-inside ml-2 space-y-1">
+              <li>Published to web (File → Share → Publish to web)</li>
+              <li>Set to "Anyone with the link" can view</li>
+              <li>Has the correct column headers matching your data format</li>
+            </ul>
+          </div>
         </div>
         
         <Button
