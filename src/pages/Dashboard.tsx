@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { FilterPanel } from '@/components/dashboard/FilterPanel';
 import { SpendTable } from '@/components/dashboard/SpendTable';
 import { CategoryBreakdown } from '@/components/dashboard/CategoryBreakdown';
@@ -6,9 +6,13 @@ import { MostRecentAds } from '@/components/dashboard/MostRecentAds';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { EmptyState } from '@/components/dashboard/EmptyState';
 import { ChartsSection } from '@/components/dashboard/ChartsSection';
+import { DataSourceSwitcher } from '@/components/dashboard/DataSourceSwitcher';
+import { InitialLoadingState } from '@/components/dashboard/InitialLoadingState';
 import { useDataFiltering } from '@/hooks/useDataFiltering';
 import { useFilterOptions } from '@/hooks/useFilterOptions';
 import { useToast } from '@/hooks/use-toast';
+import { fetchGoogleSheetsData } from '@/utils/googleSheetsUtils';
+import { parseCsvText } from '@/utils/csvParser';
 
 export interface AdData {
   day: string;
@@ -38,9 +42,13 @@ export interface FilterState {
   shoot: string | string[];
 }
 
+const DEFAULT_SHEETS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSmTUDR12i75AFLRf0Fp1XkTOrtyvLWbvC6uU7Us6nqUACQUjiWRO1f1WWceMEMXakQ3h_NJU0q9j6u/pub?gid=112874240&single=true&output=csv';
+
 const Dashboard = () => {
   const [data, setData] = useState<AdData[]>([]);
-  const [dataSource, setDataSource] = useState<'csv' | 'sheets' | null>(null);
+  const [dataSource, setDataSource] = useState<'auto-sheets' | 'manual-csv' | null>(null);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [showManualUpload, setShowManualUpload] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
     country: '',
     objective: '',
@@ -48,13 +56,57 @@ const Dashboard = () => {
   });
   const { toast } = useToast();
 
+  // Auto-load data on component mount
+  useEffect(() => {
+    const loadInitialData = async () => {
+      try {
+        console.log('Loading initial data from Google Sheets...');
+        const csvText = await fetchGoogleSheetsData(DEFAULT_SHEETS_URL);
+        const csvData = parseCsvText(csvText);
+        
+        if (csvData.length === 0) {
+          throw new Error('No valid data rows found in the sheet');
+        }
+
+        setData(csvData);
+        setDataSource('auto-sheets');
+        
+        toast({
+          title: "Data loaded successfully",
+          description: `Auto-loaded ${csvData.length} records from Google Sheets`,
+        });
+        
+      } catch (error) {
+        console.error('Error loading initial Google Sheets data:', error);
+        setShowManualUpload(true);
+        
+        toast({
+          title: "Auto-load failed",
+          description: "Couldn't load default data. Please upload manually or try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsInitialLoading(false);
+      }
+    };
+
+    loadInitialData();
+  }, [toast]);
+
   const handleDataUpload = (csvData: AdData[]) => {
     setData(csvData);
-    setDataSource('csv');
+    setDataSource('manual-csv');
+    setShowManualUpload(false);
     toast({
       title: "Data uploaded successfully",
       description: `Loaded ${csvData.length} records`,
     });
+  };
+
+  const handleSwitchToManual = () => {
+    setShowManualUpload(true);
+    setData([]);
+    setDataSource(null);
   };
 
   const { dateFilteredData, filteredData, categoryData } = useDataFiltering(data, filters);
@@ -70,43 +122,65 @@ const Dashboard = () => {
     });
   }, [data]);
 
+  // Show initial loading state
+  if (isInitialLoading) {
+    return (
+      <div className="min-h-screen bg-background p-6">
+        <div className="max-w-7xl mx-auto space-y-6">
+          <DashboardHeader lastUpdated={null} />
+          <InitialLoadingState />
+        </div>
+      </div>
+    );
+  }
+
+  // Show manual upload state
+  if (showManualUpload || (data.length === 0 && !isInitialLoading)) {
+    return (
+      <div className="min-h-screen bg-background p-6">
+        <div className="max-w-7xl mx-auto space-y-6">
+          <DashboardHeader lastUpdated={lastUpdated} />
+          <EmptyState onDataUpload={handleDataUpload} />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         <DashboardHeader lastUpdated={lastUpdated} />
 
-        {data.length === 0 ? (
-          <EmptyState onDataUpload={handleDataUpload} />
-        ) : (
-          <div className="space-y-6">
-            {/* Data source indicator */}
-            {dataSource && (
-              <div className="text-sm text-muted-foreground">
-                Data source: {dataSource === 'csv' ? 'CSV Upload' : 'Google Sheets'}
-              </div>
-            )}
-            
-            <FilterPanel
-              filters={filters}
-              onFiltersChange={setFilters}
-              countries={countries}
-              objectives={objectives}
-              shoots={shoots}
+        <div className="space-y-6">
+          {/* Data Source Switcher */}
+          {dataSource && (
+            <DataSourceSwitcher
+              currentSource={dataSource}
+              onSwitchToManual={handleSwitchToManual}
+              recordCount={data.length}
             />
-            
-            {/* Full width Top Ad Spend */}
-            <SpendTable data={filteredData} />
-            
-            {/* Most Recent Ads (full width) */}
-            <MostRecentAds data={filteredData} />
-            
-            {/* Side by side: Active Ads Chart and New Ads Chart */}
-            <ChartsSection filteredData={filteredData} />
-            
-            {/* Category Performance using data that ignores Objective filter */}
-            <CategoryBreakdown data={categoryData} />
-          </div>
-        )}
+          )}
+          
+          <FilterPanel
+            filters={filters}
+            onFiltersChange={setFilters}
+            countries={countries}
+            objectives={objectives}
+            shoots={shoots}
+          />
+          
+          {/* Full width Top Ad Spend */}
+          <SpendTable data={filteredData} />
+          
+          {/* Most Recent Ads (full width) */}
+          <MostRecentAds data={filteredData} />
+          
+          {/* Side by side: Active Ads Chart and New Ads Chart */}
+          <ChartsSection filteredData={filteredData} />
+          
+          {/* Category Performance using data that ignores Objective filter */}
+          <CategoryBreakdown data={categoryData} />
+        </div>
       </div>
     </div>
   );
