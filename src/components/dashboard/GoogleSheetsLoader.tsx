@@ -17,17 +17,49 @@ export const GoogleSheetsLoader: React.FC<GoogleSheetsLoaderProps> = ({ onDataLo
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const extractSheetId = (url: string) => {
-    const match = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
-    return match ? match[1] : null;
+  const extractSheetInfo = (url: string) => {
+    // Handle publish-to-web CSV URLs (like yours)
+    const publishMatch = url.match(/\/d\/e\/([a-zA-Z0-9-_]+)\/pub.*output=csv/);
+    if (publishMatch) {
+      const gidMatch = url.match(/gid=(\d+)/);
+      return {
+        type: 'published',
+        id: publishMatch[1],
+        gid: gidMatch ? gidMatch[1] : '0',
+        isDirectCsv: true
+      };
+    }
+
+    // Handle regular spreadsheet URLs
+    const regularMatch = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+    if (regularMatch) {
+      const gidMatch = url.match(/gid=(\d+)/);
+      return {
+        type: 'regular',
+        id: regularMatch[1],
+        gid: gidMatch ? gidMatch[1] : '0',
+        isDirectCsv: false
+      };
+    }
+
+    return null;
   };
 
-  const buildCsvUrl = (sheetId: string) => {
-    return `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=0`;
+  const buildCsvUrl = (sheetInfo: ReturnType<typeof extractSheetInfo>) => {
+    if (!sheetInfo) return null;
+
+    if (sheetInfo.type === 'published') {
+      // For published sheets, build the CSV export URL
+      return `https://docs.google.com/spreadsheets/d/e/${sheetInfo.id}/pub?gid=${sheetInfo.gid}&single=true&output=csv`;
+    } else {
+      // For regular sheets, use the export format
+      return `https://docs.google.com/spreadsheets/d/${sheetInfo.id}/export?format=csv&gid=${sheetInfo.gid}`;
+    }
   };
 
   const isValidGoogleSheetsUrl = (url: string) => {
-    return url.includes('docs.google.com/spreadsheets') && extractSheetId(url) !== null;
+    return (url.includes('docs.google.com/spreadsheets') && extractSheetInfo(url) !== null) ||
+           (url.includes('output=csv') && url.includes('docs.google.com'));
   };
 
   const parseCsvText = (csvText: string): AdData[] => {
@@ -104,7 +136,7 @@ export const GoogleSheetsLoader: React.FC<GoogleSheetsLoaderProps> = ({ onDataLo
     if (!isValidGoogleSheetsUrl(sheetUrl)) {
       toast({
         title: "Invalid URL",
-        description: "Please enter a valid Google Sheets URL",
+        description: "Please enter a valid Google Sheets URL or CSV export link",
         variant: "destructive",
       });
       return;
@@ -113,13 +145,17 @@ export const GoogleSheetsLoader: React.FC<GoogleSheetsLoaderProps> = ({ onDataLo
     setLoading(true);
     
     try {
-      const sheetId = extractSheetId(sheetUrl);
-      if (!sheetId) throw new Error('Could not extract sheet ID');
-      
-      const csvUrl = buildCsvUrl(sheetId);
+      const sheetInfo = extractSheetInfo(sheetUrl);
+      let csvUrl = sheetUrl;
+
+      // If it's not already a direct CSV URL, build one
+      if (sheetInfo && !sheetInfo.isDirectCsv) {
+        csvUrl = buildCsvUrl(sheetInfo) || sheetUrl;
+      }
+
       console.log('Fetching data from:', csvUrl);
       
-      // Try to fetch with different approaches to handle CORS
+      // Try to fetch the data
       let response;
       try {
         response = await fetch(csvUrl, {
@@ -130,14 +166,21 @@ export const GoogleSheetsLoader: React.FC<GoogleSheetsLoaderProps> = ({ onDataLo
         });
       } catch (corsError) {
         console.log('CORS error, trying alternative approach');
-        // Fallback: try the publish to web URL format
-        const publishUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/pub?output=csv`;
-        response = await fetch(publishUrl, {
-          mode: 'cors',
-          headers: {
-            'Accept': 'text/csv',
-          }
-        });
+        // If the original URL fails and we have sheet info, try building alternative URLs
+        if (sheetInfo) {
+          const alternativeCsvUrl = sheetInfo.type === 'published' 
+            ? `https://docs.google.com/spreadsheets/d/${sheetInfo.id}/export?format=csv&gid=${sheetInfo.gid}`
+            : `https://docs.google.com/spreadsheets/d/e/${sheetInfo.id}/pub?gid=${sheetInfo.gid}&single=true&output=csv`;
+          
+          response = await fetch(alternativeCsvUrl, {
+            mode: 'cors',
+            headers: {
+              'Accept': 'text/csv',
+            }
+          });
+        } else {
+          throw corsError;
+        }
       }
       
       if (!response.ok) {
@@ -203,7 +246,7 @@ export const GoogleSheetsLoader: React.FC<GoogleSheetsLoaderProps> = ({ onDataLo
     <Card className="w-full max-w-md">
       <CardContent className="p-6 space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="sheets-url">Google Sheets URL</Label>
+          <Label htmlFor="sheets-url">Google Sheets URL or CSV Export Link</Label>
           <Input
             id="sheets-url"
             type="url"
@@ -213,11 +256,11 @@ export const GoogleSheetsLoader: React.FC<GoogleSheetsLoaderProps> = ({ onDataLo
             className="w-full"
           />
           <div className="text-xs text-muted-foreground space-y-1">
-            <p>Make sure your Google Sheet is:</p>
+            <p>Supported formats:</p>
             <ul className="list-disc list-inside ml-2 space-y-1">
-              <li>Published to web (File → Share → Publish to web)</li>
-              <li>Set to "Anyone with the link" can view</li>
-              <li>Has the correct column headers matching your data format</li>
+              <li>Regular sheet URLs: docs.google.com/spreadsheets/d/...</li>
+              <li>Published CSV export links: .../pub?...output=csv</li>
+              <li>Make sure your sheet is publicly accessible</li>
             </ul>
           </div>
         </div>
