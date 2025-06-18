@@ -109,7 +109,7 @@ const Dashboard = () => {
   };
 
   const { dateFilteredData, filteredData, categoryData } = useDataFiltering(data, filters);
-  const { countries, objectives, shoots } = useFilterOptions(dateFilteredData);
+  const { countries, objectives, shoots } = useFilterOptions(dateFilteredData, filters);
 
   const lastUpdated = useMemo(() => {
     if (data.length === 0) return null;
