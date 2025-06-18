@@ -1,10 +1,10 @@
+
 import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Checkbox } from '@/components/ui/checkbox';
 import { FilterState } from '@/pages/Dashboard';
-import { formatSpend } from '@/utils/formatSpend';
 
 interface FilterOption {
   value: string;
@@ -49,13 +49,14 @@ export const CountryFilter: React.FC<CountryFilterProps> = ({
   };
 
   return (
-    <div className="space-y-3">
-      <Label className="text-sm font-medium text-foreground">Country</Label>
+    <div className="flex items-center gap-4">
+      <Label className="text-sm font-medium text-foreground min-w-[80px]">Country</Label>
       <Popover>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
-            className="w-full justify-start text-left font-normal border-primary/20"
+            size="sm"
+            className="flex-1 justify-start text-left font-normal border-primary/20"
           >
             {getSelectedCountries().length === 0 
               ? "All countries"
@@ -75,10 +76,9 @@ export const CountryFilter: React.FC<CountryFilterProps> = ({
                 />
                 <Label 
                   htmlFor={country.value}
-                  className="text-sm font-normal cursor-pointer flex-1 flex justify-between items-center"
+                  className="text-sm font-normal cursor-pointer flex-1"
                 >
-                  <span>{country.label}</span>
-                  <span className="text-muted-foreground ml-2">{formatSpend(country.spend)}</span>
+                  {country.label}
                 </Label>
               </div>
             ))}

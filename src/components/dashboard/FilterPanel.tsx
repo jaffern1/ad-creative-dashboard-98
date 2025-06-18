@@ -32,36 +32,41 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
   return (
     <Card className="bg-card/90 backdrop-blur-sm border-border/50 shadow-lg">
       <CardContent className="p-6">
-        <div className="space-y-6">
-          {/* Date Range Filter - Full width */}
-          <DateRangeFilter
-            filters={filters}
-            onFiltersChange={onFiltersChange}
-          />
-
-          {/* Bottom row: Country, Objectives, Shoot, Actions */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <CountryFilter
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Left Column - Date Range */}
+          <div>
+            <DateRangeFilter
               filters={filters}
               onFiltersChange={onFiltersChange}
-              countries={countries}
             />
+          </div>
 
-            <ObjectiveFilter
-              filters={filters}
-              onFiltersChange={onFiltersChange}
-              objectives={objectives}
-            />
+          {/* Right Column - Other Filters */}
+          <div className="space-y-4 relative">
+            <div className="grid grid-cols-1 gap-4">
+              <CountryFilter
+                filters={filters}
+                onFiltersChange={onFiltersChange}
+                countries={countries}
+              />
 
-            <ShootFilter
-              filters={filters}
-              onFiltersChange={onFiltersChange}
-              shoots={shoots}
-            />
+              <ObjectiveFilter
+                filters={filters}
+                onFiltersChange={onFiltersChange}
+                objectives={objectives}
+              />
 
-            <FilterActions
-              onFiltersChange={onFiltersChange}
-            />
+              <ShootFilter
+                filters={filters}
+                onFiltersChange={onFiltersChange}
+                shoots={shoots}
+              />
+            </div>
+
+            {/* Clear button in bottom right */}
+            <div className="absolute bottom-0 right-0">
+              <FilterActions onFiltersChange={onFiltersChange} />
+            </div>
           </div>
         </div>
       </CardContent>
