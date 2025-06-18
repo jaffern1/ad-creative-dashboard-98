@@ -42,7 +42,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
           </div>
 
           {/* Right Column - Other Filters */}
-          <div className="space-y-4 relative">
+          <div className="space-y-4">
             <div className="grid grid-cols-1 gap-4">
               <CountryFilter
                 filters={filters}
@@ -62,12 +62,12 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                 shoots={shoots}
               />
             </div>
-
-            {/* Clear button in bottom right */}
-            <div className="absolute bottom-0 right-0">
-              <FilterActions onFiltersChange={onFiltersChange} />
-            </div>
           </div>
+        </div>
+
+        {/* Clear button in bottom left */}
+        <div className="mt-4">
+          <FilterActions onFiltersChange={onFiltersChange} />
         </div>
       </CardContent>
     </Card>
