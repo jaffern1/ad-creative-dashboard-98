@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import { FilterState } from '@/pages/Dashboard';
 
 interface FilterActionsProps {
@@ -13,7 +12,6 @@ export const FilterActions: React.FC<FilterActionsProps> = ({
 }) => {
   return (
     <div className="space-y-3">
-      <Label className="text-sm font-medium text-foreground">Actions</Label>
       <Button
         variant="outline"
         onClick={() => onFiltersChange({ country: '', objective: '', shoot: '' })}

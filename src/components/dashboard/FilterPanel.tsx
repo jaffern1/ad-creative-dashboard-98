@@ -32,37 +32,37 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
   return (
     <Card className="bg-card/90 backdrop-blur-sm border-border/50 shadow-lg">
       <CardContent className="p-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          {/* Row 1: Date Range (spans 2 cols), Country, Actions */}
+        <div className="space-y-6">
+          {/* Date Range Filter - Full width */}
           <DateRangeFilter
             filters={filters}
             onFiltersChange={onFiltersChange}
           />
 
-          <CountryFilter
-            filters={filters}
-            onFiltersChange={onFiltersChange}
-            countries={countries}
-          />
+          {/* Bottom row: Country, Objectives, Shoot, Actions */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <CountryFilter
+              filters={filters}
+              onFiltersChange={onFiltersChange}
+              countries={countries}
+            />
 
-          <FilterActions
-            onFiltersChange={onFiltersChange}
-          />
+            <ObjectiveFilter
+              filters={filters}
+              onFiltersChange={onFiltersChange}
+              objectives={objectives}
+            />
 
-          {/* Row 2: Empty, Empty, Objectives, Shoot */}
-          <div className="md:col-span-2"></div>
+            <ShootFilter
+              filters={filters}
+              onFiltersChange={onFiltersChange}
+              shoots={shoots}
+            />
 
-          <ObjectiveFilter
-            filters={filters}
-            onFiltersChange={onFiltersChange}
-            objectives={objectives}
-          />
-
-          <ShootFilter
-            filters={filters}
-            onFiltersChange={onFiltersChange}
-            shoots={shoots}
-          />
+            <FilterActions
+              onFiltersChange={onFiltersChange}
+            />
+          </div>
         </div>
       </CardContent>
     </Card>
