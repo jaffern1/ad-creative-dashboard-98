@@ -30,6 +30,16 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
     });
   };
 
+  const setToday = () => {
+    const today = new Date();
+    
+    onFiltersChange({
+      ...filters,
+      startDate: today,
+      endDate: today,
+    });
+  };
+
   const setYesterday = () => {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
@@ -44,7 +54,15 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
   return (
     <div className="md:col-span-2 space-y-3">
       <Label className="text-sm font-medium text-foreground">Date Range</Label>
-      <div className="grid grid-cols-4 gap-2 mb-3">
+      <div className="grid grid-cols-3 gap-2 mb-3">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={setToday}
+          className="text-xs border-primary/20 hover:bg-primary/10"
+        >
+          Today
+        </Button>
         <Button
           variant="outline"
           size="sm"
@@ -61,6 +79,8 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
         >
           Last 3 days
         </Button>
+      </div>
+      <div className="grid grid-cols-3 gap-2 mb-3">
         <Button
           variant="outline"
           size="sm"
@@ -77,6 +97,7 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
         >
           Last 30 days
         </Button>
+        <div></div>
       </div>
       
       <div className="grid grid-cols-4 gap-2">
