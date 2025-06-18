@@ -33,12 +33,15 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
     <Card className="bg-card/90 backdrop-blur-sm border-border/50 shadow-lg">
       <CardContent className="p-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Left Column - Date Range */}
-          <div>
+          {/* Left Column - Date Range and Clear Button */}
+          <div className="space-y-3">
             <DateRangeFilter
               filters={filters}
               onFiltersChange={onFiltersChange}
             />
+            <div className="flex justify-start">
+              <FilterActions onFiltersChange={onFiltersChange} />
+            </div>
           </div>
 
           {/* Right Column - Other Filters */}
@@ -63,11 +66,6 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
               />
             </div>
           </div>
-        </div>
-
-        {/* Clear button in bottom left */}
-        <div className="mt-4">
-          <FilterActions onFiltersChange={onFiltersChange} />
         </div>
       </CardContent>
     </Card>

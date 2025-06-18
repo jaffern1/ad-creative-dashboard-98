@@ -1,3 +1,4 @@
+
 import React, { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
@@ -43,7 +44,8 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
 
       const chartData = Object.entries(spendByCategory)
         .map(([name, spend]) => ({ 
-          name, 
+          name: name.length > 20 ? name.substring(0, 20) + '...' : name,
+          fullName: name,
           spend,
           percentage: totalSpend > 0 ? (spend / totalSpend) * 100 : 0
         }))
@@ -119,10 +121,15 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
                         <ChartTooltip
                           content={
                             <ChartTooltipContent
-                              formatter={(value) => [
+                              formatter={(value, name, props) => [
                                 `${Number(value).toFixed(0)}%`, 
                                 "Percentage"
                               ]}
+                              labelFormatter={(label, payload) => {
+                                // Show full name in tooltip
+                                const fullName = payload?.[0]?.payload?.fullName || label;
+                                return fullName;
+                              }}
                             />
                           }
                         />
