@@ -44,7 +44,7 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
 
       const chartData = Object.entries(spendByCategory)
         .map(([name, spend]) => ({ 
-          name: name.length > 20 ? name.substring(0, 20) + '...' : name,
+          name: name.length > 15 ? name.substring(0, 15) + '...' : name,
           fullName: name,
           spend,
           percentage: totalSpend > 0 ? (spend / totalSpend) * 100 : 0
@@ -99,24 +99,24 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
               </CardHeader>
               <CardContent className="p-3">
                 {category.data.length > 0 ? (
-                  <ChartContainer config={chartConfig} className="h-60 w-full">
+                  <ChartContainer config={chartConfig} className="h-[100px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart 
                         data={category.data} 
-                        margin={{ top: 10, right: 5, left: 5, bottom: 60 }}
+                        margin={{ top: 5, right: 5, left: 5, bottom: 25 }}
                       >
                         <XAxis 
                           dataKey="name" 
-                          tick={{ fontSize: 10, fill: 'currentColor' }}
+                          tick={{ fontSize: 9, fill: 'currentColor' }}
                           angle={-45}
                           textAnchor="end"
-                          height={60}
+                          height={25}
                           interval={0}
                         />
                         <YAxis 
-                          tick={{ fontSize: 11, fill: 'currentColor' }}
+                          tick={{ fontSize: 10, fill: 'currentColor' }}
                           tickFormatter={(value) => `${value.toFixed(0)}%`}
-                          width={35}
+                          width={30}
                         />
                         <ChartTooltip
                           content={
@@ -136,14 +136,14 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
                         <Bar 
                           dataKey="percentage" 
                           fill={category.color}
-                          radius={[3, 3, 0, 0]}
+                          radius={[2, 2, 0, 0]}
                           className="hover:opacity-80 transition-opacity"
                         />
                       </BarChart>
                     </ResponsiveContainer>
                   </ChartContainer>
                 ) : (
-                  <div className="h-60 flex items-center justify-center text-muted-foreground">
+                  <div className="h-[100px] flex items-center justify-center text-muted-foreground">
                     <div className="text-center">
                       <div className="w-12 h-12 bg-muted rounded-full mx-auto mb-3 flex items-center justify-center">
                         <div className="w-6 h-6 bg-muted-foreground/30 rounded"></div>

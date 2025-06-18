@@ -52,11 +52,26 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
     return Math.ceil(aggregatedData.length / itemsPerPage);
   }, [aggregatedData.length, itemsPerPage]);
 
-  // Get the file_link for the selected ad
+  // Get the file_link for the selected item
   const selectedAdFileLink = useMemo(() => {
-    if (!selectedItem || groupBy !== 'ad_name') return null;
-    const adData = data.find(row => row.ad_name === selectedItem);
-    return adData?.file_link || null;
+    if (!selectedItem) return null;
+    
+    if (groupBy === 'ad_name') {
+      // If Ad Name is selected, find the exact ad
+      const adData = data.find(row => row.ad_name === selectedItem);
+      return adData?.file_link || null;
+    } else {
+      // If Shoot is selected, find the ad with highest spend in that shoot
+      const shootAds = data.filter(row => row.shoot === selectedItem);
+      if (shootAds.length === 0) return null;
+      
+      // Find the ad with highest spend in this shoot
+      const highestSpendAd = shootAds.reduce((highest, current) => 
+        current.spend > highest.spend ? current : highest
+      );
+      
+      return highestSpendAd.file_link || null;
+    }
   }, [selectedItem, data, groupBy]);
 
   const formatPercentage = (percentage: number) => {
@@ -105,13 +120,10 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
     return rangeWithDots.filter((page, index, array) => array.indexOf(page) === index && page !== 1 || index === 0);
   };
 
-  // Show Ad Creative only when Ad Name tab is active
-  const showAdCreative = groupBy === 'ad_name';
-
   return (
-    <div className={`grid grid-cols-1 ${showAdCreative ? 'lg:grid-cols-4' : ''} gap-6`}>
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
       {/* Main table section */}
-      <div className={showAdCreative ? 'lg:col-span-3' : ''}>
+      <div className="lg:col-span-3">
         <Card className="shadow-sm border border-border bg-card">
           <CardHeader className="bg-muted border-b border-border py-3">
             <div className="flex items-center justify-between">
@@ -269,37 +281,35 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
         </Card>
       </div>
 
-      {/* Ad Creative section - only show when Ad Name tab is active */}
-      {showAdCreative && (
-        <div className="lg:col-span-1">
-          <Card className="shadow-sm border border-border bg-card">
-            <CardHeader className="bg-muted border-b border-border py-3">
-              <CardTitle className="text-base font-medium">
-                Ad Creative
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-4">
-              {selectedItem && selectedAdFileLink ? (
-                <div className="space-y-4">
-                  <h3 className="text-sm font-medium text-foreground">{selectedItem}</h3>
-                  <div className="w-full aspect-[4/5] rounded-md overflow-hidden shadow-sm border border-border">
-                    <iframe
-                      src={getEmbedUrl(selectedAdFileLink)}
-                      className="w-full h-full border-0"
-                      allow="autoplay; encrypted-media"
-                      title={`Creative for ${selectedItem}`}
-                    />
-                  </div>
+      {/* Ad Creative section - always show */}
+      <div className="lg:col-span-1">
+        <Card className="shadow-sm border border-border bg-card">
+          <CardHeader className="bg-muted border-b border-border py-3">
+            <CardTitle className="text-base font-medium">
+              Ad Creative
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4">
+            {selectedItem && selectedAdFileLink ? (
+              <div className="space-y-4">
+                <h3 className="text-sm font-medium text-foreground">{selectedItem}</h3>
+                <div className="w-full aspect-[4/5] rounded-md overflow-hidden shadow-sm border border-border">
+                  <iframe
+                    src={getEmbedUrl(selectedAdFileLink)}
+                    className="w-full h-full border-0"
+                    allow="autoplay; encrypted-media"
+                    title={`Creative for ${selectedItem}`}
+                  />
                 </div>
-              ) : (
-                <div className="flex items-center justify-center h-40 text-muted-foreground text-sm">
-                  {selectedItem ? 'No creative available for this ad' : 'Click on an item to view ad creative'}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      )}
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-40 text-muted-foreground text-sm">
+                {selectedItem ? 'No creative available for this item' : 'Click on an item to view ad creative'}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
