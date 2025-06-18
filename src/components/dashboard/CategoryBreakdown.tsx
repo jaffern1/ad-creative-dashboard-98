@@ -44,7 +44,7 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
 
       const chartData = Object.entries(spendByCategory)
         .map(([name, spend]) => ({ 
-          name: name.length > 15 ? name.substring(0, 15) + '...' : name,
+          name: name.length > 12 ? name.substring(0, 12) + '...' : name,
           fullName: name,
           spend,
           percentage: totalSpend > 0 ? (spend / totalSpend) * 100 : 0
@@ -99,18 +99,18 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
               </CardHeader>
               <CardContent className="p-3">
                 {category.data.length > 0 ? (
-                  <ChartContainer config={chartConfig} className="h-[100px] w-full">
+                  <ChartContainer config={chartConfig} className="h-[200px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart 
                         data={category.data} 
-                        margin={{ top: 5, right: 5, left: 5, bottom: 25 }}
+                        margin={{ top: 5, right: 5, left: 5, bottom: 40 }}
                       >
                         <XAxis 
                           dataKey="name" 
                           tick={{ fontSize: 9, fill: 'currentColor' }}
                           angle={-45}
                           textAnchor="end"
-                          height={25}
+                          height={40}
                           interval={0}
                         />
                         <YAxis 
@@ -143,7 +143,7 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
                     </ResponsiveContainer>
                   </ChartContainer>
                 ) : (
-                  <div className="h-[100px] flex items-center justify-center text-muted-foreground">
+                  <div className="h-[200px] flex items-center justify-center text-muted-foreground">
                     <div className="text-center">
                       <div className="w-12 h-12 bg-muted rounded-full mx-auto mb-3 flex items-center justify-center">
                         <div className="w-6 h-6 bg-muted-foreground/30 rounded"></div>
