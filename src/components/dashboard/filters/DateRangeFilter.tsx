@@ -20,8 +20,13 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
 }) => {
   const setDateRange = (days: number) => {
     const endDate = new Date();
+    // Set to end of day
+    endDate.setHours(23, 59, 59, 999);
+    
     const startDate = new Date();
     startDate.setDate(endDate.getDate() - days);
+    // Set to start of day
+    startDate.setHours(0, 0, 0, 0);
     
     onFiltersChange({
       ...filters,
@@ -32,11 +37,18 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
 
   const setToday = () => {
     const today = new Date();
+    // Set start of day
+    const startDate = new Date(today);
+    startDate.setHours(0, 0, 0, 0);
+    
+    // Set end of day
+    const endDate = new Date(today);
+    endDate.setHours(23, 59, 59, 999);
     
     onFiltersChange({
       ...filters,
-      startDate: today,
-      endDate: today,
+      startDate,
+      endDate,
     });
   };
 
@@ -44,10 +56,18 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     
+    // Set start of day
+    const startDate = new Date(yesterday);
+    startDate.setHours(0, 0, 0, 0);
+    
+    // Set end of day
+    const endDate = new Date(yesterday);
+    endDate.setHours(23, 59, 59, 999);
+    
     onFiltersChange({
       ...filters,
-      startDate: yesterday,
-      endDate: yesterday,
+      startDate,
+      endDate,
     });
   };
 
@@ -125,7 +145,13 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
             <Calendar
               mode="single"
               selected={filters.startDate}
-              onSelect={(date) => onFiltersChange({ ...filters, startDate: date })}
+              onSelect={(date) => {
+                if (date) {
+                  // Set to start of day
+                  date.setHours(0, 0, 0, 0);
+                }
+                onFiltersChange({ ...filters, startDate: date });
+              }}
               initialFocus
               className="pointer-events-auto"
             />
@@ -149,7 +175,13 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
             <Calendar
               mode="single"
               selected={filters.endDate}
-              onSelect={(date) => onFiltersChange({ ...filters, endDate: date })}
+              onSelect={(date) => {
+                if (date) {
+                  // Set to end of day
+                  date.setHours(23, 59, 59, 999);
+                }
+                onFiltersChange({ ...filters, endDate: date });
+              }}
               initialFocus
               className="pointer-events-auto"
             />
