@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarIcon } from 'lucide-react';
@@ -67,8 +66,6 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
 
   return (
     <div className="space-y-4">
-      <Label className="text-lg font-medium text-foreground">Date Range</Label>
-      
       {/* Date Pickers */}
       <div className="grid grid-cols-2 gap-3">
         <Popover>
@@ -132,13 +129,13 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
         </Popover>
       </div>
 
-      {/* Quick Date Buttons */}
-      <div className="space-y-2">
+      {/* Quick Date Buttons - Side by Side */}
+      <div className="grid grid-cols-3 gap-2">
         <Button
           variant="outline"
           size="sm"
           onClick={setToday}
-          className="w-full text-xs border-primary/20 hover:bg-primary/10"
+          className="text-xs border-primary/20 hover:bg-primary/10 px-2"
         >
           Today
         </Button>
@@ -146,7 +143,7 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
           variant="outline"
           size="sm"
           onClick={setYesterday}
-          className="w-full text-xs border-primary/20 hover:bg-primary/10"
+          className="text-xs border-primary/20 hover:bg-primary/10 px-2"
         >
           Yesterday
         </Button>
@@ -154,25 +151,28 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
           variant="outline"
           size="sm"
           onClick={() => setDateRange(2)}
-          className="w-full text-xs border-primary/20 hover:bg-primary/10"
+          className="text-xs border-primary/20 hover:bg-primary/10 px-2"
         >
-          Last 3 days
+          3 days
         </Button>
+      </div>
+      
+      <div className="grid grid-cols-2 gap-2">
         <Button
           variant="outline"
           size="sm"
           onClick={() => setDateRange(6)}
-          className="w-full text-xs border-primary/20 hover:bg-primary/10"
+          className="text-xs border-primary/20 hover:bg-primary/10 px-2"
         >
-          Last 7 days
+          7 days
         </Button>
         <Button
           variant="outline"
           size="sm"
           onClick={() => setDateRange(29)}
-          className="w-full text-xs border-primary/20 hover:bg-primary/10"
+          className="text-xs border-primary/20 hover:bg-primary/10 px-2"
         >
-          Last 30 days
+          30 days
         </Button>
       </div>
     </div>
