@@ -17,8 +17,11 @@ export const MostRecentAds: React.FC<MostRecentAdsProps> = ({ data }) => {
   const [itemsPerPage, setItemsPerPage] = useState(25);
 
   const recentAdsData = useMemo(() => {
+    // Filter to only include first instance ads (is_first_instance === 1)
+    const firstInstanceAds = data.filter(row => row.is_first_instance === 1);
+    
     // Group by ad_name and find the earliest day for each
-    const adGroups = data.reduce((acc, row) => {
+    const adGroups = firstInstanceAds.reduce((acc, row) => {
       const adName = row.ad_name || 'Unknown';
       if (!acc[adName]) {
         acc[adName] = {
