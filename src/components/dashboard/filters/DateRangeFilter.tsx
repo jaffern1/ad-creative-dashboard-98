@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
@@ -129,13 +128,13 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
         </Popover>
       </div>
 
-      {/* Quick Date Buttons - Side by Side */}
-      <div className="grid grid-cols-3 gap-2">
+      {/* Quick Date Buttons - All 5 on one line */}
+      <div className="grid grid-cols-5 gap-1">
         <Button
           variant="outline"
           size="sm"
           onClick={setToday}
-          className="text-xs border-primary/20 hover:bg-primary/10 px-2"
+          className="text-xs border-primary/20 hover:bg-primary/10 px-1"
         >
           Today
         </Button>
@@ -143,7 +142,7 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
           variant="outline"
           size="sm"
           onClick={setYesterday}
-          className="text-xs border-primary/20 hover:bg-primary/10 px-2"
+          className="text-xs border-primary/20 hover:bg-primary/10 px-1"
         >
           Yesterday
         </Button>
@@ -151,28 +150,25 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
           variant="outline"
           size="sm"
           onClick={() => setDateRange(2)}
-          className="text-xs border-primary/20 hover:bg-primary/10 px-2"
+          className="text-xs border-primary/20 hover:bg-primary/10 px-1"
         >
-          3 days
+          Last 3 days
         </Button>
-      </div>
-      
-      <div className="grid grid-cols-2 gap-2">
         <Button
           variant="outline"
           size="sm"
           onClick={() => setDateRange(6)}
-          className="text-xs border-primary/20 hover:bg-primary/10 px-2"
+          className="text-xs border-primary/20 hover:bg-primary/10 px-1"
         >
-          7 days
+          Last 7 days
         </Button>
         <Button
           variant="outline"
           size="sm"
           onClick={() => setDateRange(29)}
-          className="text-xs border-primary/20 hover:bg-primary/10 px-2"
+          className="text-xs border-primary/20 hover:bg-primary/10 px-1"
         >
-          30 days
+          Last 30 days
         </Button>
       </div>
     </div>
