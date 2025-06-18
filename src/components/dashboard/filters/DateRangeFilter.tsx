@@ -74,17 +74,25 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
         <Button
           variant="outline"
           size="sm"
-          onClick={() => setDateRange(3)}
+          onClick={() => setDateRange(1)}
           className="text-xs border-primary/20 hover:bg-primary/10"
         >
-          Last 3 days
+          Last 2 days
         </Button>
       </div>
       <div className="grid grid-cols-3 gap-2 mb-3">
         <Button
           variant="outline"
           size="sm"
-          onClick={() => setDateRange(7)}
+          onClick={() => setDateRange(2)}
+          className="text-xs border-primary/20 hover:bg-primary/10"
+        >
+          Last 3 days
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setDateRange(6)}
           className="text-xs border-primary/20 hover:bg-primary/10"
         >
           Last 7 days
@@ -92,12 +100,11 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
         <Button
           variant="outline"
           size="sm"
-          onClick={() => setDateRange(30)}
+          onClick={() => setDateRange(29)}
           className="text-xs border-primary/20 hover:bg-primary/10"
         >
           Last 30 days
         </Button>
-        <div></div>
       </div>
       
       <div className="grid grid-cols-4 gap-2">
