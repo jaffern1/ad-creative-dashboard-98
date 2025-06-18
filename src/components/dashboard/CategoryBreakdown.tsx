@@ -99,18 +99,18 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
               </CardHeader>
               <CardContent className="p-3">
                 {category.data.length > 0 ? (
-                  <ChartContainer config={chartConfig} className="h-80 w-full">
+                  <ChartContainer config={chartConfig} className="h-60 w-full">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart 
                         data={category.data} 
-                        margin={{ top: 10, right: 5, left: 5, bottom: 80 }}
+                        margin={{ top: 10, right: 5, left: 5, bottom: 60 }}
                       >
                         <XAxis 
                           dataKey="name" 
                           tick={{ fontSize: 10, fill: 'currentColor' }}
                           angle={-45}
                           textAnchor="end"
-                          height={80}
+                          height={60}
                           interval={0}
                         />
                         <YAxis 
@@ -143,7 +143,7 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
                     </ResponsiveContainer>
                   </ChartContainer>
                 ) : (
-                  <div className="h-80 flex items-center justify-center text-muted-foreground">
+                  <div className="h-60 flex items-center justify-center text-muted-foreground">
                     <div className="text-center">
                       <div className="w-12 h-12 bg-muted rounded-full mx-auto mb-3 flex items-center justify-center">
                         <div className="w-6 h-6 bg-muted-foreground/30 rounded"></div>

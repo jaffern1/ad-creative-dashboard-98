@@ -5,7 +5,6 @@ import { CategoryBreakdown } from '@/components/dashboard/CategoryBreakdown';
 import { MostRecentAds } from '@/components/dashboard/MostRecentAds';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { EmptyState } from '@/components/dashboard/EmptyState';
-import { ChartsSection } from '@/components/dashboard/ChartsSection';
 import { DataSourceSwitcher } from '@/components/dashboard/DataSourceSwitcher';
 import { InitialLoadingState } from '@/components/dashboard/InitialLoadingState';
 import { useDataFiltering } from '@/hooks/useDataFiltering';
@@ -174,9 +173,6 @@ const Dashboard = () => {
           
           {/* Most Recent Ads (full width) */}
           <MostRecentAds data={filteredData} />
-          
-          {/* Side by side: Active Ads Chart and New Ads Chart */}
-          <ChartsSection filteredData={filteredData} />
           
           {/* Category Performance using data that ignores Objective filter */}
           <CategoryBreakdown data={categoryData} />
