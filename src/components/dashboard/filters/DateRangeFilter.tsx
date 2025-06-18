@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -74,7 +73,7 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
   return (
     <div className="md:col-span-2 space-y-3">
       <Label className="text-sm font-medium text-foreground">Date Range</Label>
-      <div className="grid grid-cols-3 gap-2 mb-3">
+      <div className="grid grid-cols-6 gap-2 mb-3">
         <Button
           variant="outline"
           size="sm"
@@ -99,8 +98,6 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
         >
           Last 2 days
         </Button>
-      </div>
-      <div className="grid grid-cols-3 gap-2 mb-3">
         <Button
           variant="outline"
           size="sm"
