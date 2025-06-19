@@ -48,11 +48,26 @@ const Dashboard = () => {
   const [dataSource, setDataSource] = useState<'auto-sheets' | 'manual-csv' | null>(null);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [showManualUpload, setShowManualUpload] = useState(false);
-  const [filters, setFilters] = useState<FilterState>({
+  
+  // Set default date range to last 3 days
+  const getDefaultDateRange = () => {
+    const endDate = new Date();
+    endDate.setHours(23, 59, 59, 999);
+    
+    const startDate = new Date();
+    startDate.setDate(endDate.getDate() - 2); // Last 3 days (today + 2 previous days)
+    startDate.setHours(0, 0, 0, 0);
+    
+    return { startDate, endDate };
+  };
+
+  const [filters, setFilters] = useState<FilterState>(() => ({
+    ...getDefaultDateRange(),
     country: '',
     objective: '',
     shoot: '',
-  });
+  }));
+  
   const { toast } = useToast();
 
   // Auto-load data on component mount
