@@ -1,4 +1,3 @@
-
 import { useMemo } from 'react';
 import { AdData } from '@/pages/Dashboard';
 
@@ -61,9 +60,8 @@ export const useSpendAggregation = (
         const firstInstanceRow = itemData.find(row => row.is_first_instance === 1);
         launchDate = firstInstanceRow?.day || null;
       } else {
-        // TODO: Use is_first_instance_non_test = 1 when available in data
-        // For now, using is_first_instance as fallback
-        const firstInstanceRow = itemData.find(row => row.is_first_instance === 1);
+        // Use is_first_instance_non_test = 1
+        const firstInstanceRow = itemData.find(row => row.is_first_instance_non_test === 1);
         launchDate = firstInstanceRow?.day || null;
       }
 

@@ -25,6 +25,7 @@ export interface AdData {
   visual_hook: string;
   Objective: string;
   is_first_instance: number;
+  is_first_instance_non_test: number;
 }
 
 export interface FilterState {

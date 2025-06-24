@@ -53,6 +53,13 @@ export const parseCsvText = (csvText: string): AdData[] => {
       obj.is_first_instance = 0;
     }
 
+    // Convert is_first_instance_non_test to number
+    if (obj.is_first_instance_non_test) {
+      obj.is_first_instance_non_test = parseInt(obj.is_first_instance_non_test) || 0;
+    } else {
+      obj.is_first_instance_non_test = 0;
+    }
+
     // Only add rows that have an ad_name
     if (obj.ad_name && obj.ad_name.trim()) {
       data.push(obj as AdData);
