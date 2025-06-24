@@ -1,17 +1,11 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { FilterPanel } from '@/components/dashboard/FilterPanel';
-import { SpendTable } from '@/components/dashboard/SpendTable';
-import { CategoryBreakdown } from '@/components/dashboard/CategoryBreakdown';
-import { MostRecentAds } from '@/components/dashboard/MostRecentAds';
-import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
+
+import React from 'react';
+import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
+import { DashboardContent } from '@/components/dashboard/DashboardContent';
 import { EmptyState } from '@/components/dashboard/EmptyState';
-import { DataSourceSwitcher } from '@/components/dashboard/DataSourceSwitcher';
 import { InitialLoadingState } from '@/components/dashboard/InitialLoadingState';
-import { useDataFiltering } from '@/hooks/useDataFiltering';
-import { useFilterOptions } from '@/hooks/useFilterOptions';
-import { useToast } from '@/hooks/use-toast';
-import { fetchGoogleSheetsData } from '@/utils/googleSheetsUtils';
-import { parseCsvText } from '@/utils/csvParser';
+import { useDashboardData } from '@/hooks/useDashboardData';
+import { useDashboardFilters } from '@/hooks/useDashboardFilters';
 
 export interface AdData {
   day: string;
@@ -41,159 +35,47 @@ export interface FilterState {
   shoot: string | string[];
 }
 
-const DEFAULT_SHEETS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSmTUDR12i75AFLRf0Fp1XkTOrtyvLWbvC6uU7Us6nqUACQUjiWRO1f1WWceMEMXakQ3h_NJU0q9j6u/pub?gid=112874240&single=true&output=csv';
-
 const Dashboard = () => {
-  const [data, setData] = useState<AdData[]>([]);
-  const [dataSource, setDataSource] = useState<'auto-sheets' | 'manual-csv' | null>(null);
-  const [isInitialLoading, setIsInitialLoading] = useState(true);
-  const [showManualUpload, setShowManualUpload] = useState(false);
-  
-  // Set default date range to last 3 days
-  const getDefaultDateRange = () => {
-    const endDate = new Date();
-    endDate.setHours(23, 59, 59, 999);
-    
-    const startDate = new Date();
-    startDate.setDate(endDate.getDate() - 2); // Last 3 days (today + 2 previous days)
-    startDate.setHours(0, 0, 0, 0);
-    
-    return { startDate, endDate };
-  };
+  const {
+    data,
+    dataSource,
+    isInitialLoading,
+    showManualUpload,
+    lastUpdated,
+    handleDataUpload,
+    handleSwitchToManual
+  } = useDashboardData();
 
-  const [filters, setFilters] = useState<FilterState>(() => ({
-    ...getDefaultDateRange(),
-    country: '',
-    objective: '',
-    shoot: '',
-  }));
-  
-  const { toast } = useToast();
-
-  // Auto-load data on component mount
-  useEffect(() => {
-    const loadInitialData = async () => {
-      try {
-        console.log('Loading initial data from Google Sheets...');
-        const csvText = await fetchGoogleSheetsData(DEFAULT_SHEETS_URL);
-        const csvData = parseCsvText(csvText);
-        
-        if (csvData.length === 0) {
-          throw new Error('No valid data rows found in the sheet');
-        }
-
-        setData(csvData);
-        setDataSource('auto-sheets');
-        
-        toast({
-          title: "Data loaded successfully",
-          description: `Auto-loaded ${csvData.length} records from Google Sheets`,
-        });
-        
-      } catch (error) {
-        console.error('Error loading initial Google Sheets data:', error);
-        setShowManualUpload(true);
-        
-        toast({
-          title: "Auto-load failed",
-          description: "Couldn't load default data. Please upload manually or try again.",
-          variant: "destructive",
-        });
-      } finally {
-        setIsInitialLoading(false);
-      }
-    };
-
-    loadInitialData();
-  }, [toast]);
-
-  const handleDataUpload = (csvData: AdData[]) => {
-    setData(csvData);
-    setDataSource('manual-csv');
-    setShowManualUpload(false);
-    toast({
-      title: "Data uploaded successfully",
-      description: `Loaded ${csvData.length} records`,
-    });
-  };
-
-  const handleSwitchToManual = () => {
-    setShowManualUpload(true);
-    setData([]);
-    setDataSource(null);
-  };
-
-  const { dateFilteredData, filteredData, categoryData } = useDataFiltering(data, filters);
-  const { countries, objectives, shoots } = useFilterOptions(dateFilteredData, filters);
-
-  const lastUpdated = useMemo(() => {
-    if (data.length === 0) return null;
-    const maxDate = Math.max(...data.map(row => new Date(row.day).getTime()));
-    return new Date(maxDate).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  }, [data]);
+  const { filters, setFilters } = useDashboardFilters();
 
   // Show initial loading state
   if (isInitialLoading) {
     return (
-      <div className="min-h-screen bg-background p-6">
-        <div className="max-w-7xl mx-auto space-y-6">
-          <DashboardHeader lastUpdated={null} />
-          <InitialLoadingState />
-        </div>
-      </div>
+      <DashboardLayout lastUpdated={null}>
+        <InitialLoadingState />
+      </DashboardLayout>
     );
   }
 
   // Show manual upload state
   if (showManualUpload || (data.length === 0 && !isInitialLoading)) {
     return (
-      <div className="min-h-screen bg-background p-6">
-        <div className="max-w-7xl mx-auto space-y-6">
-          <DashboardHeader lastUpdated={lastUpdated} />
-          <EmptyState onDataUpload={handleDataUpload} />
-        </div>
-      </div>
+      <DashboardLayout lastUpdated={lastUpdated}>
+        <EmptyState onDataUpload={handleDataUpload} />
+      </DashboardLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
-        <DashboardHeader lastUpdated={lastUpdated} />
-
-        <div className="space-y-6">
-          {/* Data Source Switcher */}
-          {dataSource && (
-            <DataSourceSwitcher
-              currentSource={dataSource}
-              onSwitchToManual={handleSwitchToManual}
-              recordCount={data.length}
-            />
-          )}
-          
-          <FilterPanel
-            filters={filters}
-            onFiltersChange={setFilters}
-            countries={countries}
-            objectives={objectives}
-            shoots={shoots}
-          />
-          
-          {/* Full width Top Ad Spend */}
-          <SpendTable data={data} filters={filters} />
-          
-          {/* Most Recent Ads (full width) */}
-          <MostRecentAds data={filteredData} />
-          
-          {/* Category Performance using data that ignores Objective filter */}
-          <CategoryBreakdown data={categoryData} />
-        </div>
-      </div>
-    </div>
+    <DashboardLayout lastUpdated={lastUpdated}>
+      <DashboardContent
+        data={data}
+        filters={filters}
+        onFiltersChange={setFilters}
+        dataSource={dataSource}
+        onSwitchToManual={handleSwitchToManual}
+      />
+    </DashboardLayout>
   );
 };
 

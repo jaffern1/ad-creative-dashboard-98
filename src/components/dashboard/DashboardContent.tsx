@@ -1,0 +1,59 @@
+
+import React from 'react';
+import { FilterPanel } from './FilterPanel';
+import { SpendTable } from './SpendTable';
+import { CategoryBreakdown } from './CategoryBreakdown';
+import { MostRecentAds } from './MostRecentAds';
+import { DataSourceSwitcher } from './DataSourceSwitcher';
+import { useDataFiltering } from '@/hooks/useDataFiltering';
+import { useFilterOptions } from '@/hooks/useFilterOptions';
+import { AdData, FilterState } from '@/pages/Dashboard';
+
+interface DashboardContentProps {
+  data: AdData[];
+  filters: FilterState;
+  onFiltersChange: (filters: FilterState) => void;
+  dataSource: 'auto-sheets' | 'manual-csv' | null;
+  onSwitchToManual: () => void;
+}
+
+export const DashboardContent: React.FC<DashboardContentProps> = ({
+  data,
+  filters,
+  onFiltersChange,
+  dataSource,
+  onSwitchToManual
+}) => {
+  const { dateFilteredData, filteredData, categoryData } = useDataFiltering(data, filters);
+  const { countries, objectives, shoots } = useFilterOptions(dateFilteredData, filters);
+
+  return (
+    <div className="space-y-6">
+      {/* Data Source Switcher */}
+      {dataSource && (
+        <DataSourceSwitcher
+          currentSource={dataSource}
+          onSwitchToManual={onSwitchToManual}
+          recordCount={data.length}
+        />
+      )}
+      
+      <FilterPanel
+        filters={filters}
+        onFiltersChange={onFiltersChange}
+        countries={countries}
+        objectives={objectives}
+        shoots={shoots}
+      />
+      
+      {/* Full width Top Ad Spend */}
+      <SpendTable data={data} filters={filters} />
+      
+      {/* Most Recent Ads (full width) */}
+      <MostRecentAds data={filteredData} />
+      
+      {/* Category Performance using data that ignores Objective filter */}
+      <CategoryBreakdown data={categoryData} />
+    </div>
+  );
+};
