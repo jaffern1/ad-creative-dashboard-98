@@ -22,15 +22,17 @@ export const usePeriodCalculation = (data: AdData[], filters: Filters): PeriodDa
     }
 
     // Calculate previous period
-    const currentPeriodLength = Math.ceil((filters.endDate.getTime() - filters.startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    const normalize = (date: Date) => new Date(date.getFullYear(), date.getMonth(), date.getDate());
     
-    const previousEndDate = new Date(filters.startDate);
-    previousEndDate.setDate(previousEndDate.getDate() - 1);
-    previousEndDate.setHours(23, 59, 59, 999);
+    const startDate = normalize(filters.startDate);
+    const endDate = normalize(filters.endDate);
     
-    const previousStartDate = new Date(previousEndDate);
-    previousStartDate.setDate(previousStartDate.getDate() - (currentPeriodLength - 1));
-    previousStartDate.setHours(0, 0, 0, 0);
+    const ONE_DAY_MS = 1000 * 60 * 60 * 24;
+    const currentPeriodLength = Math.round((endDate.getTime() - startDate.getTime()) / ONE_DAY_MS) + 1;
+    
+    const previousEndDate = new Date(startDate.getTime() - ONE_DAY_MS);
+    const previousStartDate = new Date(previousEndDate.getTime() - (currentPeriodLength - 1) * ONE_DAY_MS);
+
 
     console.log('Period calculation:', {
       currentStart: filters.startDate,
