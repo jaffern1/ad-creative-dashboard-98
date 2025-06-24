@@ -6,20 +6,122 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
+import { TrendingUp, TrendingDown } from 'lucide-react';
 import { AdData } from '@/pages/Dashboard';
 
 interface SpendTableProps {
   data: AdData[];
+  filters: {
+    startDate?: Date;
+    endDate?: Date;
+    country: string | string[];
+    objective: string | string[];
+    shoot: string | string[];
+  };
 }
 
-export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
+interface SpendItem {
+  itemName: string;
+  percentage: number;
+  change: number | null;
+  currentSpend: number;
+  previousSpend: number;
+}
+
+export const SpendTable: React.FC<SpendTableProps> = ({ data, filters }) => {
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
   const [groupBy, setGroupBy] = useState<'shoot' | 'ad_name'>('shoot');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(25);
 
+  const { currentPeriodData, previousPeriodData } = useMemo(() => {
+    if (!filters.startDate || !filters.endDate) {
+      return { currentPeriodData: data, previousPeriodData: [] };
+    }
+
+    // Calculate previous period
+    const currentPeriodLength = Math.ceil((filters.endDate.getTime() - filters.startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    
+    const previousEndDate = new Date(filters.startDate);
+    previousEndDate.setDate(previousEndDate.getDate() - 1);
+    previousEndDate.setHours(23, 59, 59, 999);
+    
+    const previousStartDate = new Date(previousEndDate);
+    previousStartDate.setDate(previousStartDate.getDate() - (currentPeriodLength - 1));
+    previousStartDate.setHours(0, 0, 0, 0);
+
+    console.log('Period calculation:', {
+      currentStart: filters.startDate,
+      currentEnd: filters.endDate,
+      currentLength: currentPeriodLength,
+      previousStart: previousStartDate,
+      previousEnd: previousEndDate
+    });
+
+    // Filter data for current period
+    const currentData = data.filter(row => {
+      const rowDate = new Date(row.day);
+      if (rowDate < filters.startDate! || rowDate > filters.endDate!) return false;
+      
+      // Apply other filters
+      if (filters.country) {
+        const selectedCountries = Array.isArray(filters.country) ? filters.country : [filters.country];
+        if (selectedCountries.length > 0 && !selectedCountries.includes(row.country)) return false;
+      }
+      
+      if (filters.objective) {
+        const selectedObjectives = Array.isArray(filters.objective) ? filters.objective : [filters.objective];
+        if (selectedObjectives.length > 0 && !selectedObjectives.includes(row.Objective)) return false;
+      }
+      
+      if (filters.shoot) {
+        const selectedShoots = Array.isArray(filters.shoot) ? filters.shoot : [filters.shoot];
+        if (selectedShoots.length > 0 && !selectedShoots.includes(row.shoot)) return false;
+      }
+      
+      return true;
+    });
+
+    // Filter data for previous period
+    const previousData = data.filter(row => {
+      const rowDate = new Date(row.day);
+      if (rowDate < previousStartDate || rowDate > previousEndDate) return false;
+      
+      // Apply same filters as current period
+      if (filters.country) {
+        const selectedCountries = Array.isArray(filters.country) ? filters.country : [filters.country];
+        if (selectedCountries.length > 0 && !selectedCountries.includes(row.country)) return false;
+      }
+      
+      if (filters.objective) {
+        const selectedObjectives = Array.isArray(filters.objective) ? filters.objective : [filters.objective];
+        if (selectedObjectives.length > 0 && !selectedObjectives.includes(row.Objective)) return false;
+      }
+      
+      if (filters.shoot) {
+        const selectedShoots = Array.isArray(filters.shoot) ? filters.shoot : [filters.shoot];
+        if (selectedShoots.length > 0 && !selectedShoots.includes(row.shoot)) return false;
+      }
+      
+      return true;
+    });
+
+    return { currentPeriodData: currentData, previousPeriodData: previousData };
+  }, [data, filters, groupBy]);
+
   const aggregatedData = useMemo(() => {
-    const spendByGroup = data.reduce((acc, row) => {
+    // Aggregate current period data
+    const currentSpendByGroup = currentPeriodData.reduce((acc, row) => {
+      const groupKey = groupBy === 'shoot' ? (row.shoot || 'Unknown') : (row.ad_name || 'Unknown');
+      if (!acc[groupKey]) {
+        acc[groupKey] = 0;
+      }
+      acc[groupKey] += row.spend;
+      return acc;
+    }, {} as Record<string, number>);
+
+    // Aggregate previous period data
+    const previousSpendByGroup = previousPeriodData.reduce((acc, row) => {
       const groupKey = groupBy === 'shoot' ? (row.shoot || 'Unknown') : (row.ad_name || 'Unknown');
       if (!acc[groupKey]) {
         acc[groupKey] = 0;
@@ -29,18 +131,51 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
     }, {} as Record<string, number>);
 
     // Calculate total spend for percentage calculation
-    const totalSpend = Object.values(spendByGroup).reduce((sum, spend) => sum + spend, 0);
+    const currentTotalSpend = Object.values(currentSpendByGroup).reduce((sum, spend) => sum + spend, 0);
+    const previousTotalSpend = Object.values(previousSpendByGroup).reduce((sum, spend) => sum + spend, 0);
 
-    return Object.entries(spendByGroup)
-      .map(([itemName, absoluteSpend]) => ({ 
-        itemName, 
-        percentage: totalSpend > 0 ? (absoluteSpend / totalSpend) * 100 : 0
-      }))
+    console.log('Spend aggregation:', {
+      currentTotalSpend,
+      previousTotalSpend,
+      currentGroups: Object.keys(currentSpendByGroup).length,
+      previousGroups: Object.keys(previousSpendByGroup).length
+    });
+
+    // Get all unique group names
+    const allGroups = new Set([
+      ...Object.keys(currentSpendByGroup),
+      ...Object.keys(previousSpendByGroup)
+    ]);
+
+    return Array.from(allGroups)
+      .map(itemName => {
+        const currentSpend = currentSpendByGroup[itemName] || 0;
+        const previousSpend = previousSpendByGroup[itemName] || 0;
+        
+        const currentPercentage = currentTotalSpend > 0 ? (currentSpend / currentTotalSpend) * 100 : 0;
+        const previousPercentage = previousTotalSpend > 0 ? (previousSpend / previousTotalSpend) * 100 : 0;
+        
+        let change: number | null = null;
+        if (previousPercentage > 0) {
+          change = ((currentPercentage - previousPercentage) / previousPercentage) * 100;
+        } else if (currentPercentage > 0) {
+          change = 100; // New item, show +100%
+        }
+
+        return {
+          itemName,
+          percentage: currentPercentage,
+          change,
+          currentSpend,
+          previousSpend
+        } as SpendItem;
+      })
+      .filter(item => item.currentSpend > 0) // Only show items with current spend
       .sort((a, b) => b.percentage - a.percentage);
-  }, [data, groupBy]);
+  }, [currentPeriodData, previousPeriodData, groupBy]);
 
   const paginatedData = useMemo(() => {
-    if (itemsPerPage === 0) return aggregatedData; // Show all
+    if (itemsPerPage === 0) return aggregatedData;
     
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
@@ -48,7 +183,7 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
   }, [aggregatedData, currentPage, itemsPerPage]);
 
   const totalPages = useMemo(() => {
-    if (itemsPerPage === 0) return 1; // Show all means 1 page
+    if (itemsPerPage === 0) return 1;
     return Math.ceil(aggregatedData.length / itemsPerPage);
   }, [aggregatedData.length, itemsPerPage]);
 
@@ -57,25 +192,42 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
     if (!selectedItem) return null;
     
     if (groupBy === 'ad_name') {
-      // If Ad Name is selected, find the exact ad
-      const adData = data.find(row => row.ad_name === selectedItem);
+      const adData = currentPeriodData.find(row => row.ad_name === selectedItem);
       return adData?.file_link || null;
     } else {
-      // If Shoot is selected, find the ad with highest spend in that shoot
-      const shootAds = data.filter(row => row.shoot === selectedItem);
+      const shootAds = currentPeriodData.filter(row => row.shoot === selectedItem);
       if (shootAds.length === 0) return null;
       
-      // Find the ad with highest spend in this shoot
       const highestSpendAd = shootAds.reduce((highest, current) => 
         current.spend > highest.spend ? current : highest
       );
       
       return highestSpendAd.file_link || null;
     }
-  }, [selectedItem, data, groupBy]);
+  }, [selectedItem, currentPeriodData, groupBy]);
 
   const formatPercentage = (percentage: number) => {
     return `${percentage.toFixed(1)}%`;
+  };
+
+  const formatChange = (change: number | null) => {
+    if (change === null) return '-';
+    const sign = change >= 0 ? '+' : '';
+    return `${sign}${change.toFixed(1)}%`;
+  };
+
+  const getChangeColor = (change: number | null) => {
+    if (change === null) return 'text-muted-foreground';
+    return change >= 0 ? 'text-green-600' : 'text-red-600';
+  };
+
+  const getChangeIcon = (change: number | null) => {
+    if (change === null) return null;
+    return change >= 0 ? (
+      <TrendingUp className="w-3 h-3 text-green-600" />
+    ) : (
+      <TrendingDown className="w-3 h-3 text-red-600" />
+    );
   };
 
   // Convert Google Drive share link to embeddable format
@@ -87,7 +239,7 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
   const handleItemsPerPageChange = (value: string) => {
     const newItemsPerPage = value === 'all' ? 0 : parseInt(value);
     setItemsPerPage(newItemsPerPage);
-    setCurrentPage(1); // Reset to first page
+    setCurrentPage(1);
   };
 
   const handlePageChange = (page: number) => {
@@ -178,11 +330,11 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
                         {groupBy === 'shoot' ? 'Shoot' : 'Ad Name'}
                       </TableHead>
                       <TableHead className="text-right font-medium text-foreground text-sm">Percentage</TableHead>
+                      <TableHead className="text-right font-medium text-foreground text-sm">Change</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {paginatedData.map((item, index) => {
-                      // Calculate the actual index in the full dataset for ranking
                       const actualIndex = (currentPage - 1) * (itemsPerPage || aggregatedData.length) + index;
                       return (
                         <TableRow 
@@ -219,12 +371,20 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
                               {formatPercentage(item.percentage)}
                             </span>
                           </TableCell>
+                          <TableCell className="text-right font-mono font-medium text-sm py-2 px-4">
+                            <div className="flex items-center justify-end gap-1">
+                              {getChangeIcon(item.change)}
+                              <span className={getChangeColor(item.change)}>
+                                {formatChange(item.change)}
+                              </span>
+                            </div>
+                          </TableCell>
                         </TableRow>
                       );
                     })}
                     {paginatedData.length === 0 && (
                       <TableRow>
-                        <TableCell colSpan={2} className="text-center text-muted-foreground py-8">
+                        <TableCell colSpan={3} className="text-center text-muted-foreground py-8">
                           No data available
                         </TableCell>
                       </TableRow>

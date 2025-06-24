@@ -184,7 +184,7 @@ const Dashboard = () => {
           />
           
           {/* Full width Top Ad Spend */}
-          <SpendTable data={filteredData} />
+          <SpendTable data={data} filters={filters} />
           
           {/* Most Recent Ads (full width) */}
           <MostRecentAds data={filteredData} />
