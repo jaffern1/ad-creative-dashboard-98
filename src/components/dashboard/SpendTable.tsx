@@ -1,4 +1,3 @@
-
 import React, { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -6,17 +5,58 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
+import { TrendingUp, TrendingDown } from 'lucide-react';
 import { AdData } from '@/pages/Dashboard';
 
 interface SpendTableProps {
   data: AdData[];
+  filters: {
+    startDate?: Date;
+    endDate?: Date;
+    country: string | string[];
+    objective: string | string[];
+    shoot: string | string[];
+  };
+  allData: AdData[];
 }
 
-export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
+export const SpendTable: React.FC<SpendTableProps> = ({ data, filters, allData }) => {
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
   const [groupBy, setGroupBy] = useState<'shoot' | 'ad_name'>('shoot');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(25);
+
+  // Calculate previous period data
+  const previousPeriodData = useMemo(() => {
+    if (!filters.startDate || !filters.endDate) return [];
+
+    const periodDuration = filters.endDate.getTime() - filters.startDate.getTime();
+    const previousStartDate = new Date(filters.startDate.getTime() - periodDuration);
+    const previousEndDate = new Date(filters.startDate.getTime() - 1); // Day before current period starts
+
+    return allData.filter(row => {
+      const rowDate = new Date(row.day);
+      if (rowDate < previousStartDate || rowDate > previousEndDate) return false;
+
+      // Apply same filters as current period (except date)
+      if (filters.country) {
+        const selectedCountries = Array.isArray(filters.country) ? filters.country : [filters.country];
+        if (selectedCountries.length > 0 && !selectedCountries.includes(row.country)) return false;
+      }
+      
+      if (filters.objective) {
+        const selectedObjectives = Array.isArray(filters.objective) ? filters.objective : [filters.objective];
+        if (selectedObjectives.length > 0 && !selectedObjectives.includes(row.Objective)) return false;
+      }
+      
+      if (filters.shoot) {
+        const selectedShoots = Array.isArray(filters.shoot) ? filters.shoot : [filters.shoot];
+        if (selectedShoots.length > 0 && !selectedShoots.includes(row.shoot)) return false;
+      }
+
+      return true;
+    });
+  }, [allData, filters]);
 
   const aggregatedData = useMemo(() => {
     const spendByGroup = data.reduce((acc, row) => {
@@ -28,16 +68,43 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
       return acc;
     }, {} as Record<string, number>);
 
+    // Calculate previous period spend by group
+    const previousSpendByGroup = previousPeriodData.reduce((acc, row) => {
+      const groupKey = groupBy === 'shoot' ? (row.shoot || 'Unknown') : (row.ad_name || 'Unknown');
+      if (!acc[groupKey]) {
+        acc[groupKey] = 0;
+      }
+      acc[groupKey] += row.spend;
+      return acc;
+    }, {} as Record<string, number>);
+
     // Calculate total spend for percentage calculation
     const totalSpend = Object.values(spendByGroup).reduce((sum, spend) => sum + spend, 0);
+    const totalPreviousSpend = Object.values(previousSpendByGroup).reduce((sum, spend) => sum + spend, 0);
 
     return Object.entries(spendByGroup)
-      .map(([itemName, absoluteSpend]) => ({ 
-        itemName, 
-        percentage: totalSpend > 0 ? (absoluteSpend / totalSpend) * 100 : 0
-      }))
+      .map(([itemName, absoluteSpend]) => {
+        const percentage = totalSpend > 0 ? (absoluteSpend / totalSpend) * 100 : 0;
+        const previousAbsoluteSpend = previousSpendByGroup[itemName] || 0;
+        const previousPercentage = totalPreviousSpend > 0 ? (previousAbsoluteSpend / totalPreviousSpend) * 100 : 0;
+        
+        // Calculate percentage change
+        let percentageChange = 0;
+        if (previousPercentage > 0) {
+          percentageChange = ((percentage - previousPercentage) / previousPercentage) * 100;
+        } else if (percentage > 0) {
+          percentageChange = 100; // New item, 100% increase
+        }
+
+        return { 
+          itemName, 
+          percentage,
+          percentageChange,
+          hasPreviousData: previousPercentage > 0 || percentage > 0
+        };
+      })
       .sort((a, b) => b.percentage - a.percentage);
-  }, [data, groupBy]);
+  }, [data, previousPeriodData, groupBy]);
 
   const paginatedData = useMemo(() => {
     if (itemsPerPage === 0) return aggregatedData; // Show all
@@ -76,6 +143,11 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
 
   const formatPercentage = (percentage: number) => {
     return `${percentage.toFixed(1)}%`;
+  };
+
+  const formatPercentageChange = (change: number) => {
+    const sign = change >= 0 ? '+' : '';
+    return `${sign}${change.toFixed(1)}%`;
   };
 
   // Convert Google Drive share link to embeddable format
@@ -178,6 +250,7 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
                         {groupBy === 'shoot' ? 'Shoot' : 'Ad Name'}
                       </TableHead>
                       <TableHead className="text-right font-medium text-foreground text-sm">Percentage</TableHead>
+                      <TableHead className="text-right font-medium text-foreground text-sm">vs Previous</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -219,12 +292,32 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data }) => {
                               {formatPercentage(item.percentage)}
                             </span>
                           </TableCell>
+                          <TableCell className="text-right font-mono font-medium text-sm py-2 px-4">
+                            {item.hasPreviousData ? (
+                              <div className="flex items-center justify-end gap-1">
+                                {item.percentageChange > 0 ? (
+                                  <TrendingUp className="w-3 h-3 text-green-600" />
+                                ) : item.percentageChange < 0 ? (
+                                  <TrendingDown className="w-3 h-3 text-red-600" />
+                                ) : null}
+                                <span className={`
+                                  ${item.percentageChange > 0 ? 'text-green-600' : 
+                                    item.percentageChange < 0 ? 'text-red-600' : 
+                                    'text-gray-500'}
+                                `}>
+                                  {formatPercentageChange(item.percentageChange)}
+                                </span>
+                              </div>
+                            ) : (
+                              <span className="text-gray-400">-</span>
+                            )}
+                          </TableCell>
                         </TableRow>
                       );
                     })}
                     {paginatedData.length === 0 && (
                       <TableRow>
-                        <TableCell colSpan={2} className="text-center text-muted-foreground py-8">
+                        <TableCell colSpan={3} className="text-center text-muted-foreground py-8">
                           No data available
                         </TableCell>
                       </TableRow>
