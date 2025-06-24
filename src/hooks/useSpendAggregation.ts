@@ -1,3 +1,4 @@
+
 import { useMemo } from 'react';
 import { AdData } from '@/pages/Dashboard';
 
@@ -15,7 +16,8 @@ export const useSpendAggregation = (
   previousPeriodData: AdData[], 
   groupBy: 'shoot' | 'ad_name',
   allData: AdData[],
-  isTestingInObjectives: boolean
+  isTestingInObjectives: boolean,
+  objectives: string[]
 ): SpendItem[] => {
   return useMemo(() => {
     // Aggregate current period data
@@ -55,13 +57,18 @@ export const useSpendAggregation = (
       // Find the launch date based on objectives
       let launchDate: string | null = null;
       
-      if (isTestingInObjectives) {
-        // Use is_first_instance = 1
-        const firstInstanceRow = itemData.find(row => row.is_first_instance === 1);
-        launchDate = firstInstanceRow?.day || null;
-      } else {
+      // Check if any of Prospecting, Remarketing, or Brand are selected
+      const hasNonTestingObjectives = objectives.some(obj => 
+        ['Prospecting', 'Remarketing', 'Brand'].includes(obj)
+      );
+      
+      if (hasNonTestingObjectives) {
         // Use is_first_instance_non_test = 1
         const firstInstanceRow = itemData.find(row => row.is_first_instance_non_test === 1);
+        launchDate = firstInstanceRow?.day || null;
+      } else {
+        // Use is_first_instance = 1 (when Testing is selected or nothing is selected)
+        const firstInstanceRow = itemData.find(row => row.is_first_instance === 1);
         launchDate = firstInstanceRow?.day || null;
       }
 
@@ -81,7 +88,8 @@ export const useSpendAggregation = (
       previousTotalSpend,
       currentGroups: Object.keys(currentSpendByGroup).length,
       previousGroups: Object.keys(previousSpendByGroup).length,
-      isTestingInObjectives
+      objectives,
+      hasNonTestingObjectives: objectives.some(obj => ['Prospecting', 'Remarketing', 'Brand'].includes(obj))
     });
 
     // Get all unique group names
@@ -118,5 +126,5 @@ export const useSpendAggregation = (
       })
       .filter(item => item.currentSpend > 0) // Only show items with current spend
       .sort((a, b) => b.percentage - a.percentage);
-  }, [currentPeriodData, previousPeriodData, groupBy, allData, isTestingInObjectives]);
+  }, [currentPeriodData, previousPeriodData, groupBy, allData, isTestingInObjectives, objectives]);
 };
