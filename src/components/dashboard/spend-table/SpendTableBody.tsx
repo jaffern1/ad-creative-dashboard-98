@@ -31,6 +31,11 @@ export const SpendTableBody: React.FC<SpendTableBodyProps> = ({
     return `${sign}${change.toFixed(1)}%`;
   };
 
+  const formatDaysSinceLaunch = (days: number | null) => {
+    if (days === null) return '-';
+    return `${days}d`;
+  };
+
   const getChangeColor = (change: number | null) => {
     if (change === null) return 'text-muted-foreground';
     return change >= 0 ? 'text-green-600' : 'text-red-600';
@@ -54,6 +59,7 @@ export const SpendTableBody: React.FC<SpendTableBodyProps> = ({
           </TableHead>
           <TableHead className="text-right font-medium text-foreground text-sm">Percentage</TableHead>
           <TableHead className="text-right font-medium text-foreground text-sm">Change</TableHead>
+          <TableHead className="text-right font-medium text-foreground text-sm">Days since launch</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -102,12 +108,17 @@ export const SpendTableBody: React.FC<SpendTableBodyProps> = ({
                   </span>
                 </div>
               </TableCell>
+              <TableCell className="text-right font-mono font-medium text-sm py-2 px-4">
+                <span className="text-foreground">
+                  {formatDaysSinceLaunch(item.daysSinceLaunch)}
+                </span>
+              </TableCell>
             </TableRow>
           );
         })}
         {data.length === 0 && (
           <TableRow>
-            <TableCell colSpan={3} className="text-center text-muted-foreground py-8">
+            <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
               No data available
             </TableCell>
           </TableRow>

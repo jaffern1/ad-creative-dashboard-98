@@ -29,7 +29,15 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data, filters }) => {
   const [itemsPerPage, setItemsPerPage] = useState(25);
 
   const { currentPeriodData, previousPeriodData } = usePeriodCalculation(data, filters);
-  const aggregatedData = useSpendAggregation(currentPeriodData, previousPeriodData, groupBy);
+  
+  // Check if Testing is in the objectives filter
+  const isTestingInObjectives = useMemo(() => {
+    if (!filters.objective) return false;
+    const objectives = Array.isArray(filters.objective) ? filters.objective : [filters.objective];
+    return objectives.includes('Testing');
+  }, [filters.objective]);
+
+  const aggregatedData = useSpendAggregation(currentPeriodData, previousPeriodData, groupBy, data, isTestingInObjectives);
   const { paginatedData, totalPages, visiblePages } = usePagination(aggregatedData, currentPage, itemsPerPage);
 
   // Get the file_link for the selected item

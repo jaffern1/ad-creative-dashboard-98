@@ -8,12 +8,15 @@ export interface SpendItem {
   change: number | null;
   currentSpend: number;
   previousSpend: number;
+  daysSinceLaunch: number | null;
 }
 
 export const useSpendAggregation = (
   currentPeriodData: AdData[], 
   previousPeriodData: AdData[], 
-  groupBy: 'shoot' | 'ad_name'
+  groupBy: 'shoot' | 'ad_name',
+  allData: AdData[],
+  isTestingInObjectives: boolean
 ): SpendItem[] => {
   return useMemo(() => {
     // Aggregate current period data
@@ -40,11 +43,47 @@ export const useSpendAggregation = (
     const currentTotalSpend = Object.values(currentSpendByGroup).reduce((sum, spend) => sum + spend, 0);
     const previousTotalSpend = Object.values(previousSpendByGroup).reduce((sum, spend) => sum + spend, 0);
 
+    // Helper function to calculate days since launch
+    const calculateDaysSinceLaunch = (itemName: string): number | null => {
+      // Filter data for the specific item
+      const itemData = allData.filter(row => {
+        const groupKey = groupBy === 'shoot' ? row.shoot : row.ad_name;
+        return groupKey === itemName;
+      });
+
+      if (itemData.length === 0) return null;
+
+      // Find the launch date based on objectives
+      let launchDate: string | null = null;
+      
+      if (isTestingInObjectives) {
+        // Use is_first_instance = 1
+        const firstInstanceRow = itemData.find(row => row.is_first_instance === 1);
+        launchDate = firstInstanceRow?.day || null;
+      } else {
+        // TODO: Use is_first_instance_non_test = 1 when available in data
+        // For now, using is_first_instance as fallback
+        const firstInstanceRow = itemData.find(row => row.is_first_instance === 1);
+        launchDate = firstInstanceRow?.day || null;
+      }
+
+      if (!launchDate) return null;
+
+      // Calculate days difference
+      const launch = new Date(launchDate);
+      const today = new Date();
+      const diffTime = today.getTime() - launch.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      return diffDays;
+    };
+
     console.log('Spend aggregation:', {
       currentTotalSpend,
       previousTotalSpend,
       currentGroups: Object.keys(currentSpendByGroup).length,
-      previousGroups: Object.keys(previousSpendByGroup).length
+      previousGroups: Object.keys(previousSpendByGroup).length,
+      isTestingInObjectives
     });
 
     // Get all unique group names
@@ -68,15 +107,18 @@ export const useSpendAggregation = (
           change = 100; // New item, show +100%
         }
 
+        const daysSinceLaunch = calculateDaysSinceLaunch(itemName);
+
         return {
           itemName,
           percentage: currentPercentage,
           change,
           currentSpend,
-          previousSpend
+          previousSpend,
+          daysSinceLaunch
         } as SpendItem;
       })
       .filter(item => item.currentSpend > 0) // Only show items with current spend
       .sort((a, b) => b.percentage - a.percentage);
-  }, [currentPeriodData, previousPeriodData, groupBy]);
+  }, [currentPeriodData, previousPeriodData, groupBy, allData, isTestingInObjectives]);
 };
