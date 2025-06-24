@@ -121,9 +121,9 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
                         <ChartTooltip
                           content={
                             <ChartTooltipContent
-                              formatter={(value, name, props) => [
+                              formatter={(value) => [
                                 `${Number(value).toFixed(0)}%`, 
-                                "Percentage"
+                                ""
                               ]}
                               labelFormatter={(label, payload) => {
                                 // Show full name in tooltip
@@ -137,7 +137,27 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
                           dataKey="percentage" 
                           fill={category.color}
                           radius={[2, 2, 0, 0]}
-                          className="hover:opacity-80 transition-opacity"
+                          className="transition-opacity"
+                          style={{
+                            filter: 'none'
+                          }}
+                          onMouseEnter={(data, index, e) => {
+                            const bar = e.target;
+                            if (bar) {
+                              // Create a slightly darker version of the color
+                              const rgb = hexToRgb(category.color);
+                              if (rgb) {
+                                const darkerColor = `rgb(${Math.max(0, rgb.r - 20)}, ${Math.max(0, rgb.g - 20)}, ${Math.max(0, rgb.b - 20)})`;
+                                bar.setAttribute('fill', darkerColor);
+                              }
+                            }
+                          }}
+                          onMouseLeave={(data, index, e) => {
+                            const bar = e.target;
+                            if (bar) {
+                              bar.setAttribute('fill', category.color);
+                            }
+                          }}
                         />
                       </BarChart>
                     </ResponsiveContainer>
@@ -160,3 +180,13 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
     </div>
   );
 };
+
+// Helper function to convert hex to RGB
+function hexToRgb(hex: string) {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16)
+  } : null;
+}

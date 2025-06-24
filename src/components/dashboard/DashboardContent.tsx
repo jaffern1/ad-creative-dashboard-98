@@ -24,7 +24,7 @@ export const DashboardContent: React.FC<DashboardContentProps> = ({
   dataSource,
   onSwitchToManual
 }) => {
-  const { dateFilteredData, filteredData, categoryData } = useDataFiltering(data, filters);
+  const { dateFilteredData, filteredData } = useDataFiltering(data, filters);
   const { countries, objectives, shoots } = useFilterOptions(dateFilteredData, filters);
 
   return (
@@ -52,8 +52,8 @@ export const DashboardContent: React.FC<DashboardContentProps> = ({
       {/* Most Recent Ads (full width) */}
       <MostRecentAds data={filteredData} />
       
-      {/* Category Performance using data that ignores Objective filter */}
-      <CategoryBreakdown data={categoryData} />
+      {/* Category Performance using filtered data */}
+      <CategoryBreakdown data={filteredData} />
     </div>
   );
 };

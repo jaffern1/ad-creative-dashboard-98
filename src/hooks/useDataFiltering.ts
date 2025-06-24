@@ -54,41 +54,8 @@ export const useDataFiltering = (data: AdData[], filters: FilterState) => {
     });
   }, [data, filters]);
 
-  // Data for Category Performance that ignores Objective filter
-  const categoryData = useMemo(() => {
-    return data.filter(row => {
-      // Date filter
-      if (filters.startDate || filters.endDate) {
-        const rowDate = new Date(row.day);
-        if (filters.startDate && rowDate < filters.startDate) return false;
-        if (filters.endDate && rowDate > filters.endDate) return false;
-      }
-      
-      // Country filter - support multiple selection
-      if (filters.country) {
-        const selectedCountries = Array.isArray(filters.country) 
-          ? filters.country 
-          : [filters.country];
-        if (selectedCountries.length > 0 && !selectedCountries.includes(row.country)) return false;
-      }
-      
-      // Shoot filter - support multiple selection
-      if (filters.shoot) {
-        const selectedShoots = Array.isArray(filters.shoot) 
-          ? filters.shoot 
-          : [filters.shoot];
-        if (selectedShoots.length > 0 && !selectedShoots.includes(row.shoot)) return false;
-      }
-      
-      // NOTE: Objective filter is ignored for Category Performance
-      
-      return true;
-    });
-  }, [data, filters.startDate, filters.endDate, filters.country, filters.shoot]);
-
   return {
     dateFilteredData,
-    filteredData,
-    categoryData
+    filteredData
   };
 };
