@@ -142,7 +142,7 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
                             filter: 'none'
                           }}
                           onMouseEnter={(data, index, e) => {
-                            const bar = e.target;
+                            const bar = e.target as SVGElement;
                             if (bar) {
                               // Create a slightly darker version of the color
                               const rgb = hexToRgb(category.color);
@@ -153,7 +153,7 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
                             }
                           }}
                           onMouseLeave={(data, index, e) => {
-                            const bar = e.target;
+                            const bar = e.target as SVGElement;
                             if (bar) {
                               bar.setAttribute('fill', category.color);
                             }
