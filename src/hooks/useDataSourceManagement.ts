@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { AdData } from '@/pages/Dashboard';
 
@@ -9,7 +9,7 @@ export const useDataSourceManagement = () => {
   const [showManualUpload, setShowManualUpload] = useState(false);
   const { toast } = useToast();
 
-  const handleDataUpload = (csvData: AdData[]) => {
+  const handleDataUpload = useCallback((csvData: AdData[]) => {
     setData(csvData);
     setDataSource('manual-csv');
     setShowManualUpload(false);
@@ -17,22 +17,22 @@ export const useDataSourceManagement = () => {
       title: "Data uploaded successfully",
       description: `Loaded ${csvData.length} records`,
     });
-  };
+  }, [toast]);
 
-  const handleSwitchToManual = () => {
+  const handleSwitchToManual = useCallback(() => {
     setShowManualUpload(true);
     setData([]);
     setDataSource(null);
-  };
+  }, []);
 
-  const setAutoSheetsData = (csvData: AdData[]) => {
+  const setAutoSheetsData = useCallback((csvData: AdData[]) => {
     setData(csvData);
     setDataSource('auto-sheets');
-  };
+  }, []);
 
-  const setShowManualUploadState = (show: boolean) => {
+  const setShowManualUploadState = useCallback((show: boolean) => {
     setShowManualUpload(show);
-  };
+  }, []);
 
   return {
     data,
