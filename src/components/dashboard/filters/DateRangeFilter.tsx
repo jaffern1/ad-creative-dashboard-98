@@ -7,6 +7,7 @@ import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { FilterState } from '@/pages/Dashboard';
+import { DateRange } from 'react-day-picker';
 
 interface DateRangeFilterProps {
   filters: FilterState;
@@ -133,64 +134,91 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
     return null;
   }, [filters.startDate, filters.endDate]);
 
+  // Convert filters to DateRange format for the calendar
+  const dateRange: DateRange | undefined = useMemo(() => {
+    if (!filters.startDate || !filters.endDate) return undefined;
+    return {
+      from: filters.startDate,
+      to: filters.endDate
+    };
+  }, [filters.startDate, filters.endDate]);
+
+  // Handle date range selection
+  const handleDateRangeSelect = (range: DateRange | undefined) => {
+    if (!range) {
+      // Reset selection
+      onFiltersChange({
+        ...filters,
+        startDate: undefined,
+        endDate: undefined,
+      });
+      return;
+    }
+
+    if (range.from && range.to) {
+      // Both dates selected - set proper times
+      const startDate = new Date(range.from);
+      startDate.setHours(0, 0, 0, 0);
+      
+      const endDate = new Date(range.to);
+      endDate.setHours(23, 59, 59, 999);
+      
+      onFiltersChange({
+        ...filters,
+        startDate,
+        endDate,
+      });
+    } else if (range.from) {
+      // Only start date selected
+      const startDate = new Date(range.from);
+      startDate.setHours(0, 0, 0, 0);
+      
+      onFiltersChange({
+        ...filters,
+        startDate,
+        endDate: undefined,
+      });
+    }
+  };
+
+  // Format display text for the button
+  const getDisplayText = () => {
+    if (!filters.startDate && !filters.endDate) {
+      return "Select date range";
+    }
+    if (filters.startDate && !filters.endDate) {
+      return `${format(filters.startDate, "MMM dd")} - ...`;
+    }
+    if (filters.startDate && filters.endDate) {
+      return `${format(filters.startDate, "MMM dd")} - ${format(filters.endDate, "MMM dd")}`;
+    }
+    return "Select date range";
+  };
+
   return (
     <div className="space-y-4">
-      {/* Date Pickers */}
-      <div className="grid grid-cols-2 gap-3">
+      {/* Single Date Range Picker */}
+      <div>
         <Popover>
           <PopoverTrigger asChild>
             <Button
               variant="outline"
               size="sm"
               className={cn(
-                "justify-start text-left font-normal border-primary/20",
-                !filters.startDate && "text-muted-foreground"
+                "w-full justify-start text-left font-normal border-primary/20",
+                (!filters.startDate || !filters.endDate) && "text-muted-foreground"
               )}
             >
               <CalendarIcon className="mr-2 h-3 w-3" />
-              {filters.startDate ? format(filters.startDate, "MMM dd") : "Start"}
+              {getDisplayText()}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
             <Calendar
-              mode="single"
-              selected={filters.startDate}
-              onSelect={(date) => {
-                if (date) {
-                  date.setHours(0, 0, 0, 0);
-                }
-                onFiltersChange({ ...filters, startDate: date });
-              }}
-              initialFocus
-              className="pointer-events-auto"
-            />
-          </PopoverContent>
-        </Popover>
-
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              className={cn(
-                "justify-start text-left font-normal border-primary/20",
-                !filters.endDate && "text-muted-foreground"
-              )}
-            >
-              <CalendarIcon className="mr-2 h-3 w-3" />
-              {filters.endDate ? format(filters.endDate, "MMM dd") : "End"}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              selected={filters.endDate}
-              onSelect={(date) => {
-                if (date) {
-                  date.setHours(23, 59, 59, 999);
-                }
-                onFiltersChange({ ...filters, endDate: date });
-              }}
+              mode="range"
+              selected={dateRange}
+              onSelect={handleDateRangeSelect}
+              numberOfMonths={1}
               initialFocus
               className="pointer-events-auto"
             />
