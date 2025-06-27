@@ -48,6 +48,21 @@ export const CountryFilter: React.FC<CountryFilterProps> = ({
     return filters.country ? [filters.country] : [];
   };
 
+  const getDisplayText = () => {
+    const selected = getSelectedCountries();
+    if (selected.length === 0) {
+      return "All countries";
+    }
+    
+    const text = `${selected.length} selected: ${selected.join(', ')}`;
+    // Truncate if too long (approximately 40 characters)
+    if (text.length > 40) {
+      const truncated = text.substring(0, 37) + '...';
+      return truncated;
+    }
+    return text;
+  };
+
   return (
     <div className="flex items-center gap-4">
       <Label className="text-sm font-medium text-foreground min-w-[80px]">Country</Label>
@@ -56,12 +71,10 @@ export const CountryFilter: React.FC<CountryFilterProps> = ({
           <Button
             variant="outline"
             size="sm"
-            className="flex-1 justify-start text-left font-normal border-primary/20"
+            className="flex-1 justify-start text-left font-normal border-primary/20 truncate"
+            title={getDisplayText()}
           >
-            {getSelectedCountries().length === 0 
-              ? "All countries"
-              : `${getSelectedCountries().length} selected`
-            }
+            {getDisplayText()}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-64 p-4" align="start">

@@ -48,6 +48,21 @@ export const ObjectiveFilter: React.FC<ObjectiveFilterProps> = ({
     return filters.objective ? [filters.objective] : [];
   };
 
+  const getDisplayText = () => {
+    const selected = getSelectedObjectives();
+    if (selected.length === 0) {
+      return "All objectives";
+    }
+    
+    const text = `${selected.length} selected: ${selected.join(', ')}`;
+    // Truncate if too long (approximately 40 characters)
+    if (text.length > 40) {
+      const truncated = text.substring(0, 37) + '...';
+      return truncated;
+    }
+    return text;
+  };
+
   return (
     <div className="flex items-center gap-4">
       <Label className="text-sm font-medium text-foreground min-w-[80px]">Objectives</Label>
@@ -56,12 +71,10 @@ export const ObjectiveFilter: React.FC<ObjectiveFilterProps> = ({
           <Button
             variant="outline"
             size="sm"
-            className="flex-1 justify-start text-left font-normal border-primary/20"
+            className="flex-1 justify-start text-left font-normal border-primary/20 truncate"
+            title={getDisplayText()}
           >
-            {getSelectedObjectives().length === 0 
-              ? "All objectives"
-              : `${getSelectedObjectives().length} selected`
-            }
+            {getDisplayText()}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-64 p-4" align="start">
