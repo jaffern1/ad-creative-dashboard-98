@@ -1,4 +1,3 @@
-
 import React, { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
@@ -52,8 +51,16 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
         .sort((a, b) => b.spend - a.spend)
         .slice(0, 6); // Limit to 6 items for better visibility
 
+      // Fix the category display names - swap Copy Hook and Visual Hook
+      let displayCategory = category.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+      if (category === 'copy_hook') {
+        displayCategory = 'Copy Hook';
+      } else if (category === 'visual_hook') {
+        displayCategory = 'Visual Hook';
+      }
+
       return {
-        category: category.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
+        category: displayCategory,
         data: chartData,
         color: categoryColors[index],
       };
