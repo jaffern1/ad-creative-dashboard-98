@@ -51,12 +51,12 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
         .sort((a, b) => b.spend - a.spend)
         .slice(0, 6); // Limit to 6 items for better visibility
 
-      // Fix the category display names - swap Copy Hook and Visual Hook
+      // Swap the display names - copy_hook data should show as "Visual Hook" and visual_hook data should show as "Copy Hook"
       let displayCategory = category.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
       if (category === 'copy_hook') {
-        displayCategory = 'Copy Hook';
-      } else if (category === 'visual_hook') {
         displayCategory = 'Visual Hook';
+      } else if (category === 'visual_hook') {
+        displayCategory = 'Copy Hook';
       }
 
       return {
