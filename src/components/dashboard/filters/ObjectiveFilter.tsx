@@ -55,9 +55,9 @@ export const ObjectiveFilter: React.FC<ObjectiveFilterProps> = ({
     }
     
     const text = `${selected.length} selected: ${selected.join(', ')}`;
-    // Truncate if too long (approximately 40 characters)
-    if (text.length > 40) {
-      const truncated = text.substring(0, 37) + '...';
+    // Truncate if too long (approximately 60 characters)
+    if (text.length > 60) {
+      const truncated = text.substring(0, 57) + '...';
       return truncated;
     }
     return text;
