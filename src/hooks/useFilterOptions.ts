@@ -1,5 +1,5 @@
 
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { AdData, FilterState } from '@/pages/Dashboard';
 
 interface FilterOption {
@@ -8,7 +8,18 @@ interface FilterOption {
   spend: number;
 }
 
-export const useFilterOptions = (dateFilteredData: AdData[], currentFilters: FilterState) => {
+interface UseFilterOptionsReturn {
+  countries: FilterOption[];
+  objectives: FilterOption[];
+  shoots: FilterOption[];
+  onFiltersChange?: (filters: FilterState) => void;
+}
+
+export const useFilterOptions = (
+  dateFilteredData: AdData[], 
+  currentFilters: FilterState,
+  onFiltersChange?: (filters: FilterState) => void
+): UseFilterOptionsReturn => {
   // Helper function to apply filters except the one being calculated
   const getFilteredDataExcluding = (excludeFilter: 'country' | 'objective' | 'shoot') => {
     return dateFilteredData.filter(row => {
@@ -112,6 +123,60 @@ export const useFilterOptions = (dateFilteredData: AdData[], currentFilters: Fil
         spend
       }));
   }, [dateFilteredData, currentFilters.country, currentFilters.objective]);
+
+  // Effect to automatically deselect unavailable options
+  useEffect(() => {
+    if (!onFiltersChange) return;
+
+    let needsUpdate = false;
+    const updatedFilters = { ...currentFilters };
+
+    // Check and clean up country selections
+    if (currentFilters.country) {
+      const selectedCountries = Array.isArray(currentFilters.country) 
+        ? currentFilters.country 
+        : [currentFilters.country];
+      const availableCountries = countries.map(c => c.value);
+      const validCountries = selectedCountries.filter(country => availableCountries.includes(country));
+      
+      if (validCountries.length !== selectedCountries.length) {
+        updatedFilters.country = validCountries.length > 0 ? validCountries : '';
+        needsUpdate = true;
+      }
+    }
+
+    // Check and clean up objective selections
+    if (currentFilters.objective) {
+      const selectedObjectives = Array.isArray(currentFilters.objective) 
+        ? currentFilters.objective 
+        : [currentFilters.objective];
+      const availableObjectives = objectives.map(o => o.value);
+      const validObjectives = selectedObjectives.filter(objective => availableObjectives.includes(objective));
+      
+      if (validObjectives.length !== selectedObjectives.length) {
+        updatedFilters.objective = validObjectives.length > 0 ? validObjectives : '';
+        needsUpdate = true;
+      }
+    }
+
+    // Check and clean up shoot selections
+    if (currentFilters.shoot) {
+      const selectedShoots = Array.isArray(currentFilters.shoot) 
+        ? currentFilters.shoot 
+        : [currentFilters.shoot];
+      const availableShoots = shoots.map(s => s.value);
+      const validShoots = selectedShoots.filter(shoot => availableShoots.includes(shoot));
+      
+      if (validShoots.length !== selectedShoots.length) {
+        updatedFilters.shoot = validShoots.length > 0 ? validShoots : '';
+        needsUpdate = true;
+      }
+    }
+
+    if (needsUpdate) {
+      onFiltersChange(updatedFilters);
+    }
+  }, [countries, objectives, shoots, currentFilters, onFiltersChange]);
 
   return {
     countries,

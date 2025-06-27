@@ -25,7 +25,7 @@ export const DashboardContent: React.FC<DashboardContentProps> = ({
   onSwitchToManual
 }) => {
   const { dateFilteredData, filteredData } = useDataFiltering(data, filters);
-  const { countries, objectives, shoots } = useFilterOptions(dateFilteredData, filters);
+  const { countries, objectives, shoots } = useFilterOptions(dateFilteredData, filters, onFiltersChange);
 
   return (
     <div className="space-y-6">
