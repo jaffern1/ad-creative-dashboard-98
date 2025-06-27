@@ -1,105 +1,192 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from 'recharts';
 import { AdData } from '@/pages/Dashboard';
-import { formatSpend } from '@/utils/formatSpend';
 
 interface CategoryBreakdownProps {
   data: AdData[];
 }
 
 export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) => {
-  // Calculate copy hook breakdown (using copy_hook field)
-  const copyHookBreakdown = data.reduce((acc, row) => {
-    const copyHook = row.copy_hook || 'Unknown';
-    if (!acc[copyHook]) {
-      acc[copyHook] = 0;
-    }
-    acc[copyHook] += row.spend;
-    return acc;
-  }, {} as Record<string, number>);
+  const categoryData = useMemo(() => {
+    const categories = ['season', 'production_type', 'copy_hook', 'visual_hook', 'Objective'] as const;
+    const categoryColors = [
+      '#C8B5D1',   // Pastel violet
+      '#B5D1B5',   // Pastel green
+      '#D1C8B5',   // Pastel beige
+      '#B5C8D1',   // Pastel blue
+      '#D1B5C8',   // Pastel pink
+    ];
 
-  // Calculate visual hook breakdown (using visual_hook field)
-  const visualHookBreakdown = data.reduce((acc, row) => {
-    const visualHook = row.visual_hook || 'Unknown';
-    if (!acc[visualHook]) {
-      acc[visualHook] = 0;
-    }
-    acc[visualHook] += row.spend;
-    return acc;
-  }, {} as Record<string, number>);
+    // Calculate total spend for percentage calculation
+    const totalSpend = data.reduce((sum, row) => sum + row.spend, 0);
+    
+    return categories.map((category, index) => {
+      const spendByCategory = data.reduce((acc, row) => {
+        let categoryValue = row[category] || 'Unknown';
+        
+        // For Objective category, filter to only allowed values
+        if (category === 'Objective') {
+          const allowedObjectives = ['Prospecting', 'Remarketing', 'Testing', 'Brand'];
+          if (!allowedObjectives.includes(categoryValue)) {
+            return acc; // Skip this row if objective is not in allowed list
+          }
+        }
+        
+        if (!acc[categoryValue]) {
+          acc[categoryValue] = 0;
+        }
+        acc[categoryValue] += row.spend;
+        return acc;
+      }, {} as Record<string, number>);
 
-  // Sort and format copy hook data
-  const sortedCopyHooks = Object.entries(copyHookBreakdown)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 10); // Top 10
+      const chartData = Object.entries(spendByCategory)
+        .map(([name, spend]) => ({ 
+          name: name.length > 12 ? name.substring(0, 12) + '...' : name,
+          fullName: name,
+          spend,
+          percentage: totalSpend > 0 ? (spend / totalSpend) * 100 : 0
+        }))
+        .sort((a, b) => b.spend - a.spend)
+        .slice(0, 6); // Limit to 6 items for better visibility
 
-  // Sort and format visual hook data
-  const sortedVisualHooks = Object.entries(visualHookBreakdown)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 10); // Top 10
+      return {
+        category: category.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
+        data: chartData,
+        color: categoryColors[index],
+      };
+    });
+  }, [data]);
 
-  const renderTable = (title: string, data: [string, number][]) => (
-    <Card className="shadow-sm border border-border bg-card">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-base font-medium text-foreground">{title}</CardTitle>
-      </CardHeader>
-      <CardContent className="p-0">
-        <Table>
-          <TableHeader>
-            <TableRow className="border-b border-border hover:bg-transparent">
-              <TableHead className="font-medium text-foreground text-sm">Name</TableHead>
-              <TableHead className="text-right font-medium text-foreground text-sm">Spend</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {data.map(([name, spend], index) => (
-              <TableRow key={name} className={index < 3 ? 'bg-primary/5' : 'bg-card'}>
-                <TableCell className="font-medium py-2 px-4">
-                  <div className="flex items-center gap-2">
-                    {index < 3 && (
-                      <div className={`
-                        w-5 h-5 rounded-full flex items-center justify-center text-xs font-medium text-white
-                        ${index === 0 ? 'bg-primary' : ''}
-                        ${index === 1 ? 'bg-primary/80' : ''}
-                        ${index === 2 ? 'bg-primary/60' : ''}
-                      `}>
-                        {index + 1}
-                      </div>
-                    )}
-                    {index >= 3 && (
-                      <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground">
-                        {index + 1}
-                      </div>
-                    )}
-                    <span className={`text-sm ${index < 3 ? 'font-medium' : ''} text-foreground`}>{name}</span>
-                  </div>
-                </TableCell>
-                <TableCell className="text-right font-mono font-medium text-sm py-2 px-4">
-                  <span className="text-black">
-                    {formatSpend(spend)}
-                  </span>
-                </TableCell>
-              </TableRow>
-            ))}
-            {data.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={2} className="text-center text-muted-foreground py-8">
-                  No data available
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
-  );
+  const formatPercentage = (percentage: number) => {
+    return `${percentage.toFixed(0)}%`;
+  };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      {renderTable('Copy Hook Performance', sortedCopyHooks)}
-      {renderTable('Visual Hook Performance', sortedVisualHooks)}
+    <div className="space-y-6">
+      <div className="text-center">
+        <h2 className="text-2xl font-medium text-foreground">
+          Category Performance
+        </h2>
+        <p className="text-muted-foreground mt-2">Percentage breakdown of ad spend across key categories</p>
+      </div>
+      
+      {/* Display only 2 charts per row for better visibility */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {categoryData.map((category, index) => {
+          const chartConfig = {
+            percentage: {
+              label: "Percentage",
+              color: category.color,
+            },
+          };
+
+          return (
+            <Card 
+              key={category.category} 
+              className="shadow-sm border border-border bg-card"
+            >
+              <CardHeader className="bg-muted border-b border-border py-2 px-4">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <div 
+                    className="w-2 h-2 rounded-full" 
+                    style={{ backgroundColor: category.color }}
+                  ></div>
+                  {category.category}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-3">
+                {category.data.length > 0 ? (
+                  <ChartContainer config={chartConfig} className="h-[250px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart 
+                        data={category.data} 
+                        margin={{ top: 5, right: 5, left: 5, bottom: 40 }}
+                      >
+                        <XAxis 
+                          dataKey="name" 
+                          tick={{ fontSize: 9, fill: 'currentColor' }}
+                          angle={-45}
+                          textAnchor="end"
+                          height={40}
+                          interval={0}
+                        />
+                        <YAxis 
+                          tick={{ fontSize: 10, fill: 'currentColor' }}
+                          tickFormatter={(value) => `${value.toFixed(0)}%`}
+                          width={30}
+                        />
+                        <ChartTooltip
+                          content={
+                            <ChartTooltipContent
+                              formatter={(value) => [
+                                `${Number(value).toFixed(0)}%`, 
+                                ""
+                              ]}
+                              labelFormatter={(label, payload) => {
+                                // Show full name in tooltip
+                                const fullName = payload?.[0]?.payload?.fullName || label;
+                                return fullName;
+                              }}
+                            />
+                          }
+                        />
+                        <Bar 
+                          dataKey="percentage" 
+                          fill={category.color}
+                          radius={[2, 2, 0, 0]}
+                          className="transition-opacity"
+                          style={{
+                            filter: 'none'
+                          }}
+                          onMouseEnter={(data, index, e) => {
+                            const bar = e.target as SVGElement;
+                            if (bar) {
+                              // Create a slightly darker version of the color
+                              const rgb = hexToRgb(category.color);
+                              if (rgb) {
+                                const darkerColor = `rgb(${Math.max(0, rgb.r - 20)}, ${Math.max(0, rgb.g - 20)}, ${Math.max(0, rgb.b - 20)})`;
+                                bar.setAttribute('fill', darkerColor);
+                              }
+                            }
+                          }}
+                          onMouseLeave={(data, index, e) => {
+                            const bar = e.target as SVGElement;
+                            if (bar) {
+                              bar.setAttribute('fill', category.color);
+                            }
+                          }}
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                ) : (
+                  <div className="h-[250px] flex items-center justify-center text-muted-foreground">
+                    <div className="text-center">
+                      <div className="w-12 h-12 bg-muted rounded-full mx-auto mb-3 flex items-center justify-center">
+                        <div className="w-6 h-6 bg-muted-foreground/30 rounded"></div>
+                      </div>
+                      No data available
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
     </div>
   );
 };
+
+// Helper function to convert hex to RGB
+function hexToRgb(hex: string) {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16)
+  } : null;
+}
