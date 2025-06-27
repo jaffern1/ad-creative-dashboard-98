@@ -61,7 +61,7 @@ export const SpendTableBody: React.FC<SpendTableBodyProps> = ({
                 {groupBy === 'shoot' ? 'Shoot' : 'Ad Name'}
               </TableHead>
               <TableHead className="text-right font-medium text-foreground text-sm w-28">Share of Spend</TableHead>
-              <TableHead className="text-right font-medium text-foreground text-sm w-24">Change</TableHead>
+              <TableHead className="text-right font-medium text-foreground text-sm w-32">Change</TableHead>
               <TableHead className="text-right font-medium text-foreground text-sm w-32">Days since launch</TableHead>
             </TableRow>
           </TableHeader>
@@ -108,7 +108,7 @@ export const SpendTableBody: React.FC<SpendTableBodyProps> = ({
                     {formatPercentage(item.percentage)}
                   </span>
                 </TableCell>
-                <TableCell className="text-right font-mono font-medium text-sm py-2 px-4 w-24">
+                <TableCell className="text-right font-mono font-medium text-sm py-2 px-4 w-32">
                   <div className="flex items-center justify-end gap-1">
                     {getChangeIcon(item.change)}
                     <span className={getChangeColor(item.change)}>
