@@ -74,13 +74,13 @@ export const useSpendAggregation = (
 
       if (!launchDate) return null;
 
-      // Calculate days difference
+      // Calculate days difference - subtract 1 to fix the calculation
       const launch = new Date(launchDate);
       const today = new Date();
       const diffTime = today.getTime() - launch.getTime();
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) - 1;
       
-      return diffDays;
+      return Math.max(0, diffDays); // Ensure it's not negative
     };
 
     console.log('Spend aggregation:', {
@@ -106,11 +106,12 @@ export const useSpendAggregation = (
         const currentPercentage = currentTotalSpend > 0 ? (currentSpend / currentTotalSpend) * 100 : 0;
         const previousPercentage = previousTotalSpend > 0 ? (previousSpend / previousTotalSpend) * 100 : 0;
         
+        // Calculate absolute percentage point change
         let change: number | null = null;
-        if (previousPercentage > 0) {
-          change = ((currentPercentage - previousPercentage) / previousPercentage) * 100;
+        if (previousTotalSpend > 0) {
+          change = currentPercentage - previousPercentage;
         } else if (currentPercentage > 0) {
-          change = 100; // New item, show +100%
+          change = currentPercentage; // New item, show the full percentage as change
         }
 
         const daysSinceLaunch = calculateDaysSinceLaunch(itemName);

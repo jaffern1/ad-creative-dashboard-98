@@ -28,7 +28,7 @@ export const SpendTableBody: React.FC<SpendTableBodyProps> = ({
   const formatChange = (change: number | null) => {
     if (change === null) return '-';
     const sign = change >= 0 ? '+' : '';
-    return `${sign}${change.toFixed(1)}%`;
+    return `${sign}${change.toFixed(1)} pp`;
   };
 
   const formatDaysSinceLaunch = (days: number | null) => {
