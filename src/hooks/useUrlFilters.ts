@@ -47,15 +47,23 @@ export const useUrlFilters = () => {
     return filters;
   };
 
+  const formatDateForUrl = (date: Date): string => {
+    // Format date as YYYY-MM-DD in local timezone to avoid timezone shifts
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   const updateUrlWithFilters = (filters: FilterState) => {
     const params = new URLSearchParams();
     
-    // Add date range
+    // Add date range using local timezone formatting
     if (filters.startDate) {
-      params.set('startDate', filters.startDate.toISOString().split('T')[0]);
+      params.set('startDate', formatDateForUrl(filters.startDate));
     }
     if (filters.endDate) {
-      params.set('endDate', filters.endDate.toISOString().split('T')[0]);
+      params.set('endDate', formatDateForUrl(filters.endDate));
     }
     
     // Add other filters
@@ -93,10 +101,10 @@ export const useUrlFilters = () => {
     const params = new URLSearchParams();
     
     if (filters.startDate) {
-      params.set('startDate', filters.startDate.toISOString().split('T')[0]);
+      params.set('startDate', formatDateForUrl(filters.startDate));
     }
     if (filters.endDate) {
-      params.set('endDate', filters.endDate.toISOString().split('T')[0]);
+      params.set('endDate', formatDateForUrl(filters.endDate));
     }
     
     if (filters.country) {
