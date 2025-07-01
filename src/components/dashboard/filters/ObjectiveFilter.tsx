@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Checkbox } from '@/components/ui/checkbox';
 import { FilterState } from '@/pages/Dashboard';
+import { X } from 'lucide-react';
 
 interface FilterOption {
   value: string;
@@ -41,6 +42,13 @@ export const ObjectiveFilter: React.FC<ObjectiveFilterProps> = ({
     });
   };
 
+  const handleClearObjective = () => {
+    onFiltersChange({
+      ...filters,
+      objective: '',
+    });
+  };
+
   const getSelectedObjectives = () => {
     if (Array.isArray(filters.objective)) {
       return filters.objective;
@@ -66,38 +74,50 @@ export const ObjectiveFilter: React.FC<ObjectiveFilterProps> = ({
   return (
     <div className="flex items-center gap-4">
       <Label className="text-sm font-medium text-foreground min-w-[80px]">Objectives</Label>
-      <Popover>
-        <PopoverTrigger asChild>
+      <div className="flex-1 flex items-center gap-2">
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1 justify-start text-left font-normal border-primary/20 truncate"
+              title={getDisplayText()}
+            >
+              {getDisplayText()}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-64 p-4" align="start">
+            <div className="space-y-3">
+              <div className="text-sm font-medium">Select Objectives</div>
+              {objectives.map((objective) => (
+                <div key={objective.value} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={objective.value}
+                    checked={getSelectedObjectives().includes(objective.value)}
+                    onCheckedChange={(checked) => handleObjectiveChange(objective.value, checked as boolean)}
+                  />
+                  <Label 
+                    htmlFor={objective.value}
+                    className="text-sm font-normal cursor-pointer flex-1"
+                  >
+                    {objective.label}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
+        {getSelectedObjectives().length > 0 && (
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
-            className="flex-1 justify-start text-left font-normal border-primary/20 truncate"
-            title={getDisplayText()}
+            onClick={handleClearObjective}
+            className="px-2 py-1 h-auto text-muted-foreground hover:text-foreground"
           >
-            {getDisplayText()}
+            <X className="h-3 w-3" />
           </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-64 p-4" align="start">
-          <div className="space-y-3">
-            <div className="text-sm font-medium">Select Objectives</div>
-            {objectives.map((objective) => (
-              <div key={objective.value} className="flex items-center space-x-2">
-                <Checkbox
-                  id={objective.value}
-                  checked={getSelectedObjectives().includes(objective.value)}
-                  onCheckedChange={(checked) => handleObjectiveChange(objective.value, checked as boolean)}
-                />
-                <Label 
-                  htmlFor={objective.value}
-                  className="text-sm font-normal cursor-pointer flex-1"
-                >
-                  {objective.label}
-                </Label>
-              </div>
-            ))}
-          </div>
-        </PopoverContent>
-      </Popover>
+        )}
+      </div>
     </div>
   );
 };
