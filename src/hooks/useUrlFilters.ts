@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { FilterState } from '@/pages/Dashboard';
@@ -14,19 +13,19 @@ export const useUrlFilters = () => {
     const endDateStr = searchParams.get('endDate');
     
     if (startDateStr) {
-      const startDate = new Date(startDateStr);
-      if (!isNaN(startDate.getTime())) {
-        startDate.setHours(0, 0, 0, 0);
-        filters.startDate = startDate;
-      }
+      // Parse the date string directly as YYYY-MM-DD to avoid timezone issues
+      const [year, month, day] = startDateStr.split('-').map(Number);
+      const startDate = new Date(year, month - 1, day); // month is 0-indexed
+      startDate.setHours(0, 0, 0, 0);
+      filters.startDate = startDate;
     }
     
     if (endDateStr) {
-      const endDate = new Date(endDateStr);
-      if (!isNaN(endDate.getTime())) {
-        endDate.setHours(23, 59, 59, 999);
-        filters.endDate = endDate;
-      }
+      // Parse the date string directly as YYYY-MM-DD to avoid timezone issues
+      const [year, month, day] = endDateStr.split('-').map(Number);
+      const endDate = new Date(year, month - 1, day); // month is 0-indexed
+      endDate.setHours(23, 59, 59, 999);
+      filters.endDate = endDate;
     }
     
     // Parse other filters
