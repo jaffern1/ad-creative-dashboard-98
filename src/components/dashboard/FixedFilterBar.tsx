@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { FilterState } from '@/pages/Dashboard';
 import { format } from 'date-fns';
@@ -77,7 +78,7 @@ export const FixedFilterBar: React.FC<FixedFilterBarProps> = ({
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border shadow-sm">
-      <div className="max-w-7xl mx-auto relative">
+      <div className="max-w-full relative">
         {/* Collapsed state - only toggle button visible */}
         {isCollapsed ? (
           <div className="absolute left-0 top-0 z-10">
