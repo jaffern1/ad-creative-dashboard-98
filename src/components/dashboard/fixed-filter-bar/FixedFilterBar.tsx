@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { FilterState } from '@/pages/Dashboard';
@@ -43,14 +44,16 @@ export const FixedFilterBar: React.FC<FixedFilterBarProps> = ({
             <FilterBarToggle isCollapsed={isCollapsed} onToggle={() => setIsCollapsed(!isCollapsed)} />
           </div> : <div className="px-6 py-3">
             <Card className="bg-card/50 border-border/30">
-              <div className="flex items-center">
-                <div className="flex items-center gap-0 mr-8">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1">
                   <FilterBarToggle isCollapsed={isCollapsed} onToggle={() => setIsCollapsed(!isCollapsed)} />
-                  
-                  <FilterBarSheet filters={filters} onFiltersChange={onFiltersChange} countries={countries} objectives={objectives} shoots={shoots} isOpen={isSheetOpen} onOpenChange={setIsSheetOpen} generateShareableUrl={generateShareableUrl} />
                 </div>
 
                 <FilterBarContent filters={filters} />
+
+                <div className="flex items-center">
+                  <FilterBarSheet filters={filters} onFiltersChange={onFiltersChange} countries={countries} objectives={objectives} shoots={shoots} isOpen={isSheetOpen} onOpenChange={setIsSheetOpen} generateShareableUrl={generateShareableUrl} />
+                </div>
               </div>
             </Card>
           </div>}
