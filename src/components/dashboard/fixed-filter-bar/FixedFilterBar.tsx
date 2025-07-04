@@ -50,9 +50,12 @@ export const FixedFilterBar: React.FC<FixedFilterBarProps> = ({
           <div className="px-6 py-3">
             <Card className="bg-card/50 border-border/30">
               <div className="flex items-center">
-                <FilterBarContent filters={filters} />
-
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 mr-4">
+                  <FilterBarToggle 
+                    isCollapsed={isCollapsed}
+                    onToggle={() => setIsCollapsed(!isCollapsed)}
+                  />
+                  
                   <FilterBarSheet
                     filters={filters}
                     onFiltersChange={onFiltersChange}
@@ -63,12 +66,9 @@ export const FixedFilterBar: React.FC<FixedFilterBarProps> = ({
                     onOpenChange={setIsSheetOpen}
                     generateShareableUrl={generateShareableUrl}
                   />
-                  
-                  <FilterBarToggle 
-                    isCollapsed={isCollapsed}
-                    onToggle={() => setIsCollapsed(!isCollapsed)}
-                  />
                 </div>
+
+                <FilterBarContent filters={filters} />
               </div>
             </Card>
           </div>
