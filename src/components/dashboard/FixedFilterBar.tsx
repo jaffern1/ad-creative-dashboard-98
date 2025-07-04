@@ -176,45 +176,49 @@ export const FixedFilterBar: React.FC<FixedFilterBarProps> = ({
                       <Settings className="h-4 w-4" />
                     </Button>
                   </SheetTrigger>
-                  <SheetContent side="right" className="w-[400px] sm:w-[540px]">
+                  <SheetContent side="top" className="w-full h-auto max-h-[80vh] overflow-y-auto">
                     <SheetHeader>
                       <SheetTitle>Filter Settings</SheetTitle>
                     </SheetHeader>
-                    <div className="mt-6 space-y-6">
-                      {/* Date Range */}
-                      <DateRangeFilter
-                        filters={filters}
-                        onFiltersChange={onFiltersChange}
-                      />
-                      
-                      {/* Other Filters */}
-                      <div className="space-y-4">
-                        <CountryFilter
-                          filters={filters}
-                          onFiltersChange={onFiltersChange}
-                          countries={countries}
-                        />
+                    <div className="mt-6 max-w-7xl mx-auto">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        {/* Left Column - Date Range and Actions */}
+                        <div className="space-y-3">
+                          <DateRangeFilter
+                            filters={filters}
+                            onFiltersChange={onFiltersChange}
+                          />
+                          <div className="flex justify-between items-center">
+                            <FilterActions onFiltersChange={onFiltersChange} />
+                            <ViewActions 
+                              filters={filters}
+                              generateShareableUrl={generateShareableUrl}
+                            />
+                          </div>
+                        </div>
 
-                        <ObjectiveFilter
-                          filters={filters}
-                          onFiltersChange={onFiltersChange}
-                          objectives={objectives}
-                        />
+                        {/* Right Column - Other Filters */}
+                        <div className="space-y-4">
+                          <div className="grid grid-cols-1 gap-4">
+                            <CountryFilter
+                              filters={filters}
+                              onFiltersChange={onFiltersChange}
+                              countries={countries}
+                            />
 
-                        <ShootFilter
-                          filters={filters}
-                          onFiltersChange={onFiltersChange}
-                          shoots={shoots}
-                        />
-                      </div>
+                            <ObjectiveFilter
+                              filters={filters}
+                              onFiltersChange={onFiltersChange}
+                              objectives={objectives}
+                            />
 
-                      {/* Actions */}
-                      <div className="flex justify-between items-center pt-4 border-t">
-                        <FilterActions onFiltersChange={onFiltersChange} />
-                        <ViewActions 
-                          filters={filters}
-                          generateShareableUrl={generateShareableUrl}
-                        />
+                            <ShootFilter
+                              filters={filters}
+                              onFiltersChange={onFiltersChange}
+                              shoots={shoots}
+                            />
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </SheetContent>
