@@ -39,27 +39,36 @@ export const FixedFilterBar: React.FC<FixedFilterBarProps> = ({
   return (
     <div className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border shadow-sm">
       <div className="max-w-full relative">
-        <FilterBarToggle 
-          isCollapsed={isCollapsed}
-          onToggle={() => setIsCollapsed(!isCollapsed)}
-        />
-        
-        {!isCollapsed && (
+        {isCollapsed ? (
+          <div className="absolute left-0 top-0 z-10">
+            <FilterBarToggle 
+              isCollapsed={isCollapsed}
+              onToggle={() => setIsCollapsed(!isCollapsed)}
+            />
+          </div>
+        ) : (
           <div className="px-6 py-3">
             <Card className="bg-card/50 border-border/30">
               <div className="flex items-center">
                 <FilterBarContent filters={filters} />
 
-                <FilterBarSheet
-                  filters={filters}
-                  onFiltersChange={onFiltersChange}
-                  countries={countries}
-                  objectives={objectives}
-                  shoots={shoots}
-                  isOpen={isSheetOpen}
-                  onOpenChange={setIsSheetOpen}
-                  generateShareableUrl={generateShareableUrl}
-                />
+                <div className="flex items-center gap-2">
+                  <FilterBarSheet
+                    filters={filters}
+                    onFiltersChange={onFiltersChange}
+                    countries={countries}
+                    objectives={objectives}
+                    shoots={shoots}
+                    isOpen={isSheetOpen}
+                    onOpenChange={setIsSheetOpen}
+                    generateShareableUrl={generateShareableUrl}
+                  />
+                  
+                  <FilterBarToggle 
+                    isCollapsed={isCollapsed}
+                    onToggle={() => setIsCollapsed(!isCollapsed)}
+                  />
+                </div>
               </div>
             </Card>
           </div>
