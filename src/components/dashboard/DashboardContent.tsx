@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { FilterPanel } from './FilterPanel';
-import { FixedFilterBar } from './FixedFilterBar';
+import { FixedFilterBar } from './fixed-filter-bar/FixedFilterBar';
 import { SpendTable } from './SpendTable';
 import { CategoryBreakdown } from './CategoryBreakdown';
 import { MostRecentAds } from './MostRecentAds';
