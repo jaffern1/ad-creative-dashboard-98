@@ -48,11 +48,6 @@ export const FixedFilterBar: React.FC<FixedFilterBarProps> = ({
           <div className="px-6 py-3">
             <Card className="bg-card/50 border-border/30">
               <div className="flex items-center">
-                <FilterBarToggle 
-                  isCollapsed={false}
-                  onToggle={() => setIsCollapsed(true)}
-                />
-
                 <FilterBarContent filters={filters} />
 
                 <FilterBarSheet
