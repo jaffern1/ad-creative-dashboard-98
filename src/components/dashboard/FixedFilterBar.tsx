@@ -1,22 +1,45 @@
-
 import React, { useState, useEffect } from 'react';
 import { FilterState } from '@/pages/Dashboard';
 import { format } from 'date-fns';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { ChevronLeft, ChevronRight, Settings } from 'lucide-react';
+import { DateRangeFilter } from './filters/DateRangeFilter';
+import { CountryFilter } from './filters/CountryFilter';
+import { ObjectiveFilter } from './filters/ObjectiveFilter';
+import { ShootFilter } from './filters/ShootFilter';
+import { FilterActions } from './filters/FilterActions';
+import { ViewActions } from './filters/ViewActions';
+import { useUrlFilters } from '@/hooks/useUrlFilters';
+
+interface FilterOption {
+  value: string;
+  label: string;
+  spend: number;
+}
 
 interface FixedFilterBarProps {
   filters: FilterState;
   isVisible: boolean;
+  onFiltersChange: (filters: FilterState) => void;
+  countries: FilterOption[];
+  objectives: FilterOption[];
+  shoots: FilterOption[];
 }
 
 export const FixedFilterBar: React.FC<FixedFilterBarProps> = ({
   filters,
-  isVisible
+  isVisible,
+  onFiltersChange,
+  countries,
+  objectives,
+  shoots
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const { generateShareableUrl } = useUrlFilters();
 
   const getDateRangeDisplay = () => {
     if (!filters.startDate || !filters.endDate) return 'No date range';
@@ -141,6 +164,61 @@ export const FixedFilterBar: React.FC<FixedFilterBarProps> = ({
                     )}
                   </div>
                 </div>
+
+                {/* Filter Settings Button */}
+                <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+                  <SheetTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="ml-2"
+                    >
+                      <Settings className="h-4 w-4" />
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="right" className="w-[400px] sm:w-[540px]">
+                    <SheetHeader>
+                      <SheetTitle>Filter Settings</SheetTitle>
+                    </SheetHeader>
+                    <div className="mt-6 space-y-6">
+                      {/* Date Range */}
+                      <DateRangeFilter
+                        filters={filters}
+                        onFiltersChange={onFiltersChange}
+                      />
+                      
+                      {/* Other Filters */}
+                      <div className="space-y-4">
+                        <CountryFilter
+                          filters={filters}
+                          onFiltersChange={onFiltersChange}
+                          countries={countries}
+                        />
+
+                        <ObjectiveFilter
+                          filters={filters}
+                          onFiltersChange={onFiltersChange}
+                          objectives={objectives}
+                        />
+
+                        <ShootFilter
+                          filters={filters}
+                          onFiltersChange={onFiltersChange}
+                          shoots={shoots}
+                        />
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex justify-between items-center pt-4 border-t">
+                        <FilterActions onFiltersChange={onFiltersChange} />
+                        <ViewActions 
+                          filters={filters}
+                          generateShareableUrl={generateShareableUrl}
+                        />
+                      </div>
+                    </div>
+                  </SheetContent>
+                </Sheet>
               </div>
             </Card>
           </div>

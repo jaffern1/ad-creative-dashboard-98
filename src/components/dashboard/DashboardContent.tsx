@@ -36,6 +36,10 @@ export const DashboardContent: React.FC<DashboardContentProps> = ({
       <FixedFilterBar 
         filters={filters} 
         isVisible={!isFilterPanelVisible} 
+        onFiltersChange={onFiltersChange}
+        countries={countries}
+        objectives={objectives}
+        shoots={shoots}
       />
       
       <div className="space-y-6">
