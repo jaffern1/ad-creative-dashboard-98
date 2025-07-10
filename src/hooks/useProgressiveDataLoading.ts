@@ -1,10 +1,8 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { fetchGoogleSheetsData } from '@/utils/googleSheetsUtils';
 import { AdData } from '@/pages/Dashboard';
 import { DEFAULT_SHEETS_URL } from '@/constants/dataConstants';
-import { DataCache } from '@/utils/dataCache';
-import { parseCSVFallback } from '@/utils/csvParserFallback';
 
 export interface LoadingProgress {
   stage: 'fetching' | 'parsing' | 'processing';
@@ -22,91 +20,81 @@ export const useProgressiveDataLoading = () => {
     totalRecords: 0,
   });
   const { toast } = useToast();
-  const workerRef = useRef<Worker | null>(null);
 
-  // Generate simple checksum for cache validation
-  const generateChecksum = useCallback((text: string): string => {
-    let hash = 0;
-    for (let i = 0; i < text.length; i++) {
-      const char = text.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash;
+  const parseCSVProgressively = useCallback(async (csvText: string): Promise<AdData[]> => {
+    const lines = csvText.split('\n').filter(line => line.trim());
+    if (lines.length < 2) {
+      throw new Error('CSV file appears to be empty or invalid');
     }
-    return Math.abs(hash).toString(16);
-  }, []);
 
-  const parseCSVWithWorker = useCallback(async (csvText: string): Promise<AdData[]> => {
-    // Try Web Worker first
-    try {
-      return new Promise((resolve, reject) => {
-        const worker = new Worker(
-          new URL('../workers/csvParser.worker.ts', import.meta.url),
-          { type: 'module' }
-        );
-        workerRef.current = worker;
+    const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+    const totalLines = lines.length - 1; // Exclude header
+    const data: AdData[] = [];
+    const chunkSize = 100; // Process 100 rows at a time
 
-        worker.onmessage = (e) => {
-          const message = e.data;
-          
-          switch (message.type) {
-            case 'PROGRESS':
-              setLoadingProgress(prev => ({
-                ...prev,
-                stage: message.stage,
-                progress: message.progress,
-                recordsProcessed: message.recordsProcessed,
-                totalRecords: message.totalRecords,
-              }));
-              break;
-              
-            case 'COMPLETE':
-              worker.terminate();
-              workerRef.current = null;
-              resolve(message.data);
-              break;
-              
-            case 'ERROR':
-              worker.terminate();
-              workerRef.current = null;
-              reject(new Error(message.error));
-              break;
+    setLoadingProgress(prev => ({
+      ...prev,
+      stage: 'parsing',
+      totalRecords: totalLines,
+      recordsProcessed: 0,
+    }));
+
+    for (let i = 1; i < lines.length; i += chunkSize) {
+      const chunk = lines.slice(i, Math.min(i + chunkSize, lines.length));
+      
+      // Process chunk
+      for (const line of chunk) {
+        if (!line.trim()) continue;
+
+        // Parse CSV line properly handling quoted values
+        const values: string[] = [];
+        let current = '';
+        let inQuotes = false;
+        
+        for (let j = 0; j < line.length; j++) {
+          const char = line[j];
+          if (char === '"') {
+            inQuotes = !inQuotes;
+          } else if (char === ',' && !inQuotes) {
+            values.push(current.trim());
+            current = '';
+          } else {
+            current += char;
           }
-        };
+        }
+        values.push(current.trim());
 
-        worker.onerror = (error) => {
-          worker.terminate();
-          workerRef.current = null;
-          reject(error);
-        };
-
-        // Start parsing
-        worker.postMessage({
-          type: 'PARSE_CSV',
-          csvText,
-          chunkSize: 200,
+        const obj: any = {};
+        headers.forEach((header, index) => {
+          obj[header] = values[index] || '';
         });
-      });
-    } catch (workerError) {
-      console.warn('Web Worker failed, using fallback parser:', workerError);
+
+        // Convert fields
+        obj.spend = parseFloat(obj.spend?.toString().replace(/[^0-9.-]/g, '')) || 0;
+        obj.is_first_instance = parseInt(obj.is_first_instance) || 0;
+        obj.is_first_instance_non_test = parseInt(obj.is_first_instance_non_test) || 0;
+
+        // Only add rows that have an ad_name
+        if (obj.ad_name && obj.ad_name.trim()) {
+          data.push(obj as AdData);
+        }
+      }
+
+      // Update progress
+      const processed = Math.min(i + chunkSize - 1, totalLines);
+      const progress = Math.round((processed / totalLines) * 100);
       
-      // Fall back to main thread parsing
       setLoadingProgress(prev => ({
         ...prev,
-        stage: 'parsing',
-        progress: 50,
+        progress,
+        recordsProcessed: processed,
       }));
-      
-      const data = parseCSVFallback(csvText);
-      
-      setLoadingProgress(prev => ({
-        ...prev,
-        progress: 85,
-        recordsProcessed: data.length,
-        totalRecords: data.length,
-      }));
-      
-      return data;
+
+      // Allow UI to update
+      await new Promise(resolve => setTimeout(resolve, 10));
     }
+
+    return data;
   }, []);
 
   const loadGoogleSheetsData = useCallback(async (): Promise<AdData[]> => {
@@ -122,31 +110,13 @@ export const useProgressiveDataLoading = () => {
       console.log('Loading data from Google Sheets...');
       
       // Fetch data
-      setLoadingProgress(prev => ({ ...prev, progress: 20 }));
-      const csvText = await fetchGoogleSheetsData(DEFAULT_SHEETS_URL);
-      console.log(`CSV data received, length: ${csvText.length}`);
-      
-      // Generate checksum for cache validation
-      const checksum = generateChecksum(csvText);
-      
-      // Check cache first
       setLoadingProgress(prev => ({ ...prev, progress: 30 }));
-      const cachedData = await DataCache.get(checksum);
+      const csvText = await fetchGoogleSheetsData(DEFAULT_SHEETS_URL);
       
-      if (cachedData) {
-        setLoadingProgress(prev => ({ ...prev, progress: 100 }));
-        
-        toast({
-          title: "Data loaded from cache",
-          description: `Loaded ${cachedData.length.toLocaleString()} records from cache`,
-        });
-        
-        return cachedData;
-      }
-
-      // Parse with Web Worker
-      setLoadingProgress(prev => ({ ...prev, progress: 40 }));
-      const csvData = await parseCSVWithWorker(csvText);
+      setLoadingProgress(prev => ({ ...prev, progress: 50 }));
+      
+      // Parse progressively
+      const csvData = await parseCSVProgressively(csvText);
       
       // Final processing
       setLoadingProgress(prev => ({
@@ -155,8 +125,7 @@ export const useProgressiveDataLoading = () => {
         progress: 90,
       }));
 
-      // Cache the results
-      await DataCache.set(csvData, csvText);
+      await new Promise(resolve => setTimeout(resolve, 200)); // Brief pause for final processing
 
       setLoadingProgress(prev => ({ ...prev, progress: 100 }));
 
@@ -183,20 +152,11 @@ export const useProgressiveDataLoading = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [parseCSVWithWorker, generateChecksum, toast]);
-
-  // Cleanup worker on unmount
-  const cleanup = useCallback(() => {
-    if (workerRef.current) {
-      workerRef.current.terminate();
-      workerRef.current = null;
-    }
-  }, []);
+  }, [parseCSVProgressively, toast]);
 
   return {
     isLoading,
     loadingProgress,
     loadGoogleSheetsData,
-    cleanup,
   };
 };

@@ -19,10 +19,4 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  worker: {
-    format: 'es',
-  },
-  optimizeDeps: {
-    exclude: ['src/workers/csvParser.worker.ts'],
-  },
 }));
