@@ -34,6 +34,7 @@ export interface FilterState {
   country: string | string[];
   objective: string | string[];
   shoot: string | string[];
+  groupBy?: 'shoot' | 'ad_name';
 }
 
 const Dashboard = () => {

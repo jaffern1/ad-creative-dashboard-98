@@ -44,6 +44,11 @@ export const useUrlFilters = () => {
       filters.shoot = shoot.includes(',') ? shoot.split(',') : shoot;
     }
     
+    const groupBy = searchParams.get('groupBy');
+    if (groupBy && (groupBy === 'shoot' || groupBy === 'ad_name')) {
+      filters.groupBy = groupBy;
+    }
+    
     return filters;
   };
 
@@ -94,6 +99,10 @@ export const useUrlFilters = () => {
       }
     }
     
+    if (filters.groupBy) {
+      params.set('groupBy', filters.groupBy);
+    }
+    
     setSearchParams(params);
   };
 
@@ -132,6 +141,10 @@ export const useUrlFilters = () => {
       if (shootValue) {
         params.set('shoot', shootValue);
       }
+    }
+    
+    if (filters.groupBy) {
+      params.set('groupBy', filters.groupBy);
     }
     
     return `${window.location.origin}${window.location.pathname}?${params.toString()}`;

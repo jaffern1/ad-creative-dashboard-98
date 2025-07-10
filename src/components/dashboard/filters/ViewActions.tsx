@@ -71,6 +71,10 @@ export const ViewActions: React.FC<ViewActionsProps> = ({
       }
     }
     
+    if (filters.groupBy) {
+      parts.push(`View: ${filters.groupBy === 'shoot' ? 'Top Shoots by Spend' : 'Top Ads by Spend'}`);
+    }
+    
     return parts.length > 0 ? parts.join(' | ') : 'No filters applied';
   };
 

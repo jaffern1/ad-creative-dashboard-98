@@ -19,12 +19,18 @@ interface SpendTableProps {
     country: string | string[];
     objective: string | string[];
     shoot: string | string[];
+    groupBy?: 'shoot' | 'ad_name';
   };
+  onFiltersChange: (filters: any) => void;
 }
 
-export const SpendTable: React.FC<SpendTableProps> = ({ data, filters }) => {
+export const SpendTable: React.FC<SpendTableProps> = ({ data, filters, onFiltersChange }) => {
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
-  const [groupBy, setGroupBy] = useState<'shoot' | 'ad_name'>('shoot');
+  const groupBy = filters.groupBy || 'shoot';
+  
+  const handleGroupByChange = (newGroupBy: 'shoot' | 'ad_name') => {
+    onFiltersChange({ ...filters, groupBy: newGroupBy });
+  };
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(25);
 
@@ -82,7 +88,7 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data, filters }) => {
         <Card className="shadow-sm border border-border bg-card">
           <SpendTableHeader
             groupBy={groupBy}
-            onGroupByChange={setGroupBy}
+            onGroupByChange={handleGroupByChange}
             itemsPerPage={itemsPerPage}
             onItemsPerPageChange={handleItemsPerPageChange}
           />

@@ -63,7 +63,7 @@ export const DashboardContent: React.FC<DashboardContentProps> = ({
         </div>
         
         {/* Full width Top Ad Spend */}
-        <SpendTable data={data} filters={filters} />
+        <SpendTable data={data} filters={filters} onFiltersChange={onFiltersChange} />
         
         {/* Most Recent Ads (full width) */}
         <MostRecentAds data={filteredData} />

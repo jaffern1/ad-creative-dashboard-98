@@ -31,6 +31,7 @@ export const useDashboardFilters = () => {
         country: urlFilters.country || '',
         objective: urlFilters.objective || '',
         shoot: urlFilters.shoot || '',
+        groupBy: urlFilters.groupBy || 'shoot',
       };
     }
     
@@ -39,6 +40,7 @@ export const useDashboardFilters = () => {
       country: '',
       objective: '',
       shoot: '',
+      groupBy: 'shoot',
     };
   });
 
@@ -61,6 +63,7 @@ export const useDashboardFilters = () => {
           country: urlFilters.country || '',
           objective: urlFilters.objective || '',
           shoot: urlFilters.shoot || '',
+          groupBy: urlFilters.groupBy || 'shoot',
         });
       }
     };
