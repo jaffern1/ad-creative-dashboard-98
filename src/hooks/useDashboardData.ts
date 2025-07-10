@@ -5,7 +5,7 @@ import { useDataSourceManagement } from './useDataSourceManagement';
 import { useLastUpdated } from './useLastUpdated';
 
 export const useDashboardData = () => {
-  const { isLoading, loadingProgress, loadGoogleSheetsData } = useProgressiveDataLoading();
+  const { isLoading, loadingProgress, loadGoogleSheetsData, cleanup } = useProgressiveDataLoading();
   const {
     data,
     dataSource,
@@ -40,6 +40,11 @@ export const useDashboardData = () => {
 
     loadInitialData();
   }, [loadGoogleSheetsData, setAutoSheetsData, setShowManualUploadState]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return cleanup;
+  }, [cleanup]);
 
   return {
     data,
