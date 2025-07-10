@@ -1,13 +1,18 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { RefreshCw, Link, Database } from 'lucide-react';
+import { RefreshCw, Link, Database, FileText } from 'lucide-react';
 
 interface LoadingProgressProps {
-  stage: 'fetching' | 'parsing' | 'processing';
+  stage: 'fetching' | 'parsing' | 'processing' | 'loading-more' | 'complete';
   progress: number;
   recordsProcessed?: number;
   totalRecords?: number;
+  currentBatch?: number;
+  totalBatches?: number;
+  recordsLoaded?: number;
+  downloadedBytes?: number;
+  totalBytes?: number;
 }
 
 export const LoadingProgress: React.FC<LoadingProgressProps> = ({
@@ -15,20 +20,25 @@ export const LoadingProgress: React.FC<LoadingProgressProps> = ({
   progress,
   recordsProcessed = 0,
   totalRecords = 0,
+  currentBatch,
+  totalBatches,
+  recordsLoaded,
+  downloadedBytes,
+  totalBytes
 }) => {
+  const formatBytes = (bytes: number) => {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  };
+
   const getStageInfo = () => {
     switch (stage) {
       case 'fetching':
-        const formatBytes = (bytes: number) => {
-          if (bytes === 0) return '0 B';
-          const k = 1024;
-          const sizes = ['B', 'KB', 'MB', 'GB'];
-          const i = Math.floor(Math.log(bytes) / Math.log(k));
-          return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
-        };
-        
-        const downloadInfo = totalRecords > 0 && recordsProcessed > 0
-          ? `${formatBytes(recordsProcessed)} of ${formatBytes(totalRecords)}`
+        const downloadInfo = totalBytes && downloadedBytes
+          ? `${formatBytes(downloadedBytes)} of ${formatBytes(totalBytes)}`
           : 'Connecting to Google Sheets...';
           
         return {
@@ -37,16 +47,38 @@ export const LoadingProgress: React.FC<LoadingProgressProps> = ({
           description: downloadInfo
         };
       case 'parsing':
+        const batchInfo = currentBatch && totalBatches 
+          ? `Batch ${currentBatch} of ${totalBatches} • ${(recordsLoaded || 0).toLocaleString()} records loaded`
+          : `Processing ${recordsProcessed.toLocaleString()} of ${totalRecords.toLocaleString()} records`;
+          
         return {
-          icon: <Database className="h-12 w-12 text-primary" />,
-          title: 'Parsing data...',
-          description: `Processing ${recordsProcessed.toLocaleString()} of ${totalRecords.toLocaleString()} records`
+          icon: <FileText className="h-12 w-12 text-primary" />,
+          title: 'Processing data in batches...',
+          description: batchInfo
         };
       case 'processing':
         return {
           icon: <RefreshCw className="h-12 w-12 animate-spin text-primary" />,
           title: 'Processing data...',
           description: 'Preparing dashboard components'
+        };
+      case 'loading-more':
+        return {
+          icon: <Database className="h-12 w-12 text-primary animate-pulse" />,
+          title: 'Loading additional data...',
+          description: `${(recordsLoaded || 0).toLocaleString()} records loaded, loading more in background`
+        };
+      case 'complete':
+        return {
+          icon: <Database className="h-12 w-12 text-green-600" />,
+          title: 'Loading complete!',
+          description: `Successfully loaded ${(recordsLoaded || totalRecords || 0).toLocaleString()} records`
+        };
+      default:
+        return {
+          icon: <Link className="h-12 w-12 text-primary" />,
+          title: 'Loading...',
+          description: 'Preparing data'
         };
     }
   };
@@ -70,8 +102,13 @@ export const LoadingProgress: React.FC<LoadingProgressProps> = ({
           <Progress value={progress} className="h-2" />
           <div className="flex justify-between text-sm text-muted-foreground">
             <span>{Math.round(progress)}% complete</span>
-            {totalRecords > 0 && (
-              <span>{recordsProcessed.toLocaleString()} / {totalRecords.toLocaleString()}</span>
+            {(totalRecords > 0 || recordsLoaded) && (
+              <span>
+                {recordsLoaded 
+                  ? `${recordsLoaded.toLocaleString()} records`
+                  : `${recordsProcessed.toLocaleString()} / ${totalRecords.toLocaleString()}`
+                }
+              </span>
             )}
           </div>
         </div>

@@ -1,18 +1,22 @@
 
 import { useEffect, useRef } from 'react';
-import { useProgressiveDataLoading } from './useProgressiveDataLoading';
+import { useBatchDataLoading } from './useBatchDataLoading';
 import { useDataSourceManagement } from './useDataSourceManagement';
 import { useLastUpdated } from './useLastUpdated';
 
 export const useDashboardData = () => {
-  const { isLoading, loadingProgress, loadGoogleSheetsData } = useProgressiveDataLoading();
+  const { isLoading, loadingProgress, loadDataInBatches } = useBatchDataLoading();
   const {
     data,
     dataSource,
     showManualUpload,
+    isLoadingMore,
+    hasMoreData,
     handleDataUpload,
     handleSwitchToManual,
     setAutoSheetsData,
+    setFirstBatch,
+    appendBatch,
     setShowManualUploadState
   } = useDataSourceManagement();
   const lastUpdated = useLastUpdated(data);
@@ -28,10 +32,21 @@ export const useDashboardData = () => {
 
     const loadInitialData = async () => {
       try {
-        console.log('Starting initial data load...');
+        console.log('Starting batch data load...');
         hasLoadedInitialData.current = true;
-        const csvData = await loadGoogleSheetsData();
-        setAutoSheetsData(csvData);
+        
+        await loadDataInBatches(
+          // First batch callback - show data immediately
+          (firstBatch) => {
+            console.log('Received first batch:', firstBatch.length, 'records');
+            setFirstBatch(firstBatch);
+          },
+          // Additional batches callback - append progressively
+          (additionalBatch, isComplete) => {
+            console.log('Received additional batch:', additionalBatch.length, 'records, complete:', isComplete);
+            appendBatch(additionalBatch, isComplete);
+          }
+        );
       } catch (error) {
         console.error('Failed to load initial data:', error);
         setShowManualUploadState(true);
@@ -39,7 +54,7 @@ export const useDashboardData = () => {
     };
 
     loadInitialData();
-  }, [loadGoogleSheetsData, setAutoSheetsData, setShowManualUploadState]);
+  }, [loadDataInBatches, setFirstBatch, appendBatch, setShowManualUploadState]);
 
   return {
     data,
@@ -47,6 +62,8 @@ export const useDashboardData = () => {
     isInitialLoading: isLoading,
     loadingProgress,
     showManualUpload,
+    isLoadingMore,
+    hasMoreData,
     lastUpdated,
     handleDataUpload,
     handleSwitchToManual

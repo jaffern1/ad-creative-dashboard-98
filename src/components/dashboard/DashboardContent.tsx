@@ -17,6 +17,9 @@ interface DashboardContentProps {
   onFiltersChange: (filters: FilterState) => void;
   dataSource: 'auto-sheets' | 'manual-csv' | null;
   onSwitchToManual: () => void;
+  isLoadingMore?: boolean;
+  hasMoreData?: boolean;
+  recordsLoaded?: number;
 }
 
 export const DashboardContent: React.FC<DashboardContentProps> = ({

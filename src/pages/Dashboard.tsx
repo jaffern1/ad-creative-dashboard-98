@@ -42,6 +42,8 @@ const Dashboard = () => {
     isInitialLoading,
     loadingProgress,
     showManualUpload,
+    isLoadingMore,
+    hasMoreData,
     lastUpdated,
     handleDataUpload,
     handleSwitchToManual
@@ -65,8 +67,13 @@ const Dashboard = () => {
         <LoadingProgress
           stage={loadingProgress.stage}
           progress={loadingProgress.progress}
-          recordsProcessed={loadingProgress.recordsProcessed}
+          recordsProcessed={loadingProgress.recordsLoaded}
           totalRecords={loadingProgress.totalRecords}
+          currentBatch={loadingProgress.currentBatch}
+          totalBatches={loadingProgress.totalBatches}
+          recordsLoaded={loadingProgress.recordsLoaded}
+          downloadedBytes={loadingProgress.downloadedBytes}
+          totalBytes={loadingProgress.totalBytes}
         />
       </DashboardLayout>
     );
@@ -89,6 +96,9 @@ const Dashboard = () => {
         onFiltersChange={setFilters}
         dataSource={dataSource}
         onSwitchToManual={handleSwitchToManual}
+        isLoadingMore={isLoadingMore}
+        hasMoreData={hasMoreData}
+        recordsLoaded={data.length}
       />
     </DashboardLayout>
   );

@@ -7,6 +7,8 @@ export const useDataSourceManagement = () => {
   const [data, setData] = useState<AdData[]>([]);
   const [dataSource, setDataSource] = useState<'auto-sheets' | 'manual-csv' | null>(null);
   const [showManualUpload, setShowManualUpload] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMoreData, setHasMoreData] = useState(false);
   const { toast } = useToast();
 
   const handleDataUpload = useCallback((csvData: AdData[]) => {
@@ -28,6 +30,21 @@ export const useDataSourceManagement = () => {
   const setAutoSheetsData = useCallback((csvData: AdData[]) => {
     setData(csvData);
     setDataSource('auto-sheets');
+    setIsLoadingMore(false);
+    setHasMoreData(false);
+  }, []);
+
+  const setFirstBatch = useCallback((csvData: AdData[]) => {
+    setData(csvData);
+    setDataSource('auto-sheets');
+    setIsLoadingMore(true);
+    setHasMoreData(true);
+  }, []);
+
+  const appendBatch = useCallback((newData: AdData[], isComplete: boolean) => {
+    setData(prevData => [...prevData, ...newData]);
+    setIsLoadingMore(!isComplete);
+    setHasMoreData(!isComplete);
   }, []);
 
   const setShowManualUploadState = useCallback((show: boolean) => {
@@ -38,9 +55,13 @@ export const useDataSourceManagement = () => {
     data,
     dataSource,
     showManualUpload,
+    isLoadingMore,
+    hasMoreData,
     handleDataUpload,
     handleSwitchToManual,
     setAutoSheetsData,
+    setFirstBatch,
+    appendBatch,
     setShowManualUploadState
   };
 };
