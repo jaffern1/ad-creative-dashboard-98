@@ -11,12 +11,12 @@ import { Calendar } from 'lucide-react';
 
 interface MostRecentAdsProps {
   data: AdData[];
+  adSelection: ReturnType<typeof useAdSelection>;
 }
 
-export const MostRecentAds: React.FC<MostRecentAdsProps> = ({ data }) => {
+export const MostRecentAds: React.FC<MostRecentAdsProps> = ({ data, adSelection }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(25);
-  const adSelection = useAdSelection();
 
   const recentAdsData = useMemo(() => {
     // Group by ad_name and find the earliest day for each

@@ -74,14 +74,14 @@ export const DashboardContent: React.FC<DashboardContentProps> = ({
         
         {/* Progressive loading: Show SpendTable first */}
         {showSpendTable ? (
-          <SpendTable data={data} filters={filters} onFiltersChange={onFiltersChange} adSelection={adSelection} />
+          <SpendTable data={filteredData} filters={filters} onFiltersChange={onFiltersChange} adSelection={adSelection} />
         ) : (
           <SpendTableSkeleton />
         )}
         
         {/* Progressive loading: Show MostRecentAds after delay */}
         {showMostRecentAds ? (
-          <MostRecentAds data={filteredData} />
+          <MostRecentAds data={filteredData} adSelection={adSelection} />
         ) : (
           <MostRecentAdsSkeleton />
         )}
