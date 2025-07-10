@@ -1,11 +1,11 @@
 
 import { useEffect, useRef } from 'react';
-import { useDataLoading } from './useDataLoading';
+import { useProgressiveDataLoading } from './useProgressiveDataLoading';
 import { useDataSourceManagement } from './useDataSourceManagement';
 import { useLastUpdated } from './useLastUpdated';
 
 export const useDashboardData = () => {
-  const { isInitialLoading, setIsInitialLoading, loadGoogleSheetsData } = useDataLoading();
+  const { isLoading, loadingProgress, loadGoogleSheetsData } = useProgressiveDataLoading();
   const {
     data,
     dataSource,
@@ -44,7 +44,8 @@ export const useDashboardData = () => {
   return {
     data,
     dataSource,
-    isInitialLoading,
+    isInitialLoading: isLoading,
+    loadingProgress,
     showManualUpload,
     lastUpdated,
     handleDataUpload,

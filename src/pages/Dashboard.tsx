@@ -6,6 +6,8 @@ import { EmptyState } from '@/components/dashboard/EmptyState';
 import { InitialLoadingState } from '@/components/dashboard/InitialLoadingState';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { useDashboardFilters } from '@/hooks/useDashboardFilters';
+import { LoadingProgress } from '@/components/dashboard/LoadingProgress';
+import { DashboardSkeleton } from '@/components/dashboard/skeleton/DashboardSkeleton';
 
 export interface AdData {
   day: string;
@@ -42,6 +44,7 @@ const Dashboard = () => {
     data,
     dataSource,
     isInitialLoading,
+    loadingProgress,
     showManualUpload,
     lastUpdated,
     handleDataUpload,
@@ -50,11 +53,25 @@ const Dashboard = () => {
 
   const { filters, setFilters } = useDashboardFilters();
 
-  // Show initial loading state
+  // Show progressive loading state
   if (isInitialLoading) {
+    // Show skeleton if we have some data or detailed progress if still loading
+    if (data.length > 0 && loadingProgress.progress < 100) {
+      return (
+        <DashboardLayout lastUpdated={lastUpdated}>
+          <DashboardSkeleton />
+        </DashboardLayout>
+      );
+    }
+    
     return (
       <DashboardLayout lastUpdated={null}>
-        <InitialLoadingState />
+        <LoadingProgress
+          stage={loadingProgress.stage}
+          progress={loadingProgress.progress}
+          recordsProcessed={loadingProgress.recordsProcessed}
+          totalRecords={loadingProgress.totalRecords}
+        />
       </DashboardLayout>
     );
   }
