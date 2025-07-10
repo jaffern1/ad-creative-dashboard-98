@@ -11,11 +11,7 @@ import { DashboardSkeleton } from '@/components/dashboard/skeleton/DashboardSkel
 
 export interface AdData {
   day: string;
-  account_name: string;
-  campaign_name: string;
   country: string;
-  adset_name: string;
-  old_ad_name: string;
   ad_name: string;
   file_link: string;
   spend: number;

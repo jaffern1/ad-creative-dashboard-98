@@ -24,18 +24,12 @@ export const MostRecentAds: React.FC<MostRecentAdsProps> = ({ data }) => {
         acc[adName] = {
           ad_name: adName,
           launch_date: row.day,
-          account_name: row.account_name,
-          campaign_name: row.campaign_name,
-          adset_name: row.adset_name,
           country: row.country
         };
       } else {
         // Keep the earliest date
         if (new Date(row.day) < new Date(acc[adName].launch_date)) {
           acc[adName].launch_date = row.day;
-          acc[adName].account_name = row.account_name;
-          acc[adName].campaign_name = row.campaign_name;
-          acc[adName].adset_name = row.adset_name;
           acc[adName].country = row.country;
         }
       }
@@ -43,9 +37,6 @@ export const MostRecentAds: React.FC<MostRecentAdsProps> = ({ data }) => {
     }, {} as Record<string, {
       ad_name: string;
       launch_date: string;
-      account_name: string;
-      campaign_name: string;
-      adset_name: string;
       country: string;
     }>);
 
