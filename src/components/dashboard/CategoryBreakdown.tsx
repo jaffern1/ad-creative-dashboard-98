@@ -9,6 +9,11 @@ interface CategoryBreakdownProps {
 }
 
 export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) => {
+  // Memoize total spend calculation for better performance
+  const totalSpend = useMemo(() => {
+    return data.reduce((sum, row) => sum + row.spend, 0);
+  }, [data]);
+
   const categoryData = useMemo(() => {
     const categories = ['season', 'production_type', 'copy_hook', 'visual_hook', 'Objective'] as const;
     const categoryColors = [
@@ -18,11 +23,9 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
       '#B5C8D1',   // Pastel blue
       '#D1B5C8',   // Pastel pink
     ];
-
-    // Calculate total spend for percentage calculation
-    const totalSpend = data.reduce((sum, row) => sum + row.spend, 0);
     
     return categories.map((category, index) => {
+      // Memoize category spend calculations
       const spendByCategory = data.reduce((acc, row) => {
         let categoryValue = row[category] || 'Unknown';
         
@@ -65,7 +68,7 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ data }) =>
         color: categoryColors[index],
       };
     });
-  }, [data]);
+  }, [data, totalSpend]);
 
   const formatPercentage = (percentage: number) => {
     return `${percentage.toFixed(0)}%`;

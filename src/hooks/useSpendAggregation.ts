@@ -19,9 +19,9 @@ export const useSpendAggregation = (
   isTestingInObjectives: boolean,
   objectives: string[]
 ): SpendItem[] => {
-  return useMemo(() => {
-    // Aggregate current period data
-    const currentSpendByGroup = currentPeriodData.reduce((acc, row) => {
+  // Memoize expensive aggregations
+  const currentSpendByGroup = useMemo(() => {
+    return currentPeriodData.reduce((acc, row) => {
       const groupKey = groupBy === 'shoot' ? (row.shoot || 'Unknown') : (row.ad_name || 'Unknown');
       if (!acc[groupKey]) {
         acc[groupKey] = 0;
@@ -29,9 +29,10 @@ export const useSpendAggregation = (
       acc[groupKey] += row.spend;
       return acc;
     }, {} as Record<string, number>);
+  }, [currentPeriodData, groupBy]);
 
-    // Aggregate previous period data
-    const previousSpendByGroup = previousPeriodData.reduce((acc, row) => {
+  const previousSpendByGroup = useMemo(() => {
+    return previousPeriodData.reduce((acc, row) => {
       const groupKey = groupBy === 'shoot' ? (row.shoot || 'Unknown') : (row.ad_name || 'Unknown');
       if (!acc[groupKey]) {
         acc[groupKey] = 0;
@@ -39,6 +40,9 @@ export const useSpendAggregation = (
       acc[groupKey] += row.spend;
       return acc;
     }, {} as Record<string, number>);
+  }, [previousPeriodData, groupBy]);
+
+  return useMemo(() => {
 
     // Calculate total spend for percentage calculation
     const currentTotalSpend = Object.values(currentSpendByGroup).reduce((sum, spend) => sum + spend, 0);
@@ -127,5 +131,5 @@ export const useSpendAggregation = (
       })
       .filter(item => item.currentSpend > 0) // Only show items with current spend
       .sort((a, b) => b.percentage - a.percentage);
-  }, [currentPeriodData, previousPeriodData, groupBy, allData, isTestingInObjectives, objectives]);
+  }, [currentSpendByGroup, previousSpendByGroup, groupBy, allData, objectives]);
 };

@@ -6,9 +6,13 @@ import { SpendTable } from './SpendTable';
 import { CategoryBreakdown } from './CategoryBreakdown';
 import { MostRecentAds } from './MostRecentAds';
 import { DataSourceSwitcher } from './DataSourceSwitcher';
+import { SpendTableSkeleton } from './skeleton/SpendTableSkeleton';
+import { CategoryBreakdownSkeleton } from './skeleton/CategoryBreakdownSkeleton';
+import { MostRecentAdsSkeleton } from './skeleton/MostRecentAdsSkeleton';
 import { useDataFiltering } from '@/hooks/useDataFiltering';
 import { useFilterOptions } from '@/hooks/useFilterOptions';
 import { useScrollVisibility } from '@/hooks/useScrollVisibility';
+import { useProgressiveLoading } from '@/hooks/useProgressiveLoading';
 import { AdData, FilterState } from '@/pages/Dashboard';
 
 interface DashboardContentProps {
@@ -32,6 +36,7 @@ export const DashboardContent: React.FC<DashboardContentProps> = ({
   const { dateFilteredData, filteredData } = useDataFiltering(data, filters);
   const { countries, objectives, shoots } = useFilterOptions(dateFilteredData, filters, onFiltersChange);
   const [filterPanelRef, isFilterPanelVisible] = useScrollVisibility<HTMLDivElement>();
+  const { showSpendTable, showMostRecentAds, showCategoryBreakdown } = useProgressiveLoading(data.length > 0);
 
   return (
     <>
@@ -65,14 +70,26 @@ export const DashboardContent: React.FC<DashboardContentProps> = ({
           />
         </div>
         
-        {/* Full width Top Ad Spend */}
-        <SpendTable data={data} filters={filters} onFiltersChange={onFiltersChange} />
+        {/* Progressive loading: Show SpendTable first */}
+        {showSpendTable ? (
+          <SpendTable data={data} filters={filters} onFiltersChange={onFiltersChange} />
+        ) : (
+          <SpendTableSkeleton />
+        )}
         
-        {/* Most Recent Ads (full width) */}
-        <MostRecentAds data={filteredData} />
+        {/* Progressive loading: Show MostRecentAds after delay */}
+        {showMostRecentAds ? (
+          <MostRecentAds data={filteredData} />
+        ) : (
+          <MostRecentAdsSkeleton />
+        )}
         
-        {/* Category Performance using filtered data */}
-        <CategoryBreakdown data={filteredData} />
+        {/* Progressive loading: Show CategoryBreakdown last */}
+        {showCategoryBreakdown ? (
+          <CategoryBreakdown data={filteredData} />
+        ) : (
+          <CategoryBreakdownSkeleton />
+        )}
       </div>
     </>
   );
