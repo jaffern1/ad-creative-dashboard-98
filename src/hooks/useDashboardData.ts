@@ -54,6 +54,11 @@ export const useDashboardData = () => {
     };
 
     loadInitialData();
+
+    // Cleanup function to reset loading state on unmount
+    return () => {
+      hasLoadedInitialData.current = false;
+    };
   }, [loadDataInBatches, setFirstBatch, appendBatch, setShowManualUploadState]);
 
   return {

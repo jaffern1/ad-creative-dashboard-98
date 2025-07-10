@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { AdData } from '@/pages/Dashboard';
+import { useAdSelection } from '@/hooks/useAdSelection';
 import { Calendar } from 'lucide-react';
 
 interface MostRecentAdsProps {
@@ -15,6 +16,7 @@ interface MostRecentAdsProps {
 export const MostRecentAds: React.FC<MostRecentAdsProps> = ({ data }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(25);
+  const adSelection = useAdSelection();
 
   const recentAdsData = useMemo(() => {
     // Group by ad_name and find the earliest day for each
@@ -147,7 +149,12 @@ export const MostRecentAds: React.FC<MostRecentAdsProps> = ({ data }) => {
                 {paginatedData.map((item, index) => (
                   <TableRow 
                     key={`${item.ad_name}-${index}`}
-                    className="hover:bg-secondary/10 transition-colors bg-card"
+                    className={`hover:bg-secondary/10 transition-colors cursor-pointer ${
+                      adSelection.selectedAdName === item.ad_name 
+                        ? 'bg-primary/10 border-l-4 border-l-primary' 
+                        : 'bg-card'
+                    }`}
+                    onClick={() => adSelection.selectByAdName(item.ad_name, data)}
                   >
                     <TableCell className="font-medium py-3 px-4">
                       <div className="text-sm text-foreground" title={item.ad_name}>

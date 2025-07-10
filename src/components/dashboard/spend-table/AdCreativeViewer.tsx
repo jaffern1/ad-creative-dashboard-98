@@ -1,16 +1,13 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAdSelection } from '@/hooks/useAdSelection';
 
 interface AdCreativeViewerProps {
-  selectedItem: string | null;
-  selectedAdFileLink: string | null;
+  adSelection: ReturnType<typeof useAdSelection>;
 }
 
-export const AdCreativeViewer: React.FC<AdCreativeViewerProps> = ({
-  selectedItem,
-  selectedAdFileLink
-}) => {
+export const AdCreativeViewer: React.FC<AdCreativeViewerProps> = ({ adSelection }) => {
   // Convert Google Drive share link to embeddable format
   const getEmbedUrl = (driveUrl: string) => {
     const fileId = driveUrl.match(/\/d\/([a-zA-Z0-9-_]+)/)?.[1];
@@ -25,21 +22,21 @@ export const AdCreativeViewer: React.FC<AdCreativeViewerProps> = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="p-4">
-        {selectedItem && selectedAdFileLink ? (
+        {adSelection.selectedAdName && adSelection.selectedFileLink ? (
           <div className="space-y-4">
-            <h3 className="text-sm font-medium text-foreground">{selectedItem}</h3>
+            <h3 className="text-sm font-medium text-foreground">{adSelection.selectedAdName}</h3>
             <div className="w-full aspect-[4/5] rounded-md overflow-hidden shadow-sm border border-border">
               <iframe
-                src={getEmbedUrl(selectedAdFileLink)}
+                src={getEmbedUrl(adSelection.selectedFileLink)}
                 className="w-full h-full border-0"
                 allow="autoplay; encrypted-media"
-                title={`Creative for ${selectedItem}`}
+                title={`Creative for ${adSelection.selectedAdName}`}
               />
             </div>
           </div>
         ) : (
           <div className="flex items-center justify-center h-40 text-muted-foreground text-sm">
-            {selectedItem ? 'No creative available for this item' : 'Click on an item to view ad creative'}
+            {adSelection.selectedAdName ? 'No creative available for this item' : 'Click on an item to view ad creative'}
           </div>
         )}
       </CardContent>

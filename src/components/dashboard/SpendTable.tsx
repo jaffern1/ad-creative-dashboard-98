@@ -6,6 +6,7 @@ import { AdData } from '@/pages/Dashboard';
 import { usePeriodCalculation } from '@/hooks/usePeriodCalculation';
 import { useSpendAggregation } from '@/hooks/useSpendAggregation';
 import { usePagination } from '@/hooks/usePagination';
+import { useAdSelection } from '@/hooks/useAdSelection';
 import { SpendTableHeader } from './spend-table/SpendTableHeader';
 import { SpendTableBody } from './spend-table/SpendTableBody';
 import { AdCreativeViewer } from './spend-table/AdCreativeViewer';
@@ -22,10 +23,10 @@ interface SpendTableProps {
     groupBy?: 'shoot' | 'ad_name';
   };
   onFiltersChange: (filters: any) => void;
+  adSelection: ReturnType<typeof useAdSelection>;
 }
 
-export const SpendTable: React.FC<SpendTableProps> = ({ data, filters, onFiltersChange }) => {
-  const [selectedItem, setSelectedItem] = useState<string | null>(null);
+export const SpendTable: React.FC<SpendTableProps> = ({ data, filters, onFiltersChange, adSelection }) => {
   const groupBy = filters.groupBy || 'shoot';
   
   const handleGroupByChange = (newGroupBy: 'shoot' | 'ad_name') => {
@@ -52,24 +53,17 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data, filters, onFilters
   const aggregatedData = useSpendAggregation(currentPeriodData, previousPeriodData, groupBy, data, isTestingInObjectives, selectedObjectives);
   const { paginatedData, totalPages, visiblePages } = usePagination(aggregatedData, currentPage, itemsPerPage);
 
-  // Get the file_link for the selected item
-  const selectedAdFileLink = useMemo(() => {
-    if (!selectedItem) return null;
-    
+  // Handle item selection based on groupBy
+  const handleItemSelect = (itemName: string) => {
     if (groupBy === 'ad_name') {
-      const adData = currentPeriodData.find(row => row.ad_name === selectedItem);
-      return adData?.file_link || null;
+      adSelection.selectByAdName(itemName, currentPeriodData);
     } else {
-      const shootAds = currentPeriodData.filter(row => row.shoot === selectedItem);
-      if (shootAds.length === 0) return null;
-      
-      const highestSpendAd = shootAds.reduce((highest, current) => 
-        current.spend > highest.spend ? current : highest
-      );
-      
-      return highestSpendAd.file_link || null;
+      adSelection.selectByShoot(itemName, currentPeriodData);
     }
-  }, [selectedItem, currentPeriodData, groupBy]);
+  };
+
+  // Get selected item based on groupBy
+  const selectedItem = groupBy === 'ad_name' ? adSelection.selectedAdName : adSelection.selectedShoot;
 
   const handleItemsPerPageChange = (value: string) => {
     const newItemsPerPage = value === 'all' ? 0 : parseInt(value);
@@ -99,7 +93,7 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data, filters, onFilters
                   data={paginatedData}
                   groupBy={groupBy}
                   selectedItem={selectedItem}
-                  onItemSelect={setSelectedItem}
+                  onItemSelect={handleItemSelect}
                   currentPage={currentPage}
                   itemsPerPage={itemsPerPage}
                 />
@@ -120,10 +114,7 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data, filters, onFilters
 
       {/* Ad Creative section */}
       <div className="lg:col-span-1">
-        <AdCreativeViewer
-          selectedItem={selectedItem}
-          selectedAdFileLink={selectedAdFileLink}
-        />
+        <AdCreativeViewer adSelection={adSelection} />
       </div>
     </div>
   );

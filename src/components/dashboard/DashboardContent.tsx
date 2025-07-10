@@ -13,6 +13,7 @@ import { useDataFiltering } from '@/hooks/useDataFiltering';
 import { useFilterOptions } from '@/hooks/useFilterOptions';
 import { useScrollVisibility } from '@/hooks/useScrollVisibility';
 import { useProgressiveLoading } from '@/hooks/useProgressiveLoading';
+import { useAdSelection } from '@/hooks/useAdSelection';
 import { AdData, FilterState } from '@/pages/Dashboard';
 
 interface DashboardContentProps {
@@ -37,6 +38,7 @@ export const DashboardContent: React.FC<DashboardContentProps> = ({
   const { countries, objectives, shoots } = useFilterOptions(dateFilteredData, filters, onFiltersChange);
   const [filterPanelRef, isFilterPanelVisible] = useScrollVisibility<HTMLDivElement>();
   const { showSpendTable, showMostRecentAds, showCategoryBreakdown } = useProgressiveLoading(data.length > 0);
+  const adSelection = useAdSelection();
 
   return (
     <>
@@ -72,7 +74,7 @@ export const DashboardContent: React.FC<DashboardContentProps> = ({
         
         {/* Progressive loading: Show SpendTable first */}
         {showSpendTable ? (
-          <SpendTable data={data} filters={filters} onFiltersChange={onFiltersChange} />
+          <SpendTable data={data} filters={filters} onFiltersChange={onFiltersChange} adSelection={adSelection} />
         ) : (
           <SpendTableSkeleton />
         )}
