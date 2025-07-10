@@ -231,6 +231,15 @@ export const useBatchDataLoading = () => {
             title: "First batch loaded",
             description: `Showing ${batch.length} most recent records. Loading more in background...`,
           });
+          
+          // If this is also the last batch, set loading to false
+          if (batchInfo.isComplete) {
+            setIsLoading(false);
+            toast({
+              title: "All data loaded",
+              description: `Successfully loaded ${batchInfo.totalRecords} total records`,
+            });
+          }
         } else {
           console.log(`Additional batch ${batchInfo.batchNumber}: ${batch.length} records`);
           onAdditionalBatch(batch, batchInfo.isComplete);
@@ -256,10 +265,10 @@ export const useBatchDataLoading = () => {
         variant: "destructive",
       });
       
+      // Always ensure loading is set to false on error
       setIsLoading(false);
       throw error;
     }
-    // Removed the finally block that was setting isLoading to false too early
   }, [isLoading, toast]);
 
   return {
