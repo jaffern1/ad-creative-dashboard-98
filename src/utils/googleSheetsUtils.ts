@@ -47,7 +47,10 @@ export const isValidGoogleSheetsUrl = (url: string): boolean => {
          (url.includes('output=csv') && url.includes('docs.google.com'));
 };
 
-export const fetchGoogleSheetsData = async (url: string): Promise<string> => {
+export const fetchGoogleSheetsData = async (
+  url: string, 
+  onProgress?: (progress: number, downloaded: number, total: number) => void
+): Promise<string> => {
   const sheetInfo = extractSheetInfo(url);
   let csvUrl = url;
 
@@ -90,7 +93,42 @@ export const fetchGoogleSheetsData = async (url: string): Promise<string> => {
     throw new Error(`HTTP error! status: ${response.status}`);
   }
   
-  const csvText = await response.text();
+  // Get content length for progress tracking
+  const contentLength = response.headers.get('content-length');
+  const total = contentLength ? parseInt(contentLength, 10) : 0;
+  
+  if (!response.body) {
+    throw new Error('Response body is not available for streaming');
+  }
+
+  // Stream the response with progress tracking
+  const reader = response.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let downloaded = 0;
+  
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      
+      if (done) break;
+      
+      chunks.push(value);
+      downloaded += value.length;
+      
+      // Report progress if callback provided and total size is known
+      if (onProgress && total > 0) {
+        const progress = Math.round((downloaded / total) * 100);
+        onProgress(progress, downloaded, total);
+      }
+    }
+  } finally {
+    reader.releaseLock();
+  }
+  
+  // Convert chunks to text
+  const decoder = new TextDecoder();
+  const csvText = chunks.map(chunk => decoder.decode(chunk, { stream: true })).join('');
+  
   console.log('CSV data received, length:', csvText.length);
   
   if (!csvText || csvText.length < 10) {

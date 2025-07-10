@@ -19,10 +19,22 @@ export const LoadingProgress: React.FC<LoadingProgressProps> = ({
   const getStageInfo = () => {
     switch (stage) {
       case 'fetching':
+        const formatBytes = (bytes: number) => {
+          if (bytes === 0) return '0 B';
+          const k = 1024;
+          const sizes = ['B', 'KB', 'MB', 'GB'];
+          const i = Math.floor(Math.log(bytes) / Math.log(k));
+          return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        };
+        
+        const downloadInfo = totalRecords > 0 && recordsProcessed > 0
+          ? `${formatBytes(recordsProcessed)} of ${formatBytes(totalRecords)}`
+          : 'Connecting to Google Sheets...';
+          
         return {
           icon: <Link className="h-12 w-12 text-primary" />,
-          title: 'Fetching data...',
-          description: 'Downloading data from Google Sheets'
+          title: 'Downloading data...',
+          description: downloadInfo
         };
       case 'parsing':
         return {

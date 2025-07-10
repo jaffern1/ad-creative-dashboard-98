@@ -109,11 +109,17 @@ export const useProgressiveDataLoading = () => {
 
       console.log('Loading data from Google Sheets...');
       
-      // Fetch data
-      setLoadingProgress(prev => ({ ...prev, progress: 30 }));
-      const csvText = await fetchGoogleSheetsData(DEFAULT_SHEETS_URL);
-      
-      setLoadingProgress(prev => ({ ...prev, progress: 50 }));
+      // Fetch data with real progress tracking
+      const csvText = await fetchGoogleSheetsData(DEFAULT_SHEETS_URL, (progress, downloaded, total) => {
+        // Map download progress to 10-50% of total loading
+        const downloadProgress = Math.max(10, Math.min(50, 10 + (progress * 0.4)));
+        setLoadingProgress(prev => ({ 
+          ...prev, 
+          progress: downloadProgress,
+          recordsProcessed: downloaded,
+          totalRecords: total 
+        }));
+      });
       
       // Parse progressively
       const csvData = await parseCSVProgressively(csvText);
