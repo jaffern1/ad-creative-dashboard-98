@@ -51,17 +51,8 @@ const Dashboard = () => {
 
   const { filters, setFilters } = useDashboardFilters();
 
-  // Show progressive loading state
-  if (isInitialLoading) {
-    // Show skeleton if we have some data or detailed progress if still loading
-    if (data.length > 0 && loadingProgress.progress < 100) {
-      return (
-        <DashboardLayout lastUpdated={lastUpdated}>
-          <DashboardSkeleton />
-        </DashboardLayout>
-      );
-    }
-    
+  // Show loading state until first batch is ready
+  if (isInitialLoading || (data.length === 0 && !showManualUpload)) {
     return (
       <DashboardLayout lastUpdated={null}>
         <LoadingProgress

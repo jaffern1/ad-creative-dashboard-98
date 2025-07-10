@@ -236,6 +236,9 @@ export const useBatchDataLoading = () => {
           onAdditionalBatch(batch, batchInfo.isComplete);
           
           if (batchInfo.isComplete) {
+            // Only set loading to false when ALL batches are complete
+            setIsLoading(false);
+            
             toast({
               title: "All data loaded",
               description: `Successfully loaded ${batchInfo.totalRecords} total records`,
@@ -253,10 +256,10 @@ export const useBatchDataLoading = () => {
         variant: "destructive",
       });
       
-      throw error;
-    } finally {
       setIsLoading(false);
+      throw error;
     }
+    // Removed the finally block that was setting isLoading to false too early
   }, [isLoading, toast]);
 
   return {
