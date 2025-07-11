@@ -157,7 +157,7 @@ export const useBatchDataLoading = () => {
     setLoadingProgress(prev => ({
       ...prev,
       stage: 'fetching',
-      progress: 0
+      progress: 1 // Start at 1% immediately
     }));
 
     const controller = new AbortController();
@@ -171,10 +171,6 @@ export const useBatchDataLoading = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
-      const contentLength = response.headers.get('content-length');
-      const total = contentLength ? parseInt(contentLength, 10) : 0;
-      const hasKnownSize = total > 0;
-      
       if (!response.body) {
         throw new Error('Response body is not available for streaming');
       }
@@ -182,11 +178,7 @@ export const useBatchDataLoading = () => {
       const reader = response.body.getReader();
       const chunks: Uint8Array[] = [];
       let downloaded = 0;
-      const startTime = Date.now();
-      
-      // For unknown size, we'll estimate progress over 15 seconds up to 80%
-      const estimatedDuration = 15000; // 15 seconds
-      const maxEstimatedProgress = 80;
+      let chunkCount = 0;
       
       try {
         while (true) {
@@ -196,42 +188,29 @@ export const useBatchDataLoading = () => {
           
           chunks.push(value);
           downloaded += value.length;
+          chunkCount++;
           
-          if (hasKnownSize) {
-            // Known size - show actual progress
-            const progress = Math.round((downloaded / total) * 100);
-            setLoadingProgress(prev => ({
-              ...prev,
-              progress: Math.min(progress, 99), // Keep at 99% until parsing starts
-              downloadedBytes: downloaded,
-              totalBytes: total
-            }));
-          } else {
-            // Unknown size - show time-based estimated progress
-            const elapsed = Date.now() - startTime;
-            const timeProgress = Math.min((elapsed / estimatedDuration) * maxEstimatedProgress, maxEstimatedProgress);
-            
-            setLoadingProgress(prev => ({
-              ...prev,
-              progress: Math.max(5, Math.round(timeProgress)), // Start at 5% minimum
-              downloadedBytes: downloaded,
-              totalBytes: 0 // Indicates unknown size
-            }));
-          }
+          // Increment by 1% per chunk, cap at 89% during download
+          const progress = Math.min(1 + chunkCount, 89);
+          
+          setLoadingProgress(prev => ({
+            ...prev,
+            progress,
+            downloadedBytes: downloaded,
+            totalBytes: 0 // We don't know total size, will update when complete
+          }));
         }
       } finally {
         reader.releaseLock();
       }
       
-      // Ensure we show near-complete progress before parsing
-      if (!hasKnownSize) {
-        setLoadingProgress(prev => ({
-          ...prev,
-          progress: 90,
-          downloadedBytes: downloaded,
-          totalBytes: downloaded // Now we know the actual size
-        }));
-      }
+      // Jump to 90% when download completes, ready for parsing phase
+      setLoadingProgress(prev => ({
+        ...prev,
+        progress: 90,
+        downloadedBytes: downloaded,
+        totalBytes: downloaded
+      }));
       
       const decoder = new TextDecoder();
       return chunks.map(chunk => decoder.decode(chunk, { stream: true })).join('');
