@@ -14,6 +14,7 @@ import { SpendTablePagination } from './spend-table/SpendTablePagination';
 
 interface SpendTableProps {
   data: AdData[];
+  allData: AdData[]; // Unfiltered data for launch date calculations
   filters: {
     startDate?: Date;
     endDate?: Date;
@@ -26,7 +27,7 @@ interface SpendTableProps {
   adSelection: ReturnType<typeof useAdSelection>;
 }
 
-export const SpendTable: React.FC<SpendTableProps> = ({ data, filters, onFiltersChange, adSelection }) => {
+export const SpendTable: React.FC<SpendTableProps> = ({ data, allData, filters, onFiltersChange, adSelection }) => {
   const groupBy = filters.groupBy || 'shoot';
   
   const handleGroupByChange = (newGroupBy: 'shoot' | 'ad_name') => {
@@ -50,7 +51,38 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data, filters, onFilters
     return Array.isArray(filters.objective) ? filters.objective : [filters.objective];
   }, [filters.objective]);
 
-  const aggregatedData = useSpendAggregation(currentPeriodData, previousPeriodData, groupBy, data, isTestingInObjectives, selectedObjectives);
+  // Create filtered data that excludes date filter (for launch date calculations)
+  const nonDateFilteredData = useMemo(() => {
+    return allData.filter(row => {
+      // Country filter - support multiple selection
+      if (filters.country) {
+        const selectedCountries = Array.isArray(filters.country) 
+          ? filters.country 
+          : [filters.country];
+        if (selectedCountries.length > 0 && !selectedCountries.includes(row.country)) return false;
+      }
+      
+      // Objective filter - support multiple selection
+      if (filters.objective) {
+        const selectedObjectives = Array.isArray(filters.objective) 
+          ? filters.objective 
+          : [filters.objective];
+        if (selectedObjectives.length > 0 && !selectedObjectives.includes(row.Objective)) return false;
+      }
+      
+      // Shoot filter - support multiple selection
+      if (filters.shoot) {
+        const selectedShoots = Array.isArray(filters.shoot) 
+          ? filters.shoot 
+          : [filters.shoot];
+        if (selectedShoots.length > 0 && !selectedShoots.includes(row.shoot)) return false;
+      }
+      
+      return true;
+    });
+  }, [allData, filters.country, filters.objective, filters.shoot]);
+
+  const aggregatedData = useSpendAggregation(currentPeriodData, previousPeriodData, groupBy, nonDateFilteredData, isTestingInObjectives, selectedObjectives);
   const { paginatedData, totalPages, visiblePages } = usePagination(aggregatedData, currentPage, itemsPerPage);
 
   // Handle item selection based on groupBy
