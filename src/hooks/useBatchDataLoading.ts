@@ -163,8 +163,21 @@ export const useBatchDataLoading = () => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
+    // Connection phase - increment slowly until first chunk arrives
+    const connectionInterval = setInterval(() => {
+      setLoadingProgress(prev => {
+        if (prev.progress < 5) {
+          return { ...prev, progress: prev.progress + 0.5 };
+        }
+        return prev;
+      });
+    }, 1500); // Increment every 1.5 seconds
+
     try {
       const response = await fetch(url, { signal: controller.signal });
+      
+      // Clear connection interval once we get response
+      clearInterval(connectionInterval);
       clearTimeout(timeoutId);
       
       if (!response.ok) {
@@ -215,6 +228,7 @@ export const useBatchDataLoading = () => {
       const decoder = new TextDecoder();
       return chunks.map(chunk => decoder.decode(chunk, { stream: true })).join('');
     } catch (error) {
+      clearInterval(connectionInterval);
       clearTimeout(timeoutId);
       throw error;
     }
