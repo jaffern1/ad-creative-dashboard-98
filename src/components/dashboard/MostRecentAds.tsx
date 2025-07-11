@@ -11,16 +11,30 @@ import { Calendar } from 'lucide-react';
 
 interface MostRecentAdsProps {
   data: AdData[];
+  allData: AdData[]; // Unfiltered data for launch date calculations
   adSelection: ReturnType<typeof useAdSelection>;
 }
 
-export const MostRecentAds: React.FC<MostRecentAdsProps> = ({ data, adSelection }) => {
+export const MostRecentAds: React.FC<MostRecentAdsProps> = ({ data, allData, adSelection }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(25);
 
+  // Create filtered data that excludes date filter (for launch date calculations)
+  const nonDateFilteredData = useMemo(() => {
+    // We need to filter allData by the same criteria as the filtered data, but without date range
+    // This ensures launch dates are accurate regardless of date filter
+    return allData.filter(row => {
+      // Apply the same filtering logic as in useDataFiltering, but skip date filtering
+      // Since we don't have direct access to filters here, we'll use the fact that
+      // if data is filtered, we can derive which ads should be included
+      const adNamesInFilteredData = new Set(data.map(d => d.ad_name));
+      return adNamesInFilteredData.has(row.ad_name);
+    });
+  }, [allData, data]);
+
   const recentAdsData = useMemo(() => {
-    // Group by ad_name and find the earliest day for each
-    const adGroups = data.reduce((acc, row) => {
+    // Group by ad_name and find the earliest day for each using non-date-filtered data
+    const adGroups = nonDateFilteredData.reduce((acc, row) => {
       const adName = row.ad_name || 'Unknown';
       if (!acc[adName]) {
         acc[adName] = {
@@ -45,7 +59,7 @@ export const MostRecentAds: React.FC<MostRecentAdsProps> = ({ data, adSelection 
     // Convert to array and sort by launch date descending
     return Object.values(adGroups)
       .sort((a, b) => new Date(b.launch_date).getTime() - new Date(a.launch_date).getTime());
-  }, [data]);
+  }, [nonDateFilteredData]);
 
   const paginatedData = useMemo(() => {
     if (itemsPerPage === 0) return recentAdsData; // Show all

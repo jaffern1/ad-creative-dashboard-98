@@ -81,7 +81,7 @@ export const DashboardContent: React.FC<DashboardContentProps> = ({
         
         {/* Progressive loading: Show MostRecentAds after delay */}
         {showMostRecentAds ? (
-          <MostRecentAds data={filteredData} adSelection={adSelection} />
+          <MostRecentAds data={filteredData} allData={data} adSelection={adSelection} />
         ) : (
           <MostRecentAdsSkeleton />
         )}
