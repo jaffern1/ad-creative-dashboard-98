@@ -160,48 +160,85 @@ export const useBatchDataLoading = () => {
       progress: 0
     }));
 
-    const response = await fetch(url);
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    const contentLength = response.headers.get('content-length');
-    const total = contentLength ? parseInt(contentLength, 10) : 0;
-    
-    if (!response.body) {
-      throw new Error('Response body is not available for streaming');
-    }
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
-    const reader = response.body.getReader();
-    const chunks: Uint8Array[] = [];
-    let downloaded = 0;
-    
     try {
-      while (true) {
-        const { done, value } = await reader.read();
-        
-        if (done) break;
-        
-        chunks.push(value);
-        downloaded += value.length;
-        
-        if (total > 0) {
-          const progress = Math.round((downloaded / total) * 100);
-          setLoadingProgress(prev => ({
-            ...prev,
-            progress: Math.min(progress, 99), // Keep at 99% until parsing starts
-            downloadedBytes: downloaded,
-            totalBytes: total
-          }));
-        }
+      const response = await fetch(url, { signal: controller.signal });
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-    } finally {
-      reader.releaseLock();
+      
+      const contentLength = response.headers.get('content-length');
+      const total = contentLength ? parseInt(contentLength, 10) : 0;
+      const hasKnownSize = total > 0;
+      
+      if (!response.body) {
+        throw new Error('Response body is not available for streaming');
+      }
+
+      const reader = response.body.getReader();
+      const chunks: Uint8Array[] = [];
+      let downloaded = 0;
+      const startTime = Date.now();
+      
+      // For unknown size, we'll estimate progress over 15 seconds up to 80%
+      const estimatedDuration = 15000; // 15 seconds
+      const maxEstimatedProgress = 80;
+      
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          
+          if (done) break;
+          
+          chunks.push(value);
+          downloaded += value.length;
+          
+          if (hasKnownSize) {
+            // Known size - show actual progress
+            const progress = Math.round((downloaded / total) * 100);
+            setLoadingProgress(prev => ({
+              ...prev,
+              progress: Math.min(progress, 99), // Keep at 99% until parsing starts
+              downloadedBytes: downloaded,
+              totalBytes: total
+            }));
+          } else {
+            // Unknown size - show time-based estimated progress
+            const elapsed = Date.now() - startTime;
+            const timeProgress = Math.min((elapsed / estimatedDuration) * maxEstimatedProgress, maxEstimatedProgress);
+            
+            setLoadingProgress(prev => ({
+              ...prev,
+              progress: Math.max(5, Math.round(timeProgress)), // Start at 5% minimum
+              downloadedBytes: downloaded,
+              totalBytes: 0 // Indicates unknown size
+            }));
+          }
+        }
+      } finally {
+        reader.releaseLock();
+      }
+      
+      // Ensure we show near-complete progress before parsing
+      if (!hasKnownSize) {
+        setLoadingProgress(prev => ({
+          ...prev,
+          progress: 90,
+          downloadedBytes: downloaded,
+          totalBytes: downloaded // Now we know the actual size
+        }));
+      }
+      
+      const decoder = new TextDecoder();
+      return chunks.map(chunk => decoder.decode(chunk, { stream: true })).join('');
+    } catch (error) {
+      clearTimeout(timeoutId);
+      throw error;
     }
-    
-    const decoder = new TextDecoder();
-    return chunks.map(chunk => decoder.decode(chunk, { stream: true })).join('');
   };
 
   const loadDataInBatches = useCallback(async (
