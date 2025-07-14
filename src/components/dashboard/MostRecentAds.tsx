@@ -5,7 +5,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
-import { AdData } from '@/pages/Dashboard';
+import { AdData, FilterState } from '@/pages/Dashboard';
 import { useAdSelection } from '@/hooks/useAdSelection';
 import { Calendar } from 'lucide-react';
 
@@ -13,24 +13,35 @@ interface MostRecentAdsProps {
   data: AdData[];
   allData: AdData[]; // Unfiltered data for launch date calculations
   adSelection: ReturnType<typeof useAdSelection>;
+  filters: FilterState;
 }
 
-export const MostRecentAds: React.FC<MostRecentAdsProps> = ({ data, allData, adSelection }) => {
+export const MostRecentAds: React.FC<MostRecentAdsProps> = ({ data, allData, adSelection, filters }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(25);
 
   // Create filtered data that excludes date filter (for launch date calculations)
   const nonDateFilteredData = useMemo(() => {
-    // We need to filter allData by the same criteria as the filtered data, but without date range
-    // This ensures launch dates are accurate regardless of date filter
     return allData.filter(row => {
-      // Apply the same filtering logic as in useDataFiltering, but skip date filtering
-      // Since we don't have direct access to filters here, we'll use the fact that
-      // if data is filtered, we can derive which ads should be included
-      const adNamesInFilteredData = new Set(data.map(d => d.ad_name));
-      return adNamesInFilteredData.has(row.ad_name);
+      // Apply country filter
+      if (filters.country.length > 0 && !filters.country.includes(row.country)) {
+        return false;
+      }
+      
+      // Apply objective filter
+      if (filters.objective.length > 0 && !filters.objective.includes(row.Objective)) {
+        return false;
+      }
+      
+      // Apply shoot filter
+      if (filters.shoot.length > 0 && !filters.shoot.includes(row.shoot)) {
+        return false;
+      }
+      
+      // Skip date filtering - this is the key difference
+      return true;
     });
-  }, [allData, data]);
+  }, [allData, filters.country, filters.objective, filters.shoot]);
 
   const recentAdsData = useMemo(() => {
     // Group by ad_name and find the earliest day for each using non-date-filtered data
