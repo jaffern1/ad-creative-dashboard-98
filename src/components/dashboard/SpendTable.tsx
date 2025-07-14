@@ -36,7 +36,7 @@ export const SpendTable: React.FC<SpendTableProps> = ({ data, allData, filters, 
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(25);
 
-  const { currentPeriodData, previousPeriodData } = usePeriodCalculation(data, filters);
+  const { currentPeriodData, previousPeriodData } = usePeriodCalculation(allData, filters);
   
   // Check if Testing is in the objectives filter
   const isTestingInObjectives = useMemo(() => {
