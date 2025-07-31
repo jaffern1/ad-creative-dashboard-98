@@ -4,15 +4,21 @@ import { AdData } from '@/pages/Dashboard';
 import { DEFAULT_SHEETS_URL } from '@/constants/dataConstants';
 
 interface BatchLoadingProgress {
-  stage: 'fetching' | 'parsing' | 'processing' | 'loading-more' | 'complete';
+  stage: 'fetching' | 'parsing' | 'processing' | 'loading-more' | 'complete' | 'retrying';
   progress: number;
   currentBatch: number;
   totalBatches: number;
   recordsLoaded: number;
   totalRecords: number;
-  downloadedBytes: number;
-  totalBytes: number;
   batchSize: number;
+  retryAttempt?: number;
+  maxRetries?: number;
+}
+
+interface CachedData {
+  data: string;
+  timestamp: number;
+  url: string;
 }
 
 interface StreamingCSVParser {
@@ -20,7 +26,26 @@ interface StreamingCSVParser {
   parseRow: (line: string) => AdData | null;
 }
 
-const BATCH_SIZE = 1000;
+// Reduced batch size for faster first paint
+const BATCH_SIZE = 500;
+const MAX_RETRIES = 3;
+const TIMEOUT_MS = 15000; // Reduced timeout for faster failure detection
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache
+const CACHE_KEY = 'sheets_data_cache';
+
+// Fallback URLs for different Google Sheets export formats
+const generateFallbackUrls = (baseUrl: string): string[] => {
+  const urls = [baseUrl];
+  
+  // Try different export formats if the base URL fails
+  if (baseUrl.includes('/export?format=csv')) {
+    const baseWithoutParams = baseUrl.split('/export?')[0];
+    urls.push(`${baseWithoutParams}/export?format=csv&gid=0`);
+    urls.push(`${baseWithoutParams}/export?exportFormat=csv`);
+  }
+  
+  return urls;
+};
 
 export const useBatchDataLoading = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -31,14 +56,45 @@ export const useBatchDataLoading = () => {
     totalBatches: 0,
     recordsLoaded: 0,
     totalRecords: 0,
-    downloadedBytes: 0,
-    totalBytes: 0,
     batchSize: BATCH_SIZE
   });
 
   const { toast } = useToast();
 
-  // Create CSV parser that can handle streaming
+  // Cache management
+  const getCachedData = (): CachedData | null => {
+    try {
+      const cached = sessionStorage.getItem(CACHE_KEY);
+      if (!cached) return null;
+      
+      const data: CachedData = JSON.parse(cached);
+      const isExpired = Date.now() - data.timestamp > CACHE_DURATION;
+      
+      if (isExpired) {
+        sessionStorage.removeItem(CACHE_KEY);
+        return null;
+      }
+      
+      return data;
+    } catch {
+      return null;
+    }
+  };
+
+  const setCachedData = (data: string, url: string): void => {
+    try {
+      const cached: CachedData = {
+        data,
+        timestamp: Date.now(),
+        url
+      };
+      sessionStorage.setItem(CACHE_KEY, JSON.stringify(cached));
+    } catch {
+      // Ignore storage errors
+    }
+  };
+
+  // Create CSV parser
   const createStreamingParser = (headers: string[]): StreamingCSVParser => {
     const parseRow = (line: string): AdData | null => {
       if (!line.trim()) return null;
@@ -82,8 +138,8 @@ export const useBatchDataLoading = () => {
     return { headers, parseRow };
   };
 
-  // Stream and parse CSV data in batches
-  const streamAndParseBatches = async (
+  // Optimized batch processing with requestAnimationFrame
+  const processBatchesWithScheduling = async (
     csvText: string,
     onBatchReady: (batch: AdData[], batchInfo: { batchNumber: number, totalRecords: number, isComplete: boolean }) => void
   ): Promise<void> => {
@@ -108,19 +164,24 @@ export const useBatchDataLoading = () => {
     let currentBatch: AdData[] = [];
     let batchNumber = 1;
     let totalProcessed = 0;
+    let currentIndex = 1;
 
-    for (let i = 1; i < lines.length; i++) {
-      const row = parser.parseRow(lines[i]);
-      
-      if (row) {
-        currentBatch.push(row);
-        totalProcessed++;
-      }
+    const processBatch = async (): Promise<void> => {
+      return new Promise((resolve) => {
+        const batchEnd = Math.min(currentIndex + BATCH_SIZE, lines.length);
+        
+        // Process lines in this batch
+        for (let i = currentIndex; i < batchEnd; i++) {
+          const row = parser.parseRow(lines[i]);
+          if (row) {
+            currentBatch.push(row);
+            totalProcessed++;
+          }
+        }
 
-      // Process batch when it reaches BATCH_SIZE or we're at the end
-      if (currentBatch.length >= BATCH_SIZE || i === lines.length - 1) {
-        const progress = Math.round((i / lines.length) * 100);
-        const isComplete = i === lines.length - 1;
+        currentIndex = batchEnd;
+        const progress = Math.round((currentIndex / lines.length) * 100);
+        const isComplete = currentIndex >= lines.length;
 
         setLoadingProgress(prev => ({
           ...prev,
@@ -130,7 +191,7 @@ export const useBatchDataLoading = () => {
         }));
 
         // Send batch to callback
-        await onBatchReady(currentBatch, {
+        onBatchReady(currentBatch, {
           batchNumber,
           totalRecords: totalProcessed,
           isComplete
@@ -140,96 +201,76 @@ export const useBatchDataLoading = () => {
         currentBatch = [];
         batchNumber++;
 
-        // Add small delay to allow UI updates
-        await new Promise(resolve => setTimeout(resolve, 10));
-      }
-    }
+        if (!isComplete) {
+          // Use requestAnimationFrame for better performance
+          requestAnimationFrame(() => {
+            processBatch().then(resolve);
+          });
+        } else {
+          setLoadingProgress(prev => ({
+            ...prev,
+            stage: 'complete',
+            progress: 100
+          }));
+          resolve();
+        }
+      });
+    };
 
-    setLoadingProgress(prev => ({
-      ...prev,
-      stage: 'complete',
-      progress: 100
-    }));
+    await processBatch();
   };
 
-  // Fetch CSV with streaming download progress
-  const fetchWithStreamingProgress = async (url: string): Promise<string> => {
+  // Improved fetch with retry and exponential backoff
+  const fetchWithRetry = async (urls: string[], retryAttempt = 0): Promise<string> => {
+    const currentUrl = urls[retryAttempt % urls.length];
+    
     setLoadingProgress(prev => ({
       ...prev,
-      stage: 'fetching',
-      progress: 1 // Start at 1% immediately
+      stage: retryAttempt > 0 ? 'retrying' : 'fetching',
+      progress: 10,
+      retryAttempt,
+      maxRetries: MAX_RETRIES
     }));
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
-
-    // Connection phase - increment slowly until first chunk arrives
-    const connectionInterval = setInterval(() => {
-      setLoadingProgress(prev => {
-        if (prev.progress < 5) {
-          return { ...prev, progress: prev.progress + 0.5 };
-        }
-        return prev;
-      });
-    }, 1500); // Increment every 1.5 seconds
+    const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
     try {
-      const response = await fetch(url, { signal: controller.signal });
+      const response = await fetch(currentUrl, { 
+        signal: controller.signal,
+        cache: 'no-cache'
+      });
       
-      // Clear connection interval once we get response
-      clearInterval(connectionInterval);
       clearTimeout(timeoutId);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
-      if (!response.body) {
-        throw new Error('Response body is not available for streaming');
-      }
-
-      const reader = response.body.getReader();
-      const chunks: Uint8Array[] = [];
-      let downloaded = 0;
-      let chunkCount = 0;
+      // Simple, reliable text fetch
+      const csvText = await response.text();
       
-      try {
-        while (true) {
-          const { done, value } = await reader.read();
-          
-          if (done) break;
-          
-          chunks.push(value);
-          downloaded += value.length;
-          chunkCount++;
-          
-          // Increment by 1% per chunk, cap at 89% during download
-          const progress = Math.min(1 + chunkCount, 89);
-          
-          setLoadingProgress(prev => ({
-            ...prev,
-            progress,
-            downloadedBytes: downloaded,
-            totalBytes: 0 // We don't know total size, will update when complete
-          }));
-        }
-      } finally {
-        reader.releaseLock();
-      }
-      
-      // Jump to 90% when download completes, ready for parsing phase
       setLoadingProgress(prev => ({
         ...prev,
-        progress: 90,
-        downloadedBytes: downloaded,
-        totalBytes: downloaded
+        stage: 'processing',
+        progress: 90
       }));
       
-      const decoder = new TextDecoder();
-      return chunks.map(chunk => decoder.decode(chunk, { stream: true })).join('');
+      // Cache successful result
+      setCachedData(csvText, currentUrl);
+      
+      return csvText;
     } catch (error) {
-      clearInterval(connectionInterval);
       clearTimeout(timeoutId);
+      
+      if (retryAttempt < MAX_RETRIES - 1) {
+        const delay = Math.pow(2, retryAttempt) * 1000; // Exponential backoff
+        console.log(`Fetch attempt ${retryAttempt + 1} failed, retrying in ${delay}ms...`);
+        
+        await new Promise(resolve => setTimeout(resolve, delay));
+        return fetchWithRetry(urls, retryAttempt + 1);
+      }
+      
       throw error;
     }
   };
@@ -243,59 +284,105 @@ export const useBatchDataLoading = () => {
     setIsLoading(true);
     
     try {
-      console.log('Starting batch data loading...');
+      console.log('Starting optimized batch data loading...');
       
-      // Fetch CSV data with progress
-      const csvText = await fetchWithStreamingProgress(DEFAULT_SHEETS_URL);
-      
-      let isFirstBatch = true;
-      
-      // Stream and parse in batches
-      await streamAndParseBatches(csvText, async (batch, batchInfo) => {
-        if (isFirstBatch) {
-          console.log(`First batch ready: ${batch.length} records`);
-          onFirstBatch(batch);
-          isFirstBatch = false;
-          
-          toast({
-            title: "First batch loaded",
-            description: `Showing ${batch.length} most recent records. Loading more in background...`,
-          });
-          
-          // If this is also the last batch, set loading to false
-          if (batchInfo.isComplete) {
-            setIsLoading(false);
-            toast({
-              title: "All data loaded",
-              description: `Successfully loaded ${batchInfo.totalRecords} total records`,
-            });
+      // Check for cached data first
+      const cached = getCachedData();
+      if (cached && cached.url === DEFAULT_SHEETS_URL) {
+        console.log('Using cached data while fetching fresh data...');
+        
+        // Show cached data immediately
+        let isFirstBatch = true;
+        await processBatchesWithScheduling(cached.data, async (batch, batchInfo) => {
+          if (isFirstBatch) {
+            onFirstBatch(batch);
+            isFirstBatch = false;
+          } else {
+            onAdditionalBatch(batch, batchInfo.isComplete);
           }
-        } else {
-          console.log(`Additional batch ${batchInfo.batchNumber}: ${batch.length} records`);
-          onAdditionalBatch(batch, batchInfo.isComplete);
-          
-          if (batchInfo.isComplete) {
-            // Only set loading to false when ALL batches are complete
-            setIsLoading(false);
+        });
+        
+        toast({
+          title: "Cached data loaded",
+          description: "Showing recent data. Checking for updates...",
+        });
+      }
+      
+      // Fetch fresh data
+      const fallbackUrls = generateFallbackUrls(DEFAULT_SHEETS_URL);
+      const csvText = await fetchWithRetry(fallbackUrls);
+      
+      // Only process fresh data if it's different from cached
+      if (!cached || cached.data !== csvText) {
+        let isFirstBatch = true;
+        
+        await processBatchesWithScheduling(csvText, async (batch, batchInfo) => {
+          if (isFirstBatch) {
+            console.log(`First batch ready: ${batch.length} records`);
+            onFirstBatch(batch);
+            isFirstBatch = false;
             
             toast({
-              title: "All data loaded",
-              description: `Successfully loaded ${batchInfo.totalRecords} total records`,
+              title: "Fresh data loaded",
+              description: `Showing ${batch.length} most recent records. Loading more in background...`,
             });
+            
+            if (batchInfo.isComplete) {
+              setIsLoading(false);
+              toast({
+                title: "All data loaded",
+                description: `Successfully loaded ${batchInfo.totalRecords} total records`,
+              });
+            }
+          } else {
+            console.log(`Additional batch ${batchInfo.batchNumber}: ${batch.length} records`);
+            onAdditionalBatch(batch, batchInfo.isComplete);
+            
+            if (batchInfo.isComplete) {
+              setIsLoading(false);
+              toast({
+                title: "All data loaded",
+                description: `Successfully loaded ${batchInfo.totalRecords} total records`,
+              });
+            }
           }
-        }
-      });
+        });
+      } else {
+        console.log('Fresh data is same as cached, no update needed');
+        setIsLoading(false);
+      }
 
     } catch (error) {
-      console.error('Error in batch loading:', error);
+      console.error('Error in optimized batch loading:', error);
       
-      toast({
-        title: "Loading failed",
-        description: "Couldn't load data. Please try manual upload.",
-        variant: "destructive",
-      });
+      // Try to use cached data as fallback
+      const cached = getCachedData();
+      if (cached) {
+        console.log('Using cached data as fallback...');
+        
+        let isFirstBatch = true;
+        await processBatchesWithScheduling(cached.data, async (batch, batchInfo) => {
+          if (isFirstBatch) {
+            onFirstBatch(batch);
+            isFirstBatch = false;
+          } else {
+            onAdditionalBatch(batch, batchInfo.isComplete);
+          }
+        });
+        
+        toast({
+          title: "Using cached data",
+          description: "Network failed, showing last successful download.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Loading failed",
+          description: "Couldn't load data. Please try manual upload.",
+          variant: "destructive",
+        });
+      }
       
-      // Always ensure loading is set to false on error
       setIsLoading(false);
       throw error;
     }

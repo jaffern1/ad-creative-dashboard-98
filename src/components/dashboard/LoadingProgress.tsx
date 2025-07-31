@@ -4,15 +4,15 @@ import { Progress } from '@/components/ui/progress';
 import { RefreshCw, Link, Database, FileText } from 'lucide-react';
 
 interface LoadingProgressProps {
-  stage: 'fetching' | 'parsing' | 'processing' | 'loading-more' | 'complete';
+  stage: 'fetching' | 'parsing' | 'processing' | 'loading-more' | 'complete' | 'retrying';
   progress: number;
   recordsProcessed?: number;
   totalRecords?: number;
   currentBatch?: number;
   totalBatches?: number;
   recordsLoaded?: number;
-  downloadedBytes?: number;
-  totalBytes?: number;
+  retryAttempt?: number;
+  maxRetries?: number;
 }
 
 export const LoadingProgress: React.FC<LoadingProgressProps> = ({
@@ -23,28 +23,24 @@ export const LoadingProgress: React.FC<LoadingProgressProps> = ({
   currentBatch,
   totalBatches,
   recordsLoaded,
-  downloadedBytes,
-  totalBytes
+  retryAttempt,
+  maxRetries
 }) => {
-  const formatBytes = (bytes: number) => {
-    if (bytes === 0) return '0 B';
-    const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
-  };
-
   const getStageInfo = () => {
     switch (stage) {
       case 'fetching':
-        const downloadInfo = totalBytes && downloadedBytes
-          ? `${formatBytes(downloadedBytes)} of ${formatBytes(totalBytes)}`
-          : 'Connecting to Google Sheets...';
-          
         return {
           icon: <Link className="h-12 w-12 text-primary" />,
           title: 'Downloading data...',
-          description: downloadInfo
+          description: 'Connecting to Google Sheets...'
+        };
+      case 'retrying':
+        return {
+          icon: <RefreshCw className="h-12 w-12 animate-spin text-orange-500" />,
+          title: 'Retrying download...',
+          description: retryAttempt && maxRetries 
+            ? `Attempt ${retryAttempt + 1} of ${maxRetries}. Using exponential backoff...`
+            : 'Retrying with fallback URL...'
         };
       case 'parsing':
         const batchInfo = currentBatch && totalBatches 

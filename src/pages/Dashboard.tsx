@@ -63,8 +63,8 @@ const Dashboard = () => {
           currentBatch={loadingProgress.currentBatch}
           totalBatches={loadingProgress.totalBatches}
           recordsLoaded={loadingProgress.recordsLoaded}
-          downloadedBytes={loadingProgress.downloadedBytes}
-          totalBytes={loadingProgress.totalBytes}
+          retryAttempt={loadingProgress.retryAttempt}
+          maxRetries={loadingProgress.maxRetries}
         />
       </DashboardLayout>
     );
