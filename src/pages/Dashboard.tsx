@@ -35,6 +35,8 @@ export interface FilterState {
   groupBy?: 'shoot' | 'ad_name';
 }
 
+export type DataSource = 'supabase-db' | 'auto-sheets' | 'manual-csv';
+
 const Dashboard = () => {
   const {
     data,
@@ -56,15 +58,17 @@ const Dashboard = () => {
     return (
       <DashboardLayout lastUpdated={null}>
         <LoadingProgress
-          stage={loadingProgress.stage}
-          progress={loadingProgress.progress}
-          recordsProcessed={loadingProgress.recordsLoaded}
-          totalRecords={loadingProgress.totalRecords}
-          currentBatch={loadingProgress.currentBatch}
-          totalBatches={loadingProgress.totalBatches}
-          recordsLoaded={loadingProgress.recordsLoaded}
-          retryAttempt={loadingProgress.retryAttempt}
-          maxRetries={loadingProgress.maxRetries}
+          stage={loadingProgress.stage === 'Initializing...' ? 'fetching' : 
+                 loadingProgress.stage === 'Connecting to database...' ? 'fetching' :
+                 loadingProgress.stage === 'Loading data...' ? 'processing' : 'processing'}
+          progress={loadingProgress.percentage}
+          recordsProcessed={loadingProgress.current}
+          totalRecords={loadingProgress.total}
+          currentBatch={Math.floor(loadingProgress.current / 500) + 1}
+          totalBatches={Math.ceil(loadingProgress.total / 500)}
+          recordsLoaded={loadingProgress.current}
+          retryAttempt={0}
+          maxRetries={3}
         />
       </DashboardLayout>
     );
@@ -85,7 +89,7 @@ const Dashboard = () => {
         data={data}
         filters={filters}
         onFiltersChange={setFilters}
-        dataSource={dataSource}
+        dataSource={dataSource as DataSource}
         onSwitchToManual={handleSwitchToManual}
         isLoadingMore={isLoadingMore}
         hasMoreData={hasMoreData}

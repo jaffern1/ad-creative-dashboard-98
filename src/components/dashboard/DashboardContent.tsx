@@ -20,7 +20,7 @@ interface DashboardContentProps {
   data: AdData[];
   filters: FilterState;
   onFiltersChange: (filters: FilterState) => void;
-  dataSource: 'auto-sheets' | 'manual-csv' | null;
+  dataSource: 'supabase-db' | 'auto-sheets' | 'manual-csv' | null;
   onSwitchToManual: () => void;
   isLoadingMore?: boolean;
   hasMoreData?: boolean;

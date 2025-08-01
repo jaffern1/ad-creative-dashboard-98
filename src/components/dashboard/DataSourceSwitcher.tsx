@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Database, Link, Upload } from 'lucide-react';
 
 interface DataSourceSwitcherProps {
-  currentSource: 'auto-sheets' | 'manual-csv';
+  currentSource: 'supabase-db' | 'auto-sheets' | 'manual-csv';
   onSwitchToManual: () => void;
   recordCount: number;
 }
@@ -20,16 +20,20 @@ export const DataSourceSwitcher: React.FC<DataSourceSwitcherProps> = ({
       <CardContent className="p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {currentSource === 'auto-sheets' ? (
+            {currentSource === 'supabase-db' ? (
+              <Database className="h-5 w-5 text-primary" />
+            ) : currentSource === 'auto-sheets' ? (
               <Link className="h-5 w-5 text-primary" />
             ) : (
               <Database className="h-5 w-5 text-primary" />
             )}
             <div>
               <p className="text-sm font-medium">
-                {currentSource === 'auto-sheets' 
-                  ? 'Auto-loaded from Google Sheets' 
-                  : 'Manual CSV Upload'}
+                {currentSource === 'supabase-db' 
+                  ? 'Loaded from Database' 
+                  : currentSource === 'auto-sheets' 
+                    ? 'Auto-loaded from Google Sheets' 
+                    : 'Manual CSV Upload'}
               </p>
               <p className="text-xs text-muted-foreground">
                 {recordCount} records loaded
@@ -37,7 +41,7 @@ export const DataSourceSwitcher: React.FC<DataSourceSwitcherProps> = ({
             </div>
           </div>
           
-          {currentSource === 'auto-sheets' && (
+          {(currentSource === 'supabase-db' || currentSource === 'auto-sheets') && (
             <Button
               variant="outline"
               size="sm"

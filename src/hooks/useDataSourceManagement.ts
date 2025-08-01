@@ -5,7 +5,7 @@ import { AdData } from '@/pages/Dashboard';
 
 export const useDataSourceManagement = () => {
   const [data, setData] = useState<AdData[]>([]);
-  const [dataSource, setDataSource] = useState<'auto-sheets' | 'manual-csv' | null>(null);
+  const [dataSource, setDataSource] = useState<'supabase-db' | 'auto-sheets' | 'manual-csv' | null>(null);
   const [showManualUpload, setShowManualUpload] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMoreData, setHasMoreData] = useState(false);
@@ -34,9 +34,16 @@ export const useDataSourceManagement = () => {
     setHasMoreData(false);
   }, []);
 
-  const setFirstBatch = useCallback((csvData: AdData[]) => {
+  const setSupabaseData = useCallback((csvData: AdData[]) => {
     setData(csvData);
-    setDataSource('auto-sheets');
+    setDataSource('supabase-db');
+    setIsLoadingMore(false);
+    setHasMoreData(false);
+  }, []);
+
+  const setFirstBatch = useCallback((csvData: AdData[], source: 'supabase-db' | 'auto-sheets' = 'supabase-db') => {
+    setData(csvData);
+    setDataSource(source);
     setIsLoadingMore(true);
     setHasMoreData(true);
   }, []);
@@ -60,6 +67,7 @@ export const useDataSourceManagement = () => {
     handleDataUpload,
     handleSwitchToManual,
     setAutoSheetsData,
+    setSupabaseData,
     setFirstBatch,
     appendBatch,
     setShowManualUploadState
