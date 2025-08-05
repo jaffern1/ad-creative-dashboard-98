@@ -6,12 +6,12 @@ import { useDataSourceManagement } from './useDataSourceManagement';
 import { useLastUpdated } from './useLastUpdated';
 
 export const useDashboardData = () => {
-  // Try Supabase first, fallback to CSV if needed
+  // Use CSV as primary, keep Supabase for future use
   const supabaseLoader = useSupabaseBatchDataLoading();
   const csvLoader = useBatchDataLoading();
   
-  // Use Supabase by default
-  const { isLoading, loadingProgress, loadDataInBatches } = supabaseLoader;
+  // Use CSV by default
+  const { isLoading, loadingProgress, loadDataInBatches } = csvLoader;
   const {
     data,
     dataSource,
@@ -39,41 +39,24 @@ export const useDashboardData = () => {
 
     const loadInitialData = async () => {
       try {
-        console.log('Starting Supabase batch data load...');
+        console.log('Starting CSV batch data load...');
         hasLoadedInitialData.current = true;
         
         await loadDataInBatches(
           // First batch callback - show data immediately
           (firstBatch) => {
-            console.log('Received first batch from Supabase:', firstBatch.length, 'records');
-            setFirstBatch(firstBatch, 'supabase-db');
+            console.log('Received first batch from CSV:', firstBatch.length, 'records');
+            setFirstBatch(firstBatch, 'auto-sheets');
           },
           // Additional batches callback - append progressively
           (additionalBatch, isComplete) => {
-            console.log('Received additional batch from Supabase:', additionalBatch.length, 'records, complete:', isComplete);
+            console.log('Received additional batch from CSV:', additionalBatch.length, 'records, complete:', isComplete);
             appendBatch(additionalBatch, isComplete);
           }
         );
       } catch (error) {
-        console.error('Failed to load data from Supabase:', error);
-        console.log('Falling back to CSV loading...');
-        
-        try {
-          // Fallback to CSV loading
-          await csvLoader.loadDataInBatches(
-            (firstBatch) => {
-              console.log('Received first batch from CSV:', firstBatch.length, 'records');
-              setFirstBatch(firstBatch, 'auto-sheets');
-            },
-            (additionalBatch, isComplete) => {
-              console.log('Received additional batch from CSV:', additionalBatch.length, 'records, complete:', isComplete);
-              appendBatch(additionalBatch, isComplete);
-            }
-          );
-        } catch (csvError) {
-          console.error('Both Supabase and CSV loading failed:', csvError);
-          setShowManualUploadState(true);
-        }
+        console.error('Failed to load data from CSV:', error);
+        setShowManualUploadState(true);
       }
     };
 

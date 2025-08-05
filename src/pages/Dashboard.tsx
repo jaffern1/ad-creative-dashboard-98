@@ -58,17 +58,15 @@ const Dashboard = () => {
     return (
       <DashboardLayout lastUpdated={null}>
         <LoadingProgress
-          stage={loadingProgress.stage === 'Initializing...' ? 'fetching' : 
-                 loadingProgress.stage === 'Connecting to database...' ? 'fetching' :
-                 loadingProgress.stage === 'Loading data...' ? 'processing' : 'processing'}
-          progress={loadingProgress.percentage}
-          recordsProcessed={loadingProgress.current}
-          totalRecords={loadingProgress.total}
-          currentBatch={Math.floor(loadingProgress.current / 500) + 1}
-          totalBatches={Math.ceil(loadingProgress.total / 500)}
-          recordsLoaded={loadingProgress.current}
-          retryAttempt={0}
-          maxRetries={3}
+          stage={loadingProgress.stage}
+          progress={loadingProgress.progress}
+          recordsProcessed={loadingProgress.recordsLoaded}
+          totalRecords={loadingProgress.totalRecords}
+          currentBatch={loadingProgress.currentBatch}
+          totalBatches={loadingProgress.totalBatches}
+          recordsLoaded={loadingProgress.recordsLoaded}
+          retryAttempt={loadingProgress.retryAttempt || 0}
+          maxRetries={loadingProgress.maxRetries || 3}
         />
       </DashboardLayout>
     );
