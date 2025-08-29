@@ -13,7 +13,7 @@ interface GenderSpendChartProps {
 
 const GENDER_COLORS = {
   'Male': 'hsl(var(--chart-1))',
-  'Female': 'hsl(var(--chart-2))',
+  'Female': 'hsl(var(--chart-3))',
 };
 
 export const GenderSpendChart: React.FC<GenderSpendChartProps> = ({ data, filters }) => {
