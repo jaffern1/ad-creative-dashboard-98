@@ -6,6 +6,7 @@ import { SpendTable } from './SpendTable';
 import { CategoryBreakdown } from './CategoryBreakdown';
 import { MostRecentAds } from './MostRecentAds';
 import { DataSourceSwitcher } from './DataSourceSwitcher';
+import { DemographicsSection } from './DemographicsSection';
 import { SpendTableSkeleton } from './skeleton/SpendTableSkeleton';
 import { CategoryBreakdownSkeleton } from './skeleton/CategoryBreakdownSkeleton';
 import { MostRecentAdsSkeleton } from './skeleton/MostRecentAdsSkeleton';
@@ -91,6 +92,11 @@ export const DashboardContent: React.FC<DashboardContentProps> = ({
           <CategoryBreakdown data={filteredData} />
         ) : (
           <CategoryBreakdownSkeleton />
+        )}
+        
+        {/* Demographics section - loads after main content */}
+        {showCategoryBreakdown && (
+          <DemographicsSection filters={filters} />
         )}
       </div>
     </>
