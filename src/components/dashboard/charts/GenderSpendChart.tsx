@@ -13,8 +13,8 @@ interface GenderSpendChartProps {
 
 const GENDER_COLORS = {
   'Male': 'hsl(var(--chart-1))',
-  'Female': 'hsl(var(--chart-3))',
-  'Unknown': 'hsl(var(--muted))',
+  'Female': 'hsl(var(--chart-2))',
+  'Unknown': 'hsl(var(--chart-4))',
 };
 
 export const GenderSpendChart: React.FC<GenderSpendChartProps> = ({ data, filters }) => {
@@ -62,7 +62,7 @@ export const GenderSpendChart: React.FC<GenderSpendChartProps> = ({ data, filter
         name: gender,
         spend,
         percentage: totalSpend > 0 ? (spend / totalSpend) * 100 : 0,
-        color: GENDER_COLORS[gender as keyof typeof GENDER_COLORS] || 'hsl(var(--muted))',
+        color: GENDER_COLORS[gender as keyof typeof GENDER_COLORS] || 'hsl(var(--chart-4))',
       }))
       .sort((a, b) => b.spend - a.spend);
   }, [filteredData]);

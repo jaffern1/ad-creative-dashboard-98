@@ -37,6 +37,14 @@
 
     --radius: 0.5rem;
 
+    /* Chart colors for data visualization */
+    --chart-1: 25 56% 39%; /* Primary brown */
+    --chart-2: 28 59% 66%; /* Secondary orange */
+    --chart-3: 45 93% 60%; /* Complementary blue */
+    --chart-4: 120 50% 45%; /* Green */
+    --chart-5: 280 65% 60%; /* Purple */
+    --chart-6: 15 85% 55%; /* Red */
+
     --sidebar-background: 40 29% 98%;
     --sidebar-foreground: 0 0% 0%; /* Black text */
     --sidebar-primary: 25 56% 39%;
@@ -75,6 +83,15 @@
     --border: 25 42% 22%;
     --input: 25 42% 22%;
     --ring: 40 29% 98%;
+    
+    /* Chart colors for dark mode */
+    --chart-1: 40 29% 98%; /* Light in dark mode */
+    --chart-2: 28 59% 45%; /* Darker orange */
+    --chart-3: 200 80% 60%; /* Bright blue */
+    --chart-4: 120 50% 55%; /* Brighter green */
+    --chart-5: 280 65% 70%; /* Lighter purple */
+    --chart-6: 15 85% 65%; /* Brighter red */
+
     --sidebar-background: 25 42% 15%;
     --sidebar-foreground: 40 29% 98%;
     --sidebar-primary: 40 29% 98%;
