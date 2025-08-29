@@ -12,9 +12,8 @@ interface GenderSpendChartProps {
 }
 
 const GENDER_COLORS = {
-  'Male': 'hsl(var(--chart-1))',
-  'Female': 'hsl(var(--chart-2))',
-  'Unknown': 'hsl(var(--chart-4))',
+  'Male': 'hsl(var(--chart-3))',
+  'Female': 'hsl(var(--chart-5))',
 };
 
 export const GenderSpendChart: React.FC<GenderSpendChartProps> = ({ data, filters }) => {
@@ -45,9 +44,10 @@ export const GenderSpendChart: React.FC<GenderSpendChartProps> = ({ data, filter
   const chartData = useMemo((): DemographicChartData[] => {
     if (!filteredData || filteredData.length === 0) return [];
 
-    // Group by gender and sum spend
+    // Group by gender and sum spend (exclude Unknown)
     const genderSpend = filteredData.reduce((acc, item) => {
-      const gender = item.gender || 'Unknown';
+      const gender = item.gender;
+      if (!gender || gender.toLowerCase() === 'unknown') return acc;
       if (!acc[gender]) {
         acc[gender] = 0;
       }
@@ -62,7 +62,7 @@ export const GenderSpendChart: React.FC<GenderSpendChartProps> = ({ data, filter
         name: gender,
         spend,
         percentage: totalSpend > 0 ? (spend / totalSpend) * 100 : 0,
-        color: GENDER_COLORS[gender as keyof typeof GENDER_COLORS] || 'hsl(var(--chart-4))',
+        color: GENDER_COLORS[gender as keyof typeof GENDER_COLORS] || 'hsl(var(--chart-6))',
       }))
       .sort((a, b) => b.spend - a.spend);
   }, [filteredData]);
@@ -87,7 +87,7 @@ export const GenderSpendChart: React.FC<GenderSpendChartProps> = ({ data, filter
       <Card className="shadow-sm border border-border bg-card">
         <CardHeader className="bg-muted border-b border-border py-3 px-4">
           <CardTitle className="text-base font-medium flex items-center gap-2">
-            ⚖️ Gender Spend Distribution
+            ⚥ Gender Spend Distribution
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6">
@@ -108,7 +108,7 @@ export const GenderSpendChart: React.FC<GenderSpendChartProps> = ({ data, filter
     <Card className="shadow-sm border border-border bg-card">
       <CardHeader className="bg-muted border-b border-border py-3 px-4">
         <CardTitle className="text-base font-medium flex items-center gap-2">
-          ⚖️ Gender Spend Distribution
+           ⚥ Gender Spend Distribution
         </CardTitle>
       </CardHeader>
       <CardContent className="p-6">

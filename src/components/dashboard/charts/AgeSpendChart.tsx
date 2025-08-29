@@ -53,7 +53,7 @@ export const AgeSpendChart: React.FC<AgeSpendChartProps> = ({ data, filters }) =
     return Object.entries(ageSpend)
       .map(([age, spend]) => ({
         name: age,
-        spend,
+        spend: totalSpend > 0 ? (spend / totalSpend) * 100 : 0, // Show percentage instead of absolute spend
         percentage: totalSpend > 0 ? (spend / totalSpend) * 100 : 0,
       }))
       .sort((a, b) => {
@@ -66,7 +66,7 @@ export const AgeSpendChart: React.FC<AgeSpendChartProps> = ({ data, filters }) =
 
   const chartConfig = {
     spend: {
-      label: "Spend",
+      label: "Share of Spend (%)",
       color: "hsl(var(--chart-2))",
     },
   };
@@ -124,17 +124,17 @@ export const AgeSpendChart: React.FC<AgeSpendChartProps> = ({ data, filters }) =
                 height={60}
                 interval={0}
               />
-              <YAxis 
+               <YAxis 
                 tick={{ fontSize: 10, fill: 'currentColor' }}
-                tickFormatter={(value) => `$${(value / 1000).toFixed(0)}K`}
+                tickFormatter={(value) => `${value.toFixed(0)}%`}
                 width={50}
               />
               <ChartTooltip
                 content={
                   <ChartTooltipContent
                     formatter={(value: number) => [
-                      formatCurrency(value),
-                      "Spend"
+                      `${value.toFixed(1)}%`,
+                      "Share of Spend"
                     ]}
                     labelFormatter={(label) => `Age: ${label}`}
                   />
