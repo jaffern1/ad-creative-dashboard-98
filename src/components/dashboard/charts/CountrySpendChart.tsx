@@ -138,9 +138,9 @@ export const CountrySpendChart: React.FC<CountrySpendChartProps> = ({ data, filt
               <ChartTooltip
                 content={
                   <ChartTooltipContent
-                    formatter={(value: number) => [
-                      formatCurrency(value),
-                      "Spend"
+                    formatter={(value: number, name: string, props: any) => [
+                      `${props.payload.percentage.toFixed(1)}%`,
+                      "Share of Spend"
                     ]}
                     labelFormatter={(label) => `${label}`}
                   />
