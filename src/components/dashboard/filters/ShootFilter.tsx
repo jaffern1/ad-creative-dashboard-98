@@ -1,9 +1,10 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
 import { FilterState } from '@/pages/Dashboard';
 import { X } from 'lucide-react';
 
@@ -24,6 +25,8 @@ export const ShootFilter: React.FC<ShootFilterProps> = ({
   onFiltersChange,
   shoots,
 }) => {
+  const [searchTerm, setSearchTerm] = useState('');
+  
   const handleShootChange = (shoot: string, checked: boolean) => {
     const currentShoots = Array.isArray(filters.shoot) 
       ? filters.shoot 
@@ -71,6 +74,11 @@ export const ShootFilter: React.FC<ShootFilterProps> = ({
     return text;
   };
 
+  const filteredShoots = shoots.filter(shoot => 
+    shoot.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    shoot.value.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="flex items-center gap-4">
       <Label className="text-sm font-medium text-foreground min-w-[80px]">Shoot</Label>
@@ -89,7 +97,13 @@ export const ShootFilter: React.FC<ShootFilterProps> = ({
           <PopoverContent className="p-4" align="start" style={{ width: 'var(--radix-popover-trigger-width)' }}>
             <div className="space-y-3">
               <div className="text-sm font-medium">Select Shoots</div>
-              {shoots.map((shoot) => (
+              <Input
+                placeholder="Search shoots..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="h-8"
+              />
+              {filteredShoots.map((shoot) => (
                 <div key={shoot.value} className="flex items-center space-x-2">
                   <Checkbox
                     id={shoot.value}
