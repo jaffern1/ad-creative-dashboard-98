@@ -22,7 +22,7 @@ interface SeasonFilterProps {
 export const SeasonFilter: React.FC<SeasonFilterProps> = ({
   filters,
   onFiltersChange,
-  seasons,
+  seasons = [],
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   
