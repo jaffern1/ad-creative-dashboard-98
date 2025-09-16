@@ -43,6 +43,10 @@ export const useUrlFilters = () => {
     if (shoot) {
       filters.shoot = shoot.includes(',') ? shoot.split(',') : shoot;
     }
+    const season = searchParams.get('season');
+    if (season) {
+      filters.season = season.includes(',') ? season.split(',') : season;
+    }
     
     const groupBy = searchParams.get('groupBy');
     if (groupBy && (groupBy === 'shoot' || groupBy === 'ad_name')) {
@@ -99,6 +103,15 @@ export const useUrlFilters = () => {
       }
     }
     
+    if (filters.season) {
+      const seasonValue = Array.isArray(filters.season) 
+        ? filters.season.join(',') 
+        : filters.season;
+      if (seasonValue) {
+        params.set('season', seasonValue);
+      }
+    }
+    
     if (filters.groupBy) {
       params.set('groupBy', filters.groupBy);
     }
@@ -140,6 +153,15 @@ export const useUrlFilters = () => {
         : filters.shoot;
       if (shootValue) {
         params.set('shoot', shootValue);
+      }
+    }
+    
+    if (filters.season) {
+      const seasonValue = Array.isArray(filters.season) 
+        ? filters.season.join(',') 
+        : filters.season;
+      if (seasonValue) {
+        params.set('season', seasonValue);
       }
     }
     

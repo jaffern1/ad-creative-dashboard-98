@@ -27,7 +27,8 @@ export const FilterActions: React.FC<FilterActionsProps> = ({
       ...defaultRange,
       country: '',
       objective: '',
-      shoot: ''
+      shoot: '',
+      season: ''
     });
   };
 

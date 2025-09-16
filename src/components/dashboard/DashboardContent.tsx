@@ -36,7 +36,7 @@ export const DashboardContent: React.FC<DashboardContentProps> = ({
   onSwitchToManual
 }) => {
   const { dateFilteredData, filteredData } = useDataFiltering(data, filters);
-  const { countries, objectives, shoots } = useFilterOptions(dateFilteredData, filters, onFiltersChange);
+  const { countries, objectives, shoots, seasons } = useFilterOptions(dateFilteredData, filters, onFiltersChange);
   const [filterPanelRef, isFilterPanelVisible] = useScrollVisibility<HTMLDivElement>();
   const { showSpendTable, showMostRecentAds, showCategoryBreakdown } = useProgressiveLoading(data.length > 0);
   const adSelection = useAdSelection();
@@ -51,6 +51,7 @@ export const DashboardContent: React.FC<DashboardContentProps> = ({
         countries={countries}
         objectives={objectives}
         shoots={shoots}
+        seasons={seasons}
       />
       
       <div className="space-y-6">
@@ -70,6 +71,7 @@ export const DashboardContent: React.FC<DashboardContentProps> = ({
             countries={countries}
             objectives={objectives}
             shoots={shoots}
+            seasons={seasons}
           />
         </div>
         

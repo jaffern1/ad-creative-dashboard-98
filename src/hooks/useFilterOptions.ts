@@ -12,6 +12,7 @@ interface UseFilterOptionsReturn {
   countries: FilterOption[];
   objectives: FilterOption[];
   shoots: FilterOption[];
+  seasons: FilterOption[];
   onFiltersChange?: (filters: FilterState) => void;
 }
 
@@ -21,7 +22,7 @@ export const useFilterOptions = (
   onFiltersChange?: (filters: FilterState) => void
 ): UseFilterOptionsReturn => {
   // Helper function to apply filters except the one being calculated
-  const getFilteredDataExcluding = (excludeFilter: 'country' | 'objective' | 'shoot') => {
+  const getFilteredDataExcluding = (excludeFilter: 'country' | 'objective' | 'shoot' | 'season') => {
     return dateFilteredData.filter(row => {
       // Apply all filters except the excluded one
       if (excludeFilter !== 'country' && currentFilters.country) {
@@ -54,6 +55,16 @@ export const useFilterOptions = (
         if (selectedShoots.length > 0 && !selectedShoots.includes(row.shoot)) return false;
       }
       
+      if (excludeFilter !== 'season' && currentFilters.season) {
+        const validSeasons = row.season && row.season.trim() !== '';
+        if (!validSeasons) return false;
+        
+        const selectedSeasons = Array.isArray(currentFilters.season) 
+          ? currentFilters.season 
+          : [currentFilters.season];
+        if (selectedSeasons.length > 0 && !selectedSeasons.includes(row.season)) return false;
+      }
+      
       return true;
     });
   };
@@ -76,7 +87,7 @@ export const useFilterOptions = (
         label: country,
         spend
       }));
-  }, [dateFilteredData, currentFilters.objective, currentFilters.shoot]);
+  }, [dateFilteredData, currentFilters.objective, currentFilters.shoot, currentFilters.season]);
 
   // Calculate spend by objective (excluding objective filter to show available options)
   const objectives = useMemo(() => {
@@ -97,7 +108,7 @@ export const useFilterOptions = (
         label: objective,
         spend
       }));
-  }, [dateFilteredData, currentFilters.country, currentFilters.shoot]);
+  }, [dateFilteredData, currentFilters.country, currentFilters.shoot, currentFilters.season]);
 
   // Calculate spend by shoot (excluding shoot filter to show available options)
   const shoots = useMemo(() => {
@@ -122,7 +133,29 @@ export const useFilterOptions = (
         label: shoot,
         spend
       }));
-  }, [dateFilteredData, currentFilters.country, currentFilters.objective]);
+  }, [dateFilteredData, currentFilters.country, currentFilters.objective, currentFilters.season]);
+
+  // Calculate spend by season (excluding season filter to show available options)
+  const seasons = useMemo(() => {
+    const filteredData = getFilteredDataExcluding('season');
+    const validSeasons = filteredData.filter(row => 
+      row.season && row.season.trim() !== ''
+    );
+
+    const seasonSpend = validSeasons.reduce((acc, row) => {
+      acc[row.season] = (acc[row.season] || 0) + row.spend;
+      return acc;
+    }, {} as Record<string, number>);
+
+    return Object.entries(seasonSpend)
+      .filter(([, spend]) => spend > 0)
+      .sort(([,a], [,b]) => b - a)
+      .map(([season, spend]) => ({
+        value: season,
+        label: season,
+        spend
+      }));
+  }, [dateFilteredData, currentFilters.country, currentFilters.objective, currentFilters.shoot]);
 
   // Effect to automatically deselect unavailable options
   useEffect(() => {
@@ -173,14 +206,29 @@ export const useFilterOptions = (
       }
     }
 
+    // Check and clean up season selections
+    if (currentFilters.season) {
+      const selectedSeasons = Array.isArray(currentFilters.season) 
+        ? currentFilters.season 
+        : [currentFilters.season];
+      const availableSeasons = seasons.map(s => s.value);
+      const validSeasons = selectedSeasons.filter(season => availableSeasons.includes(season));
+      
+      if (validSeasons.length !== selectedSeasons.length) {
+        updatedFilters.season = validSeasons.length > 0 ? validSeasons : '';
+        needsUpdate = true;
+      }
+    }
+
     if (needsUpdate) {
       onFiltersChange(updatedFilters);
     }
-  }, [countries, objectives, shoots, currentFilters, onFiltersChange]);
+  }, [countries, objectives, shoots, seasons, currentFilters, onFiltersChange]);
 
   return {
     countries,
     objectives,
-    shoots
+    shoots,
+    seasons
   };
 };

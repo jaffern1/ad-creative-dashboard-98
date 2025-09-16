@@ -31,6 +31,7 @@ export const useDashboardFilters = () => {
         country: urlFilters.country || '',
         objective: urlFilters.objective || '',
         shoot: urlFilters.shoot || '',
+        season: urlFilters.season || '',
         groupBy: urlFilters.groupBy || 'shoot',
       };
     }
@@ -40,6 +41,7 @@ export const useDashboardFilters = () => {
       country: '',
       objective: '',
       shoot: '',
+      season: '',
       groupBy: 'shoot',
     };
   });
@@ -63,6 +65,7 @@ export const useDashboardFilters = () => {
           country: urlFilters.country || '',
           objective: urlFilters.objective || '',
           shoot: urlFilters.shoot || '',
+          season: urlFilters.season || '',
           groupBy: urlFilters.groupBy || 'shoot',
         });
       }

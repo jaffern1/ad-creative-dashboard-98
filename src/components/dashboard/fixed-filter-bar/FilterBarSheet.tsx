@@ -7,6 +7,7 @@ import { DateRangeFilter } from '../filters/DateRangeFilter';
 import { CountryFilter } from '../filters/CountryFilter';
 import { ObjectiveFilter } from '../filters/ObjectiveFilter';
 import { ShootFilter } from '../filters/ShootFilter';
+import { SeasonFilter } from '../filters/SeasonFilter';
 import { FilterActions } from '../filters/FilterActions';
 import { ViewActions } from '../filters/ViewActions';
 import { FilterState } from '@/pages/Dashboard';
@@ -23,6 +24,7 @@ interface FilterBarSheetProps {
   countries: FilterOption[];
   objectives: FilterOption[];
   shoots: FilterOption[];
+  seasons: FilterOption[];
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   generateShareableUrl: (filters: FilterState) => string;
@@ -34,6 +36,7 @@ export const FilterBarSheet: React.FC<FilterBarSheetProps> = ({
   countries,
   objectives,
   shoots,
+  seasons,
   isOpen,
   onOpenChange,
   generateShareableUrl,
@@ -89,6 +92,12 @@ export const FilterBarSheet: React.FC<FilterBarSheetProps> = ({
                   filters={filters}
                   onFiltersChange={onFiltersChange}
                   shoots={shoots}
+                />
+
+                <SeasonFilter
+                  filters={filters}
+                  onFiltersChange={onFiltersChange}
+                  seasons={seasons}
                 />
               </div>
             </div>

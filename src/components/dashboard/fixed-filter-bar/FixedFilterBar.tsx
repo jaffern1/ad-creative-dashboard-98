@@ -19,6 +19,7 @@ interface FixedFilterBarProps {
   countries: FilterOption[];
   objectives: FilterOption[];
   shoots: FilterOption[];
+  seasons: FilterOption[];
 }
 export const FixedFilterBar: React.FC<FixedFilterBarProps> = ({
   filters,
@@ -26,7 +27,8 @@ export const FixedFilterBar: React.FC<FixedFilterBarProps> = ({
   onFiltersChange,
   countries,
   objectives,
-  shoots
+  shoots,
+  seasons
 }) => {
   const {
     isCollapsed,
@@ -52,7 +54,7 @@ export const FixedFilterBar: React.FC<FixedFilterBarProps> = ({
                 <FilterBarContent filters={filters} />
 
                 <div className="flex items-center">
-                  <FilterBarSheet filters={filters} onFiltersChange={onFiltersChange} countries={countries} objectives={objectives} shoots={shoots} isOpen={isSheetOpen} onOpenChange={setIsSheetOpen} generateShareableUrl={generateShareableUrl} />
+                  <FilterBarSheet filters={filters} onFiltersChange={onFiltersChange} countries={countries} objectives={objectives} shoots={shoots} seasons={seasons} isOpen={isSheetOpen} onOpenChange={setIsSheetOpen} generateShareableUrl={generateShareableUrl} />
                 </div>
               </div>
             </Card>

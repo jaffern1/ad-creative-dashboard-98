@@ -6,6 +6,7 @@ import { DateRangeFilter } from './filters/DateRangeFilter';
 import { CountryFilter } from './filters/CountryFilter';
 import { ObjectiveFilter } from './filters/ObjectiveFilter';
 import { ShootFilter } from './filters/ShootFilter';
+import { SeasonFilter } from './filters/SeasonFilter';
 import { FilterActions } from './filters/FilterActions';
 import { ViewActions } from './filters/ViewActions';
 import { useUrlFilters } from '@/hooks/useUrlFilters';
@@ -22,6 +23,7 @@ interface FilterPanelProps {
   countries: FilterOption[];
   objectives: FilterOption[];
   shoots: FilterOption[];
+  seasons: FilterOption[];
 }
 
 export const FilterPanel: React.FC<FilterPanelProps> = ({
@@ -30,6 +32,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
   countries,
   objectives,
   shoots,
+  seasons,
 }) => {
   const { generateShareableUrl } = useUrlFilters();
 
@@ -71,6 +74,12 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                 filters={filters}
                 onFiltersChange={onFiltersChange}
                 shoots={shoots}
+              />
+
+              <SeasonFilter
+                filters={filters}
+                onFiltersChange={onFiltersChange}
+                seasons={seasons}
               />
             </div>
           </div>

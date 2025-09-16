@@ -49,6 +49,13 @@ export const useDataFiltering = (data: AdData[], filters: FilterState) => {
           : [filters.shoot];
         if (selectedShoots.length > 0 && !selectedShoots.includes(row.shoot)) return false;
       }
+      // Season filter - support multiple selection
+      if (filters.season) {
+        const selectedSeasons = Array.isArray(filters.season) 
+          ? filters.season 
+          : [filters.season];
+        if (selectedSeasons.length > 0 && !selectedSeasons.includes(row.season)) return false;
+      }
       
       return true;
     });
